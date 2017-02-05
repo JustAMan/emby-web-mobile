@@ -21,7 +21,7 @@ function (dialogHelper, loading, connectionManager, globalize, actionsheet) {
             return elem;
         }
 
-        function mapChannel(button, tunerChannelNumber, providerChannelNumber) {
+        function mapChannel(button, tunerChannelId, providerChannelId) {
 
             loading.show();
 
@@ -33,8 +33,8 @@ function (dialogHelper, loading, connectionManager, globalize, actionsheet) {
                 url: ApiClient.getUrl('LiveTv/ChannelMappings'),
                 data: {
                     providerId: providerId,
-                    tunerChannelNumber: tunerChannelNumber,
-                    providerChannelNumber: providerChannelNumber
+                    tunerChannelId: tunerChannelId,
+                    providerChannelId: providerChannelId
                 },
                 dataType: 'json'
 
@@ -42,7 +42,7 @@ function (dialogHelper, loading, connectionManager, globalize, actionsheet) {
 
                 var listItem = parentWithClass(button, 'listItem');
 
-                button.setAttribute('data-providernumber', mapping.ProviderChannelNumber);
+                button.setAttribute('data-providerid', mapping.ProviderChannelId);
                 listItem.querySelector('.secondary').innerHTML = getMappingSecondaryName(mapping, currentMappingOptions.ProviderName);
                 loading.hide();
             });
@@ -56,15 +56,15 @@ function (dialogHelper, loading, connectionManager, globalize, actionsheet) {
                 return;
             }
 
-            var tunerChannelNumber = btnMap.getAttribute('data-number');
-            var providerChannelNumber = btnMap.getAttribute('data-providernumber');
+            var tunerChannelId = btnMap.getAttribute('data-id');
+            var providerChannelId = btnMap.getAttribute('data-providerid');
 
             var menuItems = currentMappingOptions.ProviderChannels.map(function (m) {
 
                 return {
                     name: m.Name,
                     id: m.Id,
-                    selected: m.Id.toLowerCase() == providerChannelNumber.toLowerCase()
+                    selected: m.Id.toLowerCase() == providerChannelId.toLowerCase()
                 };
             });
 
@@ -72,8 +72,8 @@ function (dialogHelper, loading, connectionManager, globalize, actionsheet) {
                 positionTo: btnMap,
                 items: menuItems
 
-            }).then(function (newChannelNumber) {
-                mapChannel(btnMap, tunerChannelNumber, newChannelNumber);
+            }).then(function (newChannelId) {
+                mapChannel(btnMap, tunerChannelId, newChannelId);
             });
         }
 
@@ -87,7 +87,7 @@ function (dialogHelper, loading, connectionManager, globalize, actionsheet) {
 
         function getMappingSecondaryName(mapping, providerName) {
 
-            return (mapping.ProviderChannelNumber || '') + ' ' + (mapping.ProviderChannelName || '') + ' - ' + providerName;
+            return (mapping.ProviderChannelName || '') + ' - ' + providerName;
         }
 
         function getTunerChannelHtml(channel, providerName) {
@@ -104,14 +104,14 @@ function (dialogHelper, loading, connectionManager, globalize, actionsheet) {
             html += '</h3>';
 
             html += '<div class="secondary listItemBodyText">';
-            if (channel.ProviderChannelNumber || channel.ProviderChannelName) {
+            if (channel.ProviderChannelName) {
                 html += getMappingSecondaryName(channel, providerName);
             }
             html += '</div>';
 
             html += '</div>';
 
-            html += '<button class="btnMap autoSize" is="paper-icon-button-light" type="button" data-number="' + channel.Number + '" data-providernumber="' + channel.ProviderChannelNumber + '"><i class="md-icon">mode_edit</i></button>';
+            html += '<button class="btnMap autoSize" is="paper-icon-button-light" type="button" data-id="' + channel.Id + '" data-providerid="' + channel.ProviderChannelId + '"><i class="md-icon">mode_edit</i></button>';
 
             html += '</div>';
 

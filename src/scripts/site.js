@@ -589,11 +589,6 @@ var Dashboard = {
 
     normalizeImageOptions: function (options) {
 
-        if (AppInfo.hasLowImageBandwidth) {
-
-            options.enableImageEnhancers = false;
-        }
-
         var setQuality;
         if (options.maxWidth) {
             setQuality = true;
@@ -646,10 +641,7 @@ var AppInfo = {};
 
         AppInfo.enableAppStorePolicy = isCordova;
 
-        var isIOS = browserInfo.ipad || browserInfo.iphone;
-        var isAndroid = browserInfo.android;
-
-        if (isIOS) {
+        if (browserInfo.iOS) {
 
             AppInfo.hasLowImageBandwidth = true;
         }
@@ -658,7 +650,7 @@ var AppInfo = {};
             AppInfo.isNativeApp = true;
             AppInfo.enableHomeTabs = false;
 
-            if (isAndroid) {
+            if (browserInfo.android) {
                 AppInfo.supportsExternalPlayers = true;
             }
         }
@@ -667,13 +659,7 @@ var AppInfo = {};
         }
 
         // This currently isn't working on android, unfortunately
-        AppInfo.supportsFileInput = !(AppInfo.isNativeApp && isAndroid);
-
-        if (isCordova && isIOS) {
-            AppInfo.moreIcon = 'more-horiz';
-        } else {
-            AppInfo.moreIcon = 'more-vert';
-        }
+        AppInfo.supportsFileInput = !(AppInfo.isNativeApp && browserInfo.android);
 
         AppInfo.supportsUserDisplayLanguageSetting = Dashboard.isConnectMode();
     }
@@ -880,6 +866,41 @@ var AppInfo = {};
         // initialise
         headroom.init();
         return headroom;
+    }
+
+    function getCastSenderApiLoader() {
+
+        var ccLoaded = false;
+
+        return {
+            load: function () {
+                if (ccLoaded) {
+                    return Promise.resolve();
+                }
+
+                return new Promise(function (resolve, reject) {
+
+                    var fileref = document.createElement('script');
+                    fileref.setAttribute("type", "text/javascript");
+                    fileref.onload = function () {
+                        ccLoaded = true;
+                        resolve();
+                    };
+                    fileref.setAttribute("src", "https://www.gstatic.com/cv/js/sender/v1/cast_sender.js");
+                    document.querySelector('head').appendChild(fileref);
+                });
+            }
+        };
+    }
+
+    function getDummyCastSenderApiLoader() {
+
+        return {
+            load: function () {
+                window.chrome = window.chrome || {};
+                return Promise.resolve();
+            }
+        };
     }
 
     function createMainContentHammer(Hammer) {
@@ -1404,6 +1425,12 @@ var AppInfo = {};
             define("resourceLockManager", [embyWebComponentsBowerPath + "/resourcelocks/resourcelockmanager"], returnFirstDependency);
             define("wakeLock", [embyWebComponentsBowerPath + "/resourcelocks/nullresourcelock"], returnFirstDependency);
             define("networkLock", [embyWebComponentsBowerPath + "/resourcelocks/nullresourcelock"], returnFirstDependency);
+        }
+
+        if (Dashboard.isRunningInCordova()) {
+            define("castSenderApiLoader", [], getDummyCastSenderApiLoader);
+        } else {
+            define("castSenderApiLoader", [], getCastSenderApiLoader);
         }
     }
 
@@ -2344,6 +2371,7 @@ var AppInfo = {};
             // use the html audio player if flac is supported
             if (document.createElement('audio').canPlayType('audio/flac').replace(/no/, '') &&
                 document.createElement('audio').canPlayType('audio/ogg; codecs="opus"').replace(/no/, '')) {
+                window.VlcAudio = true;
 
             } else {
                 window.VlcAudio = true;

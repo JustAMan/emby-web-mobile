@@ -72,9 +72,9 @@ define(['appStorage', 'browser'], function (appStorage, browser) {
             deviceName = "Web Browser";
         }
 
-        if (browser.version) {
-            deviceName += " " + browser.version;
-        }
+        //if (browser.version) {
+        //    deviceName += " " + browser.version;
+        //}
 
         if (browser.ipad) {
             deviceName += " Ipad";

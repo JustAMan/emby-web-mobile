@@ -406,7 +406,7 @@
                 html += '<h1 class="listHeader">' + Globalize.translate('HeaderMyMedia') + '</h1>';
                 html += '</div>';
 
-                var scrollX = enableScrollX() && dom.getWindowSize().innerWidth >= 500;
+                var scrollX = enableScrollX();
 
                 if (scrollX) {
                     html += '<div is="emby-itemscontainer" class="hiddenScrollX itemsContainer">';
@@ -422,7 +422,7 @@
                     overlayText: false,
                     lazy: true,
                     transition: false,
-                    allowBottomPadding: !enableScrollX()
+                    allowBottomPadding: !scrollX
                 });
                 html += '</div>';
             }

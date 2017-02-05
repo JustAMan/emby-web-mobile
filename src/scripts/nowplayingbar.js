@@ -75,16 +75,16 @@
     }
 
     function onSlideDownComplete() {
+
         this.classList.add('hide');
     }
 
     function slideDown(elem) {
 
+        // trigger reflow
+        void elem.offsetWidth;
+
         requestAnimationFrame(function () {
-
-            // trigger reflow
-            void elem.offsetWidth;
-
             elem.classList.add('nowPlayingBar-hidden');
 
             dom.addEventListener(elem, dom.whichTransitionEvent(), onSlideDownComplete, {
@@ -95,41 +95,21 @@
 
     function slideUp(elem) {
 
-        elem.classList.remove('hide');
+        // This setTimeout is a hack but resolves the issue of the bar not showing if calling slideDown then slideUp rapidly
+        setTimeout(function() {
+            dom.removeEventListener(elem, dom.whichTransitionEvent(), onSlideDownComplete, {
+                once: true
+            });
 
-        dom.removeEventListener(elem, dom.whichTransitionEvent(), onSlideDownComplete, {
-            once: true
-        });
-
-        requestAnimationFrame(function () {
+            elem.classList.remove('hide');
 
             // trigger reflow
             void elem.offsetWidth;
 
-            elem.classList.remove('nowPlayingBar-hidden');
-        });
-    }
-
-    function slideUpToFullScreen(elem) {
-
-        if (!elem.classList.contains('hide')) {
-            return;
-        }
-
-        elem.classList.remove('hide');
-
-        if (!browser.animate || browser.slow) {
-            return;
-        }
-
-        requestAnimationFrame(function () {
-
-            var keyframes = [
-              { transform: 'none', offset: 0 },
-              { transform: 'translateY(-100%)', offset: 1 }];
-            var timing = { duration: 200, iterations: 1, fill: 'both', easing: 'ease-out' };
-            elem.animate(keyframes, timing);
-        });
+            requestAnimationFrame(function () {
+                elem.classList.remove('nowPlayingBar-hidden');
+            });
+        }, 10);
     }
 
     function onPlayPauseClick() {
@@ -358,7 +338,7 @@
     }
 
     function updateRepeatModeDisplay(repeatMode) {
-        
+
         if (repeatMode == 'RepeatAll') {
             toggleRepeatButtonIcon.innerHTML = "repeat";
             toggleRepeatButton.classList.add('repeatActive');
@@ -557,7 +537,7 @@
         }
 
         if (nowPlayingItem.Id) {
-            ApiClient.getItem(Dashboard.getCurrentUserId(), nowPlayingItem.Id).then(function(item) {
+            ApiClient.getItem(Dashboard.getCurrentUserId(), nowPlayingItem.Id).then(function (item) {
                 userdataButtons.fill({
                     item: item,
                     includePlayed: false,
@@ -581,7 +561,7 @@
     }
 
     function onRepeatModeChange(e) {
-        
+
         var player = this;
 
         updateRepeatModeDisplay(playbackManager.getRepeatMode(player));
@@ -606,7 +586,6 @@
             // If it's not currently visible, don't bother with the animation
             // transitionend events not firing in mobile chrome/safari when hidden
             if (document.body.classList.contains('hiddenNowPlayingBar')) {
-
                 dom.removeEventListener(elem, dom.whichTransitionEvent(), onSlideDownComplete, {
                     once: true
                 });

@@ -570,7 +570,7 @@
 
         getAppSecondaryText: function (session) {
 
-            return session.ApplicationVersion;
+            return session.Client + ' ' + session.ApplicationVersion;
         },
 
         getNowPlayingName: function (session) {
