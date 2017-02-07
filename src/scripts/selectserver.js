@@ -42,7 +42,7 @@
         html += '</div>';
 
         if (server.Id) {
-            html += '<button is="paper-icon-button-light" class="btnServerMenu autoSize"><i class="md-icon">more-vert</i></button>';
+            html += '<button is="paper-icon-button-light" class="btnServerMenu autoSize"><i class="md-icon">more_vert</i></button>';
         }
 
         html += '</div>';
@@ -291,7 +291,7 @@
 
             html += '</div>';
 
-            html += '<button is="paper-icon-button-light" class="btnInviteMenu autoSize"><i class="md-icon">' + AppInfo.moreIcon.replace('-', '_') + '</i></button>';
+            html += '<button is="paper-icon-button-light" class="btnInviteMenu autoSize"><i class="md-icon">more_vert</i></button>';
 
             html += '</div>';
 

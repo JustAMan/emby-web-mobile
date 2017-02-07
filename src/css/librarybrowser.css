@@ -138,12 +138,12 @@
 }
 
 .homePageSection h1 {
-    padding-left: .55em;
+    padding-left: .5em;
 }
 
 .homePageSection .itemsContainer {
-    padding-left: .7em;
-    padding-right: .7em;
+    padding-left: .5em;
+    padding-right: .5em;
 }
 
 @media all and (min-width: 1200px) {

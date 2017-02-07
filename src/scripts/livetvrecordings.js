@@ -179,8 +179,9 @@
         promise.then(function (result) {
 
             renderRecordings(context.querySelector('#kidsRecordings'), result.Items, {
+                shape: (enableScrollX() ? 'overflowBackdrop' : 'backdrop'),
                 showYear: true,
-                showParentTitle: false
+                lines: 2
             });
         });
     }

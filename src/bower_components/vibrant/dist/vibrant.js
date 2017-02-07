@@ -677,7 +677,7 @@ define([], function () {
                     i = i + quality;
                 }
                 cmap = this.quantize(allPixels, colorCount);
-                this._swatches = cmap.vboxes.map((function (_this) {
+                this._swatches = (cmap.vboxes || []).map((function (_this) {
                     return function (vbox) {
                         return new Swatch(vbox.color, vbox.vbox.count());
                     };
@@ -889,7 +889,11 @@ define([], function () {
             this.width = this.canvas.width = originalWidth * scaleRatio;
             this.height = this.canvas.height = originalHeight * scaleRatio;
 
-            this.context.drawImage(image, 0, 0, originalWidth, originalHeight, 0, 0, this.width, this.height);
+            try {
+                this.context.drawImage(image, 0, 0, originalWidth, originalHeight, 0, 0, this.width, this.height);
+            } catch (err) {
+                console.log('Error in drawImage: ' + err);
+            }
         }
 
         CanvasImage.prototype.getPixelCount = function () {

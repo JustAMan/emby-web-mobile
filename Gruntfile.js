@@ -59,7 +59,14 @@ module.exports = function (grunt) {
                 '!src/environments/windows-uwp/mediacontrol.js'
             ]
         },
-		clean: ['dist/'],
+		clean: {
+		    pre: ['dist/'],
+            
+		    postMobile: [
+                'dist/bower_components/emby-webcomponents/fonts/roboto/',
+                'dist/css/images/tour/'
+		    ]
+		},
         copy: {
             main: {
                 files: [{
@@ -234,13 +241,14 @@ module.exports = function (grunt) {
 
         var gruntTasks = [];
         //gruntTasks.push('jshint');
-        gruntTasks.push('clean');
+        gruntTasks.push('clean:pre');
         gruntTasks.push('copy');
         gruntTasks.push('autoprefixer');
         gruntTasks.push('uglify');
         gruntTasks.push('cssmin');
         gruntTasks.push('swPrecache');
         gruntTasks.push('charset');
+        gruntTasks.push('clean:postMobile');
 
         gruntTasks = gruntTasks.filter(function (t) {
             return exclusions.indexOf(t) === -1;
@@ -249,6 +257,8 @@ module.exports = function (grunt) {
         grunt.registerTask(name, gruntTasks);
     }
 
-    registerTask('default', ['charset']);
-    registerTask('server', ['swPrecache', 'charset']);
+    registerTask('default', ['charset', 'clean:postMobile']);
+    registerTask('server', ['swPrecache', 'charset', 'clean:postMobile']);
+    registerTask('ios', ['swPrecache', 'charset']);
+    registerTask('android', ['swPrecache', 'charset']);
 };
