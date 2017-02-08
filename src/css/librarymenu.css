@@ -217,7 +217,7 @@
     color: #111 !important;
     font-weight: normal !important;
     vertical-align: middle;
-    padding: 1em 0 1em 2.4em;
+    padding: 1em 0 1em 2.6em;
 }
 
     .sidebarLink:hover {
@@ -295,7 +295,8 @@ body:not(.dashboardDocument) .headerAppsButton {
         }
 
     .dashboardDocument .sidebarLink {
-        padding: .7em 0 .7em 2.4em;
+        padding-top: .7em;
+        padding-bottom: .7em;
     }
 
     .dashboardDocument .mainDrawer {

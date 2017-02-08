@@ -205,6 +205,7 @@
         };
 
         TouchMenuLA.prototype.checkMenuState = function (deltaX, deltaY) {
+
             if (velocity >= .4) {
                 if (deltaX >= 0 || Math.abs(deltaY || 0) >= 70) {
                     self.open();
@@ -212,9 +213,10 @@
                     self.close();
                 }
             } else {
+
                 if (newPos >= 100) {
                     self.open();
-                } else {
+                } else if (newPos) {
                     self.close();
                 }
             }
