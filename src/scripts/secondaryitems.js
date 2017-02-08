@@ -1,4 +1,4 @@
-﻿define(['libraryBrowser', 'listView', 'cardBuilder', 'imageLoader', 'emby-itemscontainer'], function (libraryBrowser, listView, cardBuilder, imageLoader) {
+﻿define(['libraryBrowser', 'listView', 'cardBuilder', 'imageLoader', 'apphost', 'globalize', 'emby-itemscontainer'], function (libraryBrowser, listView, cardBuilder, imageLoader, appHost, globalize) {
     'use strict';
 
     return function (view, params) {
@@ -127,16 +127,36 @@
             }
         }
 
+        function getPromise(parentItem) {
+
+            var apiClient = ApiClient;
+            var query = getQuery(parentItem);
+
+            if (params.type === 'nextup') {
+
+                return apiClient.getNextUpEpisodes({
+
+                    Limit: query.Limit,
+                    Fields: "PrimaryImageAspectRatio,SeriesInfo,DateCreated,BasicSyncInfo",
+                    UserId: apiClient.getCurrentUserId(),
+                    ImageTypeLimit: 1,
+                    EnableImageTypes: "Primary,Backdrop,Thumb"
+                });
+            }
+
+            return apiClient.getItems(apiClient.getCurrentUserId(), query);
+        }
+
         function reloadItems(parentItem) {
 
             Dashboard.showLoadingMsg();
 
-            var query = getQuery(parentItem);
-
-            ApiClient.getItems(Dashboard.getCurrentUserId(), query).then(function (result) {
+            getPromise(parentItem).then(function (result) {
 
                 // Scroll back up so they can see the results from the beginning
                 window.scrollTo(0, 0);
+
+                var query = getQuery(parentItem);
 
                 var html = '';
                 var pagingHtml = libraryBrowser.getQueryPagingHtml({
@@ -155,6 +175,7 @@
                 }
 
                 var itemsContainer = view.querySelector('#items');
+                var supportsImageAnalysis = appHost.supports('imageanalysis');
 
                 if (query.IncludeItemTypes == "Audio") {
 
@@ -174,7 +195,22 @@
                         lazy: true
                     };
 
-                    if (query.IncludeItemTypes == "MusicAlbum") {
+                    if (params.type === 'nextup') {
+
+                        posterOptions = Object.assign(posterOptions, {
+                            preferThumb: true,
+                            shape: "backdrop",
+                            scalable: true,
+                            showTitle: true,
+                            showParentTitle: true,
+                            overlayText: false,
+                            centerText: !supportsImageAnalysis,
+                            overlayPlayButton: true,
+                            cardLayout: supportsImageAnalysis,
+                            vibrant: supportsImageAnalysis
+                        });
+                    }
+                    else if (query.IncludeItemTypes == "MusicAlbum") {
                         posterOptions.overlayText = false;
                         posterOptions.showParentTitle = true;
                         posterOptions.showTitle = true;
@@ -267,6 +303,10 @@
             }
 
             else {
+
+                if (params.type === 'nextup') {
+                    LibraryMenu.setTitle(globalize.translate('HeaderNextUp'));
+                }
                 onViewStyleChange();
                 reloadItems();
             }

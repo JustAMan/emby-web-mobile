@@ -20,10 +20,6 @@
     height: 50px;
 }
 
-.ui-body-b .libraryViewNav {
-    box-shadow: none;
-}
-
 .emby-tab-button {
     border-color: transparent !important;
     border-width: 0 !important;
@@ -31,10 +27,6 @@
 
 .settingsMenuHeader {
     display: none;
-}
-
-.libraryMenuButtonText {
-    font-weight: 500 !important;
 }
 
 .txtSearch {

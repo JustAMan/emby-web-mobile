@@ -1,4 +1,4 @@
-﻿define(['browser', 'css!./navdrawer', 'scrollStyles'], function (browser) {
+﻿define(['browser', 'dom', 'css!./navdrawer', 'scrollStyles'], function (browser, dom) {
     'use strict';
 
     return function (options) {
@@ -6,8 +6,6 @@
         var self,
             defaults,
             mask,
-            maskHammer,
-            menuHammer,
             newPos = 0,
             currentPos = 0,
             startPoint = 0,
@@ -15,10 +13,10 @@
             velocity = 0.0;
 
         options.target.classList.add('transition');
-        var draggingX;
-        var draggingY;
+        // 1 = x, 2 = y
+        var dragMode = 0;
 
-        var scrollContainer = options.target.querySelector('.scrollContainer');
+        var scrollContainer = options.target.querySelector('.mainDrawer-scrollContainer');
         scrollContainer.classList.add('smoothScrollY');
 
         var TouchMenuLA = function () {
@@ -36,7 +34,7 @@
             this.initialize();
         };
 
-        TouchMenuLA.prototype.initElements = function (Hammer) {
+        TouchMenuLA.prototype.initElements = function () {
             options.target.classList.add('touch-menu-la');
             options.target.style.width = options.width + 'px';
             options.target.style.left = -options.width + 'px';
@@ -45,110 +43,143 @@
                 mask = document.createElement('div');
                 mask.className = 'tmla-mask';
                 document.body.appendChild(mask);
-
-                if (Hammer) {
-                    maskHammer = new Hammer(mask, null);
-                }
             }
         };
 
-        function onPanStart(ev) {
-            options.target.classList.remove('transition');
-            options.target.classList.add('open');
-            velocity = Math.abs(ev.velocity);
+        function getTouches(e) {
+
+            return e.changedTouches || e.targetTouches || e.touches;
         }
 
-        function onPanMove(ev) {
-            velocity = Math.abs(ev.velocity);
+        var menuTouchStartX, menuTouchStartY, menuTouchStartTime;
+        function onMenuTouchStart(e) {
+            options.target.classList.remove('transition');
+            options.target.classList.add('open');
+
+            var touches = getTouches(e);
+            var touch = touches[0] || {};
+            menuTouchStartX = touch.clientX;
+            menuTouchStartY = touch.clientY;
+            menuTouchStartTime = new Date().getTime();
+        }
+
+        function setVelocity(deltaX) {
+
+            var time = new Date().getTime() - (menuTouchStartTime || 0);
+
+            velocity = Math.abs(deltaX) / time;
+        }
+
+        function onMenuTouchMove(e) {
+
             // Depending on the deltas, choose X or Y
 
             var isOpen = self.visible;
 
+            var touches = getTouches(e);
+            var touch = touches[0] || {};
+            var endX = touch.clientX || 0;
+            var endY = touch.clientY || 0;
+            var deltaX = endX - (menuTouchStartX || 0);
+            var deltaY = endY - (menuTouchStartY || 0);
+
+            setVelocity(deltaX);
+
             // If it's already open, then treat any right-swipe as vertical pan
-            if (isOpen && !draggingX && ev.deltaX > 0) {
-                draggingY = true;
+            if (isOpen && dragMode !== 1 && deltaX > 0) {
+                dragMode = 2;
             }
 
-            if (!draggingX && !draggingY && (!isOpen || Math.abs(ev.deltaX) >= 10)) {
-                draggingX = true;
+            if (dragMode === 0 && (!isOpen || Math.abs(deltaX) >= 10) && Math.abs(deltaY) < 5) {
+                dragMode = 1;
                 scrollContainer.addEventListener('scroll', disableEvent);
                 self.showMask();
 
-            } else if (!draggingY) {
-                draggingY = true;
+            } else if (dragMode === 0 && Math.abs(deltaY) >= 5) {
+                dragMode = 2;
             }
 
-            if (draggingX) {
-                newPos = currentPos + ev.deltaX;
+            if (dragMode === 1) {
+                newPos = currentPos + deltaX;
                 self.changeMenuPos();
             }
         }
 
-        function onPanEnd(ev) {
+        function onMenuTouchEnd(e) {
             options.target.classList.add('transition');
             scrollContainer.removeEventListener('scroll', disableEvent);
-            draggingX = false;
-            draggingY = false;
-            currentPos = ev.deltaX;
-            self.checkMenuState(ev.deltaX, ev.deltaY);
+
+            dragMode = 0;
+
+            var touches = getTouches(e);
+            var touch = touches[0] || {};
+            var endX = touch.clientX || 0;
+            var endY = touch.clientY || 0;
+            var deltaX = endX - (menuTouchStartX || 0);
+            var deltaY = endY - (menuTouchStartY || 0);
+
+            currentPos = deltaX;
+            self.checkMenuState(deltaX, deltaY);
         }
 
-        function initEdgeSwipe(Hammer) {
+        var edgeContainer = document.querySelector('.skinBody');
+        var isPeeking = false;
+        function onEdgeTouchStart(e) {
+
+            if (isPeeking) {
+                onMenuTouchMove(e);
+            } else {
+
+                var touches = getTouches(e);
+                var touch = touches[0] || {};
+                var endX = touch.clientX || 0;
+
+                if (endX <= options.handleSize) {
+                    isPeeking = true;
+                    if (e.type === 'touchstart') {
+                        dom.removeEventListener(edgeContainer, 'touchmove', onEdgeTouchMove, {});
+                        dom.addEventListener(edgeContainer, 'touchmove', onEdgeTouchMove, {});
+                    }
+                    onMenuTouchStart(e);
+                }
+            }
+        }
+        function onEdgeTouchMove(e) {
+            onEdgeTouchStart(e);
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        function onEdgeTouchEnd(e) {
+            if (isPeeking) {
+                isPeeking = false;
+                dom.removeEventListener(edgeContainer, 'touchmove', onEdgeTouchMove, {});
+                onMenuTouchEnd(e);
+            }
+        }
+
+        function initEdgeSwipe() {
 
             if (options.disableEdgeSwipe) {
                 return;
             }
 
-            require(['hammer-main'], initEdgeSwipeInternal);
+            dom.addEventListener(edgeContainer, 'touchstart', onEdgeTouchStart, {
+                passive: true
+            });
+            dom.addEventListener(edgeContainer, 'touchend', onEdgeTouchEnd, {
+                passive: true
+            });
+            dom.addEventListener(edgeContainer, 'touchcancel', onEdgeTouchEnd, {
+                passive: true
+            });
         }
 
-        function initEdgeSwipeInternal(edgeHammer) {
-            var isPeeking = false;
-
-            edgeHammer.on('panstart panmove', function (ev) {
-
-                if (isPeeking) {
-                    onPanMove(ev);
-                } else {
-                    var srcEvent = ev.srcEvent;
-                    var clientX = srcEvent.clientX;
-                    if (!clientX) {
-                        var touches = srcEvent.touches;
-                        if (touches && touches.length) {
-                            clientX = touches[0].clientX;
-                        }
-                    }
-                    if (clientX <= options.handleSize) {
-                        isPeeking = true;
-                        onPanStart(ev);
-                    }
-                }
-            });
-            edgeHammer.on('panend pancancel', function (ev) {
-                if (isPeeking) {
-                    isPeeking = false;
-                    onPanEnd(ev);
-                }
-            });
-
-            self.edgeHammer = edgeHammer;
-        }
-
+        var startingScrollTop;
         function disableEvent(e) {
 
             e.preventDefault();
             e.stopPropagation();
         }
-
-        TouchMenuLA.prototype.touchStartMenu = function () {
-
-            menuHammer.on('panstart', function (ev) {
-                onPanStart(ev);
-            });
-            menuHammer.on('panmove', function (ev) {
-                onPanMove(ev);
-            });
-        };
 
         TouchMenuLA.prototype.animateToPosition = function (pos) {
 
@@ -167,10 +198,6 @@
             }
         };
 
-        TouchMenuLA.prototype.touchEndMenu = function () {
-            menuHammer.on('panend pancancel', onPanEnd);
-        };
-
         TouchMenuLA.prototype.clickMaskClose = function () {
             mask.addEventListener('click', function () {
                 self.close();
@@ -178,8 +205,8 @@
         };
 
         TouchMenuLA.prototype.checkMenuState = function (deltaX, deltaY) {
-            if (velocity >= 1.0) {
-                if (deltaX >= -80 || Math.abs(deltaY) >= 70) {
+            if (velocity >= .4) {
+                if (deltaX >= 0 || Math.abs(deltaY || 0) >= 70) {
                     self.open();
                 } else {
                     self.close();
@@ -222,31 +249,55 @@
             }
         };
 
-        TouchMenuLA.prototype.eventStartMask = function () {
-            maskHammer.on('panstart panmove', function (ev) {
-                if (ev.center.x <= options.width && self.isVisible) {
-                    countStart++;
+        var backgroundTouchStartX, backgroundTouchStartTime;
+        function onBackgroundTouchStart(e) {
+            var touches = getTouches(e);
+            var touch = touches[0] || {};
+            backgroundTouchStartX = touch.clientX;
+            backgroundTouchStartTime = new Date().getTime();
+        }
 
-                    if (countStart == 1) {
-                        startPoint = ev.deltaX;
-                    }
+        function onBackgroundTouchMove(e) {
 
-                    if (ev.deltaX < 0) {
-                        draggingX = true;
-                        newPos = (ev.deltaX - startPoint) + options.width;
+            var touches = getTouches(e);
+            var touch = touches[0] || {};
+            var endX = touch.clientX || 0;
+
+            if (endX <= options.width && self.isVisible) {
+                countStart++;
+
+                var deltaX = endX - (backgroundTouchStartX || 0);
+
+                if (countStart == 1) {
+                    startPoint = deltaX;
+                }
+
+                if (deltaX < 0) {
+                    if (dragMode !== 2) {
+                        dragMode = 1;
+                        newPos = (deltaX - startPoint) + options.width;
                         self.changeMenuPos();
-                        velocity = Math.abs(ev.velocity);
+
+                        var time = new Date().getTime() - (backgroundTouchStartTime || 0);
+                        velocity = Math.abs(deltaX) / time;
                     }
                 }
-            });
-        };
+            }
 
-        TouchMenuLA.prototype.eventEndMask = function () {
-            maskHammer.on('panend pancancel', function (ev) {
-                self.checkMenuState(ev.deltaX);
-                countStart = 0;
-            });
-        };
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        function onBackgroundTouchEnd(e) {
+
+            var touches = getTouches(e);
+            var touch = touches[0] || {};
+            var endX = touch.clientX || 0;
+            var deltaX = endX - (backgroundTouchStartX || 0);
+
+            self.checkMenuState(deltaX);
+            countStart = 0;
+        }
 
         TouchMenuLA.prototype.showMask = function () {
 
@@ -264,27 +315,6 @@
             }
         };
 
-        function initWithHammer(Hammer) {
-            
-            if (Hammer) {
-                menuHammer = Hammer(options.target, null);
-            }
-
-            self.initElements(Hammer);
-
-            if (Hammer) {
-                self.touchStartMenu();
-                self.touchEndMenu();
-                self.eventStartMask();
-                self.eventEndMask();
-                initEdgeSwipe(Hammer);
-            }
-
-            if (!options.disableMask) {
-                self.clickMaskClose();
-            }
-        }
-
         TouchMenuLA.prototype.initialize = function () {
 
             options = Object.assign(defaults, options || {});
@@ -294,11 +324,38 @@
                 options.disableEdgeSwipe = true;
             }
 
+            self.initElements();
+
             if (browser.touch) {
-                require(['hammer'], initWithHammer);
-            } else {
-                initWithHammer();
+                dom.addEventListener(options.target, 'touchstart', onMenuTouchStart, {
+                    passive: true
+                });
+                dom.addEventListener(options.target, 'touchmove', onMenuTouchMove, {
+                    passive: true
+                });
+                dom.addEventListener(options.target, 'touchend', onMenuTouchEnd, {
+                    passive: true
+                });
+                dom.addEventListener(options.target, 'touchcancel', onMenuTouchEnd, {
+                    passive: true
+                });
+
+                dom.addEventListener(mask, 'touchstart', onBackgroundTouchStart, {
+                    passive: true
+                });
+                dom.addEventListener(mask, 'touchmove', onBackgroundTouchMove, {});
+
+                dom.addEventListener(mask, 'touchend', onBackgroundTouchEnd, {
+                    passive: true
+                });
+                dom.addEventListener(mask, 'touchcancel', onBackgroundTouchEnd, {
+                    passive: true
+                });
+
+                initEdgeSwipe();
             }
+
+            self.clickMaskClose();
         };
 
         return new TouchMenuLA();

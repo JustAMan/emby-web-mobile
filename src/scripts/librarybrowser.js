@@ -119,7 +119,8 @@
                 if (!browser.touch) {
                     return;
                 }
-
+                return;
+                // implement without hammer
                 var pageCount = ownerpage.querySelectorAll('.pageTabContent').length;
                 var onSwipeLeft = function (e) {
                     if (LibraryBrowser.allowSwipe(e.target) && ownerpage.contains(e.target)) {
@@ -138,6 +139,12 @@
                         }
                     }
                 };
+
+                function createMainContentHammer(Hammer) {
+
+                    var hammer = new Hammer(document.querySelector('.skinBody'), null);
+                    return hammer;
+                }
 
                 require(['hammer-main'], function (hammertime) {
 

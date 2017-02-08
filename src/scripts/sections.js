@@ -526,7 +526,12 @@
             var html = '';
 
             if (result.Items.length) {
-                html += '<h1 class="listHeader">' + Globalize.translate('HeaderNextUp') + '</h1>';
+
+                html += '<div>';
+                html += '<h1 style="display:inline-block; vertical-align:middle;" class="listHeader">' + Globalize.translate('HeaderNextUp') + '</h1>';
+                html += '<a href="secondaryitems.html?type=nextup" class="clearLink" style="margin-left:2em;"><button is="emby-button" type="button" class="raised more mini"><span>' + Globalize.translate('ButtonMore') + '</span></button></a>';
+                html += '</div>';
+
                 if (enableScrollX()) {
                     html += '<div is="emby-itemscontainer" class="hiddenScrollX itemsContainer">';
                 } else {

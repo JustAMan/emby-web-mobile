@@ -559,12 +559,6 @@ span.itemCommunityRating:not(:empty) + .userDataIcons {
     padding: 3em 3% 0;
 }
 
-@media all and (min-width: 750px) {
-    .detailPageContent {
-        padding: 3em 3% 0;
-    }
-}
-
 @media all and (min-width: 1200px) {
     .detailPageContent {
         padding: 3em 5% 0;

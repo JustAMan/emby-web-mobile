@@ -1,7 +1,7 @@
-﻿define(['layoutManager', 'viewManager', 'libraryBrowser', 'embyRouter', 'playbackManager', 'paper-icon-button-light', 'material-icons', 'scrollStyles'], function (layoutManager, viewManager, libraryBrowser, embyRouter, playbackManager) {
+﻿define(['layoutManager', 'viewManager', 'libraryBrowser', 'embyRouter', 'playbackManager', 'browser', 'paper-icon-button-light', 'material-icons', 'scrollStyles'], function (layoutManager, viewManager, libraryBrowser, embyRouter, playbackManager, browser) {
     'use strict';
 
-    var enableBottomTabs = AppInfo.isNativeApp;
+    var enableBottomTabs = AppInfo.isNativeApp && browser.android;
     var enableLibraryNavDrawer = !enableBottomTabs;
 
     var navDrawerElement;
@@ -15,7 +15,7 @@
         var html = '';
 
         html += '<div class="primaryIcons">';
-        var backIcon = browserInfo.safari ? 'chevron_left' : '&#xE5C4;';
+        var backIcon = browser.safari ? 'chevron_left' : '&#xE5C4;';
 
         html += '<button type="button" is="paper-icon-button-light" class="headerButton headerButtonLeft headerBackButton hide"><i class="md-icon">' + backIcon + '</i></button>';
 
@@ -37,7 +37,7 @@
 
         html += '<button is="paper-icon-button-light" class="headerButton headerButtonRight headerUserButton autoSize"><i class="md-icon">person</i></button>';
 
-        if (!browserInfo.mobile) {
+        if (!browser.mobile) {
             html += '<button is="paper-icon-button-light" class="headerButton headerButtonRight dashboardEntryHeaderButton autoSize" onclick="return LibraryMenu.onSettingsClicked(event);"><i class="md-icon">settings</i></button>';
         }
 
@@ -265,7 +265,7 @@
 
     function onMainDrawerOpened() {
 
-        if (browserInfo.mobile) {
+        if (browser.mobile) {
             document.body.classList.add('bodyWithPopupOpen');
         }
     }
@@ -280,6 +280,35 @@
         } else {
             onMainDrawerOpened();
         }
+    }
+
+    function getDrawerUserPanelHtml(user) {
+        var html = '';
+
+        return html;
+        html += '<div class="drawerUserPanel">';
+
+        var userButtonHeight = 40;
+        var url;
+
+        if (user) {
+            var url = user.imageUrl;
+
+            if (user.supportsImageParams) {
+                url += "&height=" + Math.round((userButtonHeight * Math.max(window.devicePixelRatio || 1, 2)));
+            }
+        }
+
+        html += '<div><img style="height:' + userButtonHeight + 'px;border-radius:1000px;margin-bottom:1.25em;" src="' + url + '" /></div>';
+
+        html += '<div class="drawerUserName">';
+        var username = user && user.localUser ? user.localUser.Name : '';
+        html += username;
+        html += '</div>';
+
+        html += '</div>';
+
+        return html;
     }
 
     function refreshLibraryInfoInDrawer(user, drawer) {
@@ -312,7 +341,7 @@
             html += '<a class="sidebarLink lnkMediaFolder lnkManageServer" data-itemid="dashboard" href="#"><span class="sidebarLinkText">' + Globalize.translate('ButtonManageServer') + '</span></a>';
             html += '<a class="sidebarLink lnkMediaFolder editorViewMenu" data-itemid="editor" onclick="return LibraryMenu.onLinkClicked(event, this);" href="edititemmetadata.html"><span class="sidebarLinkText">' + Globalize.translate('MetadataManager') + '</span></a>';
 
-            if (!browserInfo.mobile) {
+            if (!browser.mobile) {
                 html += '<a class="sidebarLink lnkMediaFolder" data-itemid="reports" onclick="return LibraryMenu.onLinkClicked(event, this);" href="reports.html"><span class="sidebarLinkText">' + Globalize.translate('ButtonReports') + '</span></a>';
             }
             html += '</div>';
@@ -322,7 +351,7 @@
 
         html += '<div class="sidebarDivider"></div>';
 
-        if (user.localUser && (AppInfo.isNativeApp && browserInfo.android)) {
+        if (user.localUser && (AppInfo.isNativeApp && browser.android)) {
             html += '<a class="sidebarLink lnkMediaFolder lnkMySettings" onclick="return LibraryMenu.onLinkClicked(event, this);" href="mypreferencesmenu.html"><span class="sidebarLinkText">' + Globalize.translate('ButtonSettings') + '</span></a>';
         }
 
@@ -340,7 +369,7 @@
 
         html += '</div>';
 
-        navDrawerScrollContainer.innerHTML = html;
+        navDrawerScrollContainer.innerHTML = getDrawerUserPanelHtml(user) + html;
 
         var lnkManageServer = navDrawerScrollContainer.querySelector('.lnkManageServer');
         if (lnkManageServer) {
@@ -398,7 +427,7 @@
         var html = '';
 
         html += '<a class="adminDrawerLogo clearLink" href="home.html">'
-        html += '<img src="css/images/logo.png" />';
+        html += '<img src="css/images/logoblack.png" />';
         html += '</a>';
 
         html += Dashboard.getToolsMenuHtml();
@@ -588,7 +617,7 @@
 
     function getNavigateDelay() {
         // On mobile devices don't navigate until after the closing animation has completed or it may stutter
-        return browserInfo.mobile ? 320 : 200;;
+        return browser.mobile ? 320 : 200;;
     }
 
     window.LibraryMenu = {
@@ -1008,19 +1037,18 @@
     function getNavDrawerOptions() {
 
         var drawerWidth = screen.availWidth - 50;
+
         // At least 240
         drawerWidth = Math.max(drawerWidth, 240);
-        // But not exceeding 280
-        drawerWidth = Math.min(drawerWidth, 260);
+
+        // But not exceeding this
+        drawerWidth = Math.min(drawerWidth, 320);
 
         var disableEdgeSwipe = false;
 
-        if (browserInfo.safari) {
+        if (browser.safari) {
             disableEdgeSwipe = true;
         }
-
-        // Default is 600px
-        //drawer.responsiveWidth = '640px';
 
         return {
             target: navDrawerElement,

@@ -248,12 +248,9 @@
                     depends.push('scripts/sections');
                     break;
                 case 1:
-                    depends.push('scripts/homenextup');
-                    break;
-                case 2:
                     depends.push('scripts/homefavorites');
                     break;
-                case 3:
+                case 2:
                     depends.push('scripts/homeupcoming');
                     break;
                 default:

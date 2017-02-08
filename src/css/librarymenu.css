@@ -106,7 +106,6 @@
     overflow: hidden;
     z-index: 999;
     text-align: center;
-    text-transform: uppercase;
     white-space: nowrap;
     padding: 0 0 0;
     display: flex;
@@ -240,7 +239,7 @@ body:not(.dashboardDocument) .btnNotifications {
 }
 
 .darkDrawer {
-    background-color: #1C1C1F !important;
+    background-color: #181818 !important;
     /*background-color: rgba(40,40,40,.8) !important;
     -webkit-backdrop-filter: blur(5px);
     backdrop-filter: blur(5px);*/
@@ -286,14 +285,14 @@ body:not(.dashboardDocument) .headerAppsButton {
 
 @media all and (min-width: 640px) {
 
-   .viewMenuBarTabs {
+    .viewMenuBarTabs {
         width: auto;
         padding-left: 272px;
     }
 
-    .viewMenuBarTabs .libraryViewNav {
-        text-align: left !important;
-    }
+        .viewMenuBarTabs .libraryViewNav {
+            text-align: left !important;
+        }
 
     .dashboardDocument .sidebarLink {
         padding: .7em 0 .7em 2.4em;
@@ -311,7 +310,7 @@ body:not(.dashboardDocument) .headerAppsButton {
     }
 
     .dashboardDocument.withTallToolbar .mainDrawer-scrollContainer {
-        margin-top: 98px !important;
+        margin-top: 90px !important;
     }
 
     .dashboardDocument .tmla-mask {
@@ -323,11 +322,11 @@ body:not(.dashboardDocument) .headerAppsButton {
     }
 
     .dashboardDocument .skinBody {
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
         left: 260px;
+    }
+
+    .dashboardDocument .mainDrawer {
+        width: 260px !important;
     }
 
     .dashboardDocument .adminDrawerLogo {
@@ -337,4 +336,18 @@ body:not(.dashboardDocument) .headerAppsButton {
     .dashboardDocument .darkDrawer {
         background-color: rgba(28,28,31,.3) !important;
     }
+}
+
+.drawerUserPanel {
+    height: 7em;
+    margin-bottom: .5em;
+    color: #ccc;
+    display: flex;
+    padding: 1.5em;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.drawerUserName {
+    padding-left: .25em;
 }
