@@ -39,7 +39,7 @@
             var user = localassetmanager.loadOfflineUser(id);
 
             return Promise.resolve(user);
-        };
+        }
 
         function getUserViews(userId) {
 
@@ -262,6 +262,11 @@
                 return getItems(apiclientcore.getCurrentUserId(), options);
             }
 
+            if (isLocalId(options.seasonId)) {
+                options.ParentId = options.seasonId;
+                return getItems(apiclientcore.getCurrentUserId(), options);
+            }
+
             return apiclientcore.getEpisodes(itemId, options);
         }
 
@@ -294,8 +299,7 @@
 
         function getScaledImageUrl(itemId, options) {
 
-            if (isLocalId(itemId)
-                || (options && options.itemid && isLocalId(options.itemid))) {
+            if (isLocalId(itemId) || (options && options.itemid && isLocalId(options.itemid))) {
 
                 var serverInfo = apiclientcore.serverInfo();
                 var id = stripLocalPrefix(itemId);
@@ -367,7 +371,20 @@
             }
 
             if (isLocalId(options.ItemId)) {
-                return Promise.resolve();
+
+                var serverInfo = apiclientcore.serverInfo();
+
+                var action =
+                {
+                    Date: new Date().getTime(),
+                    ItemId: stripLocalPrefix(options.ItemId),
+                    PositionTicks: options.PositionTicks,
+                    ServerId: serverInfo.Id,
+                    Type: 0, // UserActionType.PlayedItem
+                    UserId: apiclientcore.getCurrentUserId()
+                };
+
+                return localassetmanager.recordUserAction(action);
             }
 
             return apiclientcore.reportPlaybackStopped(options);
@@ -383,6 +400,37 @@
             }
 
             return apiclientcore.getIntros(itemId);
+        }
+
+        function getInstantMixFromItem(itemId, options) {
+
+            if (isLocalId(itemId)) {
+                return Promise.resolve({
+                    Items: [],
+                    TotalRecordCount: 0
+                });
+            }
+
+            return apiclientcore.getInstantMixFromItem(itemId, options);
+        }
+
+        function getItemDownloadUrl(itemId) {
+
+
+            if (isLocalId(itemId)) {
+
+                var serverInfo = apiclientcore.serverInfo();
+
+                if (serverInfo) {
+
+                    return localassetmanager.getLocalItem(serverInfo.Id, stripLocalPrefix(itemId)).then(function (item) {
+
+                        return Promise.resolve(item.LocalPath);
+                    });
+                }
+            }
+
+            return apiclientcore.getItemDownloadUrl(itemId);
         }
 
         // **************** Helper functions
@@ -452,6 +500,8 @@
         self.reportPlaybackProgress = reportPlaybackProgress;
         self.reportPlaybackStopped = reportPlaybackStopped;
         self.getIntros = getIntros;
+        self.getInstantMixFromItem = getInstantMixFromItem;
+        self.getItemDownloadUrl = getItemDownloadUrl;
     };
 
 });

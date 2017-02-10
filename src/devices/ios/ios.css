@@ -1,8 +1,4 @@
-﻿body:not(.dashboardDocument) .mainDrawerButton {
-    display: none !important;
-}
-
-.pageWithAbsoluteTabs:not(.noSecondaryNavPage) {
+﻿.pageWithAbsoluteTabs:not(.noSecondaryNavPage) {
     padding-top: 88px !important;
 }
 
@@ -13,20 +9,6 @@
 .backdropContainer {
     /* This isn't implemented right and ends up looking terrible */
     background-attachment: initial;
-}
-
-.viewMenuBar {
-    /* It needs this in order to retain height since we're positioning the contents absolutely */
-    height: 50px;
-}
-
-.emby-tab-button {
-    border-color: transparent !important;
-    border-width: 0 !important;
-}
-
-.settingsMenuHeader {
-    display: none;
 }
 
 .txtSearch {
