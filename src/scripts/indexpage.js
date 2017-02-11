@@ -1,4 +1,4 @@
-﻿define(['libraryBrowser', 'playbackManager', 'emby-tabs', 'emby-button'], function (libraryBrowser, playbackManager) {
+﻿define(['libraryBrowser', 'libraryMenu', 'playbackManager', 'emby-tabs', 'emby-button'], function (libraryBrowser, libraryMenu, playbackManager) {
     'use strict';
 
     var defaultFirstSection = 'smalllibrarytiles';
@@ -233,7 +233,7 @@
 
         var viewTabs = view.querySelector('.libraryViewNav');
 
-        libraryBrowser.configurePaperLibraryTabs(view, viewTabs, view.querySelectorAll('.pageTabContent'), [0, 1, 2, 3], AppInfo.enableHomeTabs);
+        libraryBrowser.configurePaperLibraryTabs(view, viewTabs, view.querySelectorAll('.pageTabContent'), [0, 1, 2, 3], true);
 
         var tabControllers = [];
         var renderedTabs = [];
@@ -311,14 +311,6 @@
             takeTour(view, Dashboard.getCurrentUserId());
         });
 
-        if (AppInfo.enableHomeTabs) {
-            view.classList.remove('noSecondaryNavPage');
-            view.querySelector('.libraryViewNav').classList.remove('hide');
-        } else {
-            view.classList.add('noSecondaryNavPage');
-            view.querySelector('.libraryViewNav').classList.add('hide');
-        }
-
         function onPlaybackStop(e, state) {
 
             if (state.NowPlayingItem && state.NowPlayingItem.MediaType == 'Video') {
@@ -340,6 +332,10 @@
             }
 
         }
+
+        view.addEventListener('viewbeforeshow', function (e) {
+            libraryMenu.setDefaultTitle();
+        });
 
         view.addEventListener('viewshow', function (e) {
             Events.on(playbackManager, 'playbackstop', onPlaybackStop);

@@ -3,11 +3,11 @@
 }
 
     .libraryPage:not(.noSecondaryNavPage) {
-        padding-top: 95px !important;
+        padding-top: 91px !important;
     }
 
 .pageWithAbsoluteTabs:not(.noSecondaryNavPage) {
-    padding-top: 98px !important;
+    padding-top: 94px !important;
 }
 
 .absolutePageTabContent {
@@ -20,13 +20,13 @@
     z-index: 1;
     margin: 0 !important;
     /* Page needs to supply padding */
-    top: 102px !important;
+    top: 98px !important;
     transition: transform 200ms ease-out;
 }
 
     .absolutePageTabContent.headroomUnpinned {
-        transform: translateY(-92px);
-        bottom: -92px !important;
+        transform: translateY(-88px);
+        bottom: -88px !important;
     }
 
 .pageTabContent:not(.is-active) {
@@ -93,7 +93,8 @@
     z-index: 999;
     top: 0;
     border: 0;
-    height: 50px;
+    height: 41px;
+    padding-top: 3px;
     display: flex;
     flex-direction: column;
 }
@@ -119,7 +120,7 @@
     position: fixed;
     right: 0;
     left: 0;
-    top: 50px;
+    top: 44px;
 }
 
 .libraryViewNav.bottom {
@@ -212,12 +213,13 @@
 }
 
 .sidebarLink {
-    display: block;
+    display: flex;
+    align-items: center;
     text-decoration: none;
     color: #111 !important;
     font-weight: normal !important;
     vertical-align: middle;
-    padding: 1em 0 1em 2.6em;
+    padding: 1em 0 1em 2.4em;
 }
 
     .sidebarLink:hover {
@@ -227,6 +229,11 @@
     .sidebarLink.selectedSidebarLink {
         background: #f2f2f2 !important;
     }
+
+.sidebarLinkIcon {
+    margin-right: 1em;
+    opacity: .7;
+}
 
 .sidebarHeader {
     padding-left: 1.4em;
@@ -245,7 +252,7 @@ body:not(.dashboardDocument) .btnNotifications {
     backdrop-filter: blur(5px);*/
 }
 
-    .darkDrawer .sidebarLinkText, .darkDrawer .sidebarLink {
+    .darkDrawer .sidebarLink {
         color: #fff !important;
     }
 
@@ -283,6 +290,13 @@ body:not(.dashboardDocument) .headerAppsButton {
     left: 0;
 }
 
+@media all and (max-width: 640px) {
+
+    .sidebarLink {
+        font-size: 110%;
+    }
+}
+
 @media all and (min-width: 640px) {
 
     .viewMenuBarTabs {
@@ -311,7 +325,7 @@ body:not(.dashboardDocument) .headerAppsButton {
     }
 
     .dashboardDocument.withTallToolbar .mainDrawer-scrollContainer {
-        margin-top: 90px !important;
+        margin-top: 86px !important;
     }
 
     .dashboardDocument .tmla-mask {

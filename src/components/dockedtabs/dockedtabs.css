@@ -37,7 +37,7 @@
     font-size: 22px;
 }
 
-@media all and (max-width: 800px) {
+@media all and (max-width: 640px) {
     .dockedtab-midsize {
         display: none !important;
     }

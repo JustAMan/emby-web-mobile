@@ -46,6 +46,9 @@
             case 'sync':
                 Dashboard.navigate('mysync.html');
                 break;
+            case 'nowplaying':
+                Dashboard.navigate('nowplaying.html');
+                break;
             default:
                 showUserView(id);
                 break;
@@ -98,11 +101,6 @@
     function showMoreMenu(button) {
 
         var commands = [];
-
-        commands.push({
-            name: globalize.translate('ButtonRemoteControl'),
-            id: 'remotecontrol'
-        });
 
         // manage server, metadata manager, reports, sync to other devices
         if (currentUser.Policy.IsAdministrator) {
@@ -169,18 +167,15 @@
                 embyRouter.showLiveTV();
                 break;
             case 3:
-                embyRouter.showFavorites();
+                Dashboard.navigate('mysync.html?mode=offline');
                 break;
             case 4:
-                Dashboard.navigate('mysync.html?mode=offline');
+                Dashboard.navigate('nowplaying.html');
                 break;
             case 5:
                 showMoreMenu(this);
                 e.preventDefault();
                 e.stopPropagation();
-                break;
-            case 6:
-                Dashboard.navigate('dashboard.html');
                 break;
             default:
                 break;
@@ -217,32 +212,27 @@
 
         var html = '';
 
-        var liveTVButtonClass = appHost.supports('sync') ? ' dockedtab-midsize' : '';
-
         html += '    <div is="emby-tabs" class="dockedtabs-tabs" data-selectionbar="false">\
             <button is="emby-button" class="dockedtabs-tab-button emby-tab-button emby-tab-button-active" data-index="0">\
                 <div class="dockedtabs-tab-button-foreground emby-button-foreground"><i class="dockedtabs-tab-button-icon md-icon">home</i><div>' + globalize.translate('TabHome') + '</div></div>\
             </button>\
-            <button is="emby-button" class="dockedtabs-tab-button emby-tab-button" data-index="1">\
+            <button is="emby-button" class="dockedtabs-tab-button emby-tab-button docked-tab-library dockedtab-midsize" data-index="1">\
                 <div class="dockedtabs-tab-button-foreground emby-button-foreground"><i class="dockedtabs-tab-button-icon md-icon">dvr</i><div>' + globalize.translate('HeaderLibraries') + '</div></div>\
             </button>\
-            <button is="emby-button" class="dockedtabs-tab-button emby-tab-button docked-tab-livetv hide' + liveTVButtonClass + '" data-index="2">\
+            <button is="emby-button" class="dockedtabs-tab-button emby-tab-button docked-tab-livetv hide" data-index="2">\
                 <div class="dockedtabs-tab-button-foreground emby-button-foreground"><i class="dockedtabs-tab-button-icon md-icon">live_tv</i><div>' + globalize.translate('HeaderLiveTV') + '</div></div>\
-            </button>\
-            <button is="emby-button" class="dockedtabs-tab-button emby-tab-button" data-index="3">\
-                <div class="dockedtabs-tab-button-foreground emby-button-foreground"><i class="dockedtabs-tab-button-icon md-icon">favorite</i><div>' + globalize.translate('TabFavorites') + '</div></div>\
             </button>\
 ';
 
         if (appHost.supports('sync')) {
-            html += '<button is="emby-button" class="dockedtabs-tab-button docked-tab-syncdownloads emby-tab-button hide" data-index="4">\
+            html += '<button is="emby-button" class="dockedtabs-tab-button docked-tab-syncdownloads emby-tab-button hide" data-index="3">\
                 <div class="dockedtabs-tab-button-foreground emby-button-foreground"><i class="dockedtabs-tab-button-icon md-icon">file_download</i><div>' + globalize.translate('Downloads') + '</div></div>\
             </button>\
             ';
         }
 
-        html += '<button is="emby-button" class="dockedtabs-tab-button emby-tab-button docked-tab-manageserver hide dockedtab-midsize" data-index="6">\
-                <div class="dockedtabs-tab-button-foreground emby-button-foreground"><i class="dockedtabs-tab-button-icon md-icon">dashboard</i><div>' + globalize.translate('ButtonManageServer') + '</div></div>\
+        html += '<button is="emby-button" class="dockedtabs-tab-button emby-tab-button" data-index="4">\
+                <div class="dockedtabs-tab-button-foreground emby-button-foreground"><i class="dockedtabs-tab-button-icon md-icon">file_download</i><div>' + globalize.translate('HeaderNowPlaying') + '</div></div>\
             </button>\
             ';
 
@@ -269,14 +259,33 @@
 
     function onUserViewResponse(user, views, element) {
 
-        if (views.filter(function (v) {
+        var hasSync = false;
+        var downloadsTab = element.querySelector('.docked-tab-syncdownloads');
+        if (downloadsTab) {
+            if (user.Policy.EnableSync) {
+                downloadsTab.classList.remove('hide');
+                hasSync = true;
+            } else {
+                downloadsTab.classList.add('hide');
+            }
+        }
+
+        var hasLiveTv = views.filter(function (v) {
 
             return v.CollectionType == 'livetv';
 
-        }).length) {
+        }).length > 0;
+
+        if (hasLiveTv) {
             element.querySelector('.docked-tab-livetv').classList.remove('hide');
         } else {
             element.querySelector('.docked-tab-livetv').classList.add('hide');
+        }
+
+        if (hasLiveTv && hasSync) {
+            element.querySelector('.docked-tab-library').classList.add('dockedtab-midsize');
+        } else {
+            element.querySelector('.docked-tab-library').classList.remove('dockedtab-midsize');
         }
 
         var downloadsTab = element.querySelector('.docked-tab-syncdownloads');
@@ -286,12 +295,6 @@
             } else {
                 downloadsTab.classList.add('hide');
             }
-        }
-
-        if (user.Policy.IsAdministrator) {
-            element.querySelector('.docked-tab-manageserver').classList.remove('hide');
-        } else {
-            element.querySelector('.docked-tab-manageserver').classList.add('hide');
         }
     }
 

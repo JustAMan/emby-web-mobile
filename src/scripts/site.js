@@ -387,6 +387,10 @@ var Dashboard = {
         pageIds = pageIds ? (' data-pageids="' + pageIds + '"') : '';
         menuHtml += '<a class="sidebarLink" href="' + item.href + '"' + pageIds + '>';
 
+        if (item.icon) {
+            menuHtml += '<i class="md-icon sidebarLinkIcon">' + item.icon + '</i>';
+        }
+
         menuHtml += '<span class="sidebarLinkText">';
         menuHtml += item.name;
         menuHtml += '</span>';
@@ -640,7 +644,6 @@ var AppInfo = {};
 
         var isCordova = Dashboard.isRunningInCordova();
 
-        AppInfo.enableHomeTabs = true;
         AppInfo.enableAutoSave = browserInfo.touch;
 
         AppInfo.enableAppStorePolicy = isCordova;
@@ -652,7 +655,6 @@ var AppInfo = {};
 
         if (isCordova) {
             AppInfo.isNativeApp = true;
-            AppInfo.enableHomeTabs = false;
 
             if (browserInfo.android) {
                 AppInfo.supportsExternalPlayers = true;
@@ -2480,9 +2482,7 @@ var AppInfo = {};
         }
 
         // Do these now to prevent a flash of content
-        if (AppInfo.isNativeApp && browserInfo.android) {
-            deps.push('css!devices/android/android.css');
-        } else if (AppInfo.isNativeApp && browserInfo.safari) {
+        if (AppInfo.isNativeApp && browserInfo.safari) {
             deps.push('css!devices/ios/ios.css');
         }
 

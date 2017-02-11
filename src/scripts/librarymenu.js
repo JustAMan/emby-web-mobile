@@ -1,7 +1,7 @@
 ﻿define(['layoutManager', 'viewManager', 'libraryBrowser', 'embyRouter', 'playbackManager', 'browser', 'paper-icon-button-light', 'material-icons', 'scrollStyles'], function (layoutManager, viewManager, libraryBrowser, embyRouter, playbackManager, browser) {
     'use strict';
 
-    var enableBottomTabs = AppInfo.isNativeApp && browser.android;
+    var enableBottomTabs = browser.mobile;
     var enableLibraryNavDrawer = !enableBottomTabs;
 
     var navDrawerElement;
@@ -22,7 +22,7 @@
         html += '<button type="button" is="paper-icon-button-light" class="headerButton mainDrawerButton barsMenuButton headerButtonLeft hide"><i class="md-icon">menu</i></button>';
         html += '<button type="button" is="paper-icon-button-light" class="headerButton headerAppsButton barsMenuButton headerButtonLeft"><i class="md-icon">home</i></button>';
 
-        html += '<h3 class="libraryMenuButtonText headerButton">' + Globalize.translate('ButtonHome') + '</h3>';
+        html += '<h3 class="libraryMenuButtonText headerButton"></h3>';
 
         html += '<div class="viewMenuSecondary">';
 
@@ -351,7 +351,7 @@
 
         html += '<div class="sidebarDivider"></div>';
 
-        if (user.localUser && (AppInfo.isNativeApp && browser.android)) {
+        if (user.localUser) {
             html += '<a class="sidebarLink lnkMediaFolder lnkMySettings" onclick="return LibraryMenu.onLinkClicked(event, this);" href="mypreferencesmenu.html"><span class="sidebarLinkText">' + Globalize.translate('ButtonSettings') + '</span></a>';
         }
 
@@ -729,6 +729,16 @@
             });
         },
 
+        setDefaultTitle: function() {
+            
+            var libraryMenuButtonText = document.querySelector('.libraryMenuButtonText');
+            if (libraryMenuButtonText) {
+                libraryMenuButtonText.innerHTML = '<img src="css/images/logo.png" style="height:20px;" />';
+            }
+
+            document.title = 'Emby';
+        },
+
         setTitle: function (title) {
 
             var html = title;
@@ -911,7 +921,7 @@
                 }
             }
 
-            if ((navDrawerElement && navDrawerElement.classList.contains('adminDrawer')) || (!navDrawerElement && enableLibraryNavDrawer)) {
+            if ((navDrawerElement && navDrawerElement.classList.contains('adminDrawer')) || (!navDrawerElement)) {
                 refreshLibraryDrawer();
             }
         }
@@ -1003,25 +1013,18 @@
             admin = true;
         }
 
-        var enableNavDrawer = admin || enableLibraryNavDrawer;
-        if (enableNavDrawer) {
-            loadNavDrawer().then(function () {
-                if (admin) {
-                    navDrawerElement.classList.add('adminDrawer');
-                    navDrawerElement.classList.remove('darkDrawer');
-                } else {
-                    navDrawerElement.classList.add('darkDrawer');
-                    navDrawerElement.classList.remove('adminDrawer');
-                }
-            });
-        }
+        loadNavDrawer().then(function () {
+            if (admin) {
+                navDrawerElement.classList.add('adminDrawer');
+                navDrawerElement.classList.remove('darkDrawer');
+            } else {
+                navDrawerElement.classList.add('darkDrawer');
+                navDrawerElement.classList.remove('adminDrawer');
+            }
+        });
     }
 
     function refreshLibraryDrawer(user) {
-
-        if (!enableLibraryNavDrawer) {
-            return;
-        }
 
         loadNavDrawer().then(function () {
             var promise = user ? Promise.resolve(user) : ConnectionManager.user(window.ApiClient);
