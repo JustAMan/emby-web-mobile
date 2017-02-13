@@ -838,7 +838,11 @@ var AppInfo = {};
         return "bower_components";
     }
 
-    function getLayoutManager(layoutManager) {
+    function getLayoutManager(layoutManager, appHost) {
+
+        if (appHost.getDefaultLayout) {
+            layoutManager.defaultLayout = appHost.getDefaultLayout();
+        }
 
         layoutManager.init();
         return layoutManager;
@@ -960,8 +964,7 @@ var AppInfo = {};
             autoPlayDetect: embyWebComponentsBowerPath + '/playback/autoplaydetect',
             nowPlayingHelper: embyWebComponentsBowerPath + '/playback/nowplayinghelper',
             pluginManager: embyWebComponentsBowerPath + '/pluginmanager',
-            packageManager: embyWebComponentsBowerPath + '/packagemanager',
-            webAnimations: bowerPath + '/web-animations-js/web-animations-next-lite.min'
+            packageManager: embyWebComponentsBowerPath + '/packagemanager'
         };
 
         paths.hlsjs = bowerPath + "/hlsjs/dist/hls.min";
@@ -1030,7 +1033,7 @@ var AppInfo = {};
         define("fullscreen-doubleclick", [embyWebComponentsBowerPath + "/fullscreen/fullscreen-doubleclick"], returnFirstDependency);
         define("fullscreenManager", [embyWebComponentsBowerPath + "/fullscreen/fullscreenmanager", 'events'], returnFirstDependency);
 
-        define("layoutManager", [embyWebComponentsBowerPath + "/layoutmanager"], getLayoutManager);
+        define("layoutManager", [embyWebComponentsBowerPath + "/layoutmanager", 'apphost'], getLayoutManager);
         define("playMenu", [embyWebComponentsBowerPath + "/playmenu"], returnFirstDependency);
         define("refreshDialog", [embyWebComponentsBowerPath + "/refreshdialog/refreshdialog"], returnFirstDependency);
         define("backdrop", [embyWebComponentsBowerPath + "/backdrop/backdrop"], returnFirstDependency);

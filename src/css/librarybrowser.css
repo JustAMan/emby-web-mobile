@@ -8,7 +8,7 @@
 }
 
 .background-theme-b .backgroundContainer, .dialog.background-theme-b {
-    background-color: #121314;
+    background-color: #141414;
 }
 
     .background-theme-b .backgroundContainer.withBackdrop {
@@ -680,7 +680,7 @@ span.itemCommunityRating:not(:empty) + .userDataIcons {
 @media all and (min-height: 500px) {
 
     .alphabetPicker {
-        bottom: 5px;
+        bottom: 70px;
     }
 }
 

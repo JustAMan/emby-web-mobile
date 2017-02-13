@@ -129,7 +129,7 @@
 }
 
 .viewMenuBar, .ui-body-b .libraryViewNav {
-    background-color: #222326;
+    background-color: #101010;
     color: #fff;
 }
 
@@ -198,10 +198,6 @@
 
 .selectedMediaFolder {
     background-color: #f2f2f2 !important;
-}
-
-.ui-panel.ui-body-b {
-    background-color: #1D1D20;
 }
 
 @media all and (max-width: 800px) {

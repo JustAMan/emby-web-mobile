@@ -1,4 +1,4 @@
-define(['browser'], function (browser) {
+define(['browser', 'dom', 'layoutManager', 'css!bower_components/emby-webcomponents/viewmanager/viewcontainer-lite'], function (browser, dom, layoutManager) {
     'use strict';
 
     var mainAnimatedPages = document.querySelector('.mainAnimatedPages');
@@ -7,17 +7,19 @@ define(['browser'], function (browser) {
     var pageContainerCount = 3;
     var selectedPageIndex = -1;
 
+    var forceDisableAnimation = navigator.userAgent.toLowerCase().indexOf('embytheaterpi') !== -1;
+
     function enableAnimation() {
 
+        // too slow
         if (browser.tv) {
             return false;
         }
-        if (browser.safari) {
-            // Right now they don't look good. Haven't figured out why yet.
+        if (forceDisableAnimation) {
             return false;
         }
 
-        return true;
+        return browser.supportsCssAnimation();
     }
 
     function loadView(options) {
@@ -198,7 +200,7 @@ define(['browser'], function (browser) {
 
     function beforeAnimate(allPages, newPageIndex, oldPageIndex) {
         for (var i = 0, length = allPages.length; i < length; i++) {
-            if (newPageIndex == i || oldPageIndex == i) {
+            if (newPageIndex === i || oldPageIndex === i) {
                 //allPages[i].classList.remove('hide');
             } else {
                 allPages[i].classList.add('hide');
@@ -208,7 +210,7 @@ define(['browser'], function (browser) {
 
     function afterAnimate(allPages, newPageIndex) {
         for (var i = 0, length = allPages.length; i < length; i++) {
-            if (newPageIndex == i) {
+            if (newPageIndex === i) {
                 //allPages[i].classList.remove('hide');
             } else {
                 allPages[i].classList.add('hide');
@@ -218,14 +220,10 @@ define(['browser'], function (browser) {
 
     function animate(newAnimatedPage, oldAnimatedPage, transition, isBack) {
 
-        transition = transition || 'fade';
-
-        if (enableAnimation() && oldAnimatedPage && newAnimatedPage.animate) {
-            if (transition == 'slide') {
-                return slideLeft(newAnimatedPage, oldAnimatedPage, transition, isBack);
-            } else if (transition == 'slidedown') {
-                return slideDown(newAnimatedPage, oldAnimatedPage, transition, isBack);
-            } else if (transition == 'fade') {
+        if (enableAnimation() && oldAnimatedPage) {
+            if (transition === 'slide') {
+                return slide(newAnimatedPage, oldAnimatedPage, transition, isBack);
+            } else if (transition === 'fade') {
                 return fade(newAnimatedPage, oldAnimatedPage, transition, isBack);
             }
         }
@@ -233,89 +231,42 @@ define(['browser'], function (browser) {
         return Promise.resolve();
     }
 
-    function slideLeft(newAnimatedPage, oldAnimatedPage, transition, isBack) {
+    function slide(newAnimatedPage, oldAnimatedPage, transition, isBack) {
 
         return new Promise(function (resolve, reject) {
 
-            // Do not use fill: both or the ability to swipe horizontally may be affected on Chrome 50
-            var timings = {
-                duration: 450,
-                iterations: 1,
-                easing: 'ease-out'
-            }
-
-            if (!browser.chrome) {
-                timings.fill = 'both';
-            }
+            var duration = 450;
 
             var animations = [];
 
             if (oldAnimatedPage) {
-                var destination = isBack ? '100%' : '-100%';
-
-                animations.push(oldAnimatedPage.animate([
-
-                  { transform: 'none', offset: 0 },
-                  { transform: 'translate3d(' + destination + ', 0, 0)', offset: 1 }
-
-                ], timings));
+                if (isBack) {
+                    setAnimation(oldAnimatedPage, 'view-slideright-r ' + duration + 'ms ease-out normal both');
+                } else {
+                    setAnimation(oldAnimatedPage, 'view-slideleft-r ' + duration + 'ms ease-out normal both');
+                }
+                animations.push(oldAnimatedPage);
             }
 
-            var start = isBack ? '-100%' : '100%';
-
-            animations.push(newAnimatedPage.animate([
-
-              { transform: 'translate3d(' + start + ', 0, 0)', offset: 0 },
-              { transform: 'none', offset: 1 }
-
-            ], timings));
+            if (isBack) {
+                setAnimation(newAnimatedPage, 'view-slideright ' + duration + 'ms ease-out normal both');
+            } else {
+                setAnimation(newAnimatedPage, 'view-slideleft ' + duration + 'ms ease-out normal both');
+            }
+            animations.push(newAnimatedPage);
 
             currentAnimations = animations;
 
-            animations[animations.length - 1].onfinish = resolve;
-        });
-    }
+            var onAnimationComplete = function () {
+                dom.removeEventListener(newAnimatedPage, dom.whichAnimationEvent(), onAnimationComplete, {
+                    once: true
+                });
+                resolve();
+            };
 
-    function slideDown(newAnimatedPage, oldAnimatedPage, transition, isBack) {
-
-        return new Promise(function (resolve, reject) {
-
-            // Do not use fill: both or the ability to swipe horizontally may be affected on Chrome 50
-            var timings = {
-                duration: 450,
-                iterations: 1,
-                easing: 'ease-out'
-            }
-
-            if (!browser.chrome) {
-                timings.fill = 'both';
-            }
-
-            var animations = [];
-
-            if (oldAnimatedPage) {
-                var destination = isBack ? '100%' : '-100%';
-
-                animations.push(oldAnimatedPage.animate([
-
-                  { transform: 'none', offset: 0 },
-                  { transform: 'translate3d(' + destination + ', 0, 0)', offset: 1 }
-
-                ], timings));
-            }
-
-            var start = isBack ? '100%' : '-100%';
-
-            animations.push(newAnimatedPage.animate([
-
-              { transform: 'translate3d(0, ' + start + ', 0)', offset: 0 },
-              { transform: 'none', offset: 1 }
-
-            ], timings));
-
-            currentAnimations = animations;
-
-            animations[animations.length - 1].onfinish = resolve;
+            dom.addEventListener(newAnimatedPage, dom.whichAnimationEvent(), onAnimationComplete, {
+                once: true
+            });
         });
     }
 
@@ -323,38 +274,37 @@ define(['browser'], function (browser) {
 
         return new Promise(function (resolve, reject) {
 
-            // Do not use fill: both or the ability to swipe horizontally may be affected on Chrome 50
-            var timings = {
-                duration: 160,
-                iterations: 1,
-                easing: 'ease-out'
-            }
-
-            if (!browser.chrome) {
-                timings.fill = 'both';
-            }
-
+            var duration = layoutManager.tv ? 450 : 160;
             var animations = [];
 
+            newAnimatedPage.style.opacity = 0;
+            setAnimation(newAnimatedPage, 'view-fadein ' + duration + 'ms ease-in normal both');
+            animations.push(newAnimatedPage);
+
             if (oldAnimatedPage) {
-                animations.push(oldAnimatedPage.animate([
-
-                  { opacity: 1, offset: 0 },
-                  { opacity: 0, offset: 1 }
-
-                ], timings));
+                setAnimation(oldAnimatedPage, 'view-fadeout ' + duration + 'ms ease-out normal both');
+                animations.push(oldAnimatedPage);
             }
-
-            animations.push(newAnimatedPage.animate([
-
-                  { opacity: 0, offset: 0 },
-                  { opacity: 1, offset: 1 }
-
-            ], timings));
 
             currentAnimations = animations;
 
-            animations[animations.length - 1].onfinish = resolve;
+            var onAnimationComplete = function () {
+                dom.removeEventListener(newAnimatedPage, dom.whichAnimationEvent(), onAnimationComplete, {
+                    once: true
+                });
+                resolve();
+            };
+
+            dom.addEventListener(newAnimatedPage, dom.whichAnimationEvent(), onAnimationComplete, {
+                once: true
+            });
+        });
+    }
+
+    function setAnimation(elem, value) {
+
+        requestAnimationFrame(function () {
+            elem.style.animation = value;
         });
     }
 
@@ -363,16 +313,7 @@ define(['browser'], function (browser) {
 
         var animations = currentAnimations;
         for (var i = 0, length = animations.length; i < length; i++) {
-            cancelAnimation(animations[i]);
-        }
-    }
-
-    function cancelAnimation(animation) {
-
-        try {
-            animation.cancel();
-        } catch (err) {
-            console.log('Error canceling animation: ' + err);
+            animations[i].animation = 'none';
         }
     }
 
@@ -444,10 +385,6 @@ define(['browser'], function (browser) {
         currentUrls = [];
         mainAnimatedPages.innerHTML = '';
         selectedPageIndex = -1;
-    }
-
-    if (enableAnimation() && !document.documentElement.animate) {
-        require(['webAnimations']);
     }
 
     reset();

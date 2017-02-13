@@ -139,6 +139,10 @@ define(['appStorage', 'browser'], function (appStorage, browser) {
         });
     }
 
+    function getDefaultLayout() {
+        return 'desktop';
+    }
+
     var htmlMediaAutoplayAppStorageKey = 'supportshtmlmediaautoplay0';
     function supportsHtmlMediaAutoplay() {
 
@@ -202,7 +206,7 @@ define(['appStorage', 'browser'], function (appStorage, browser) {
 
         if (browser.chrome || (browser.edge && !browser.slow)) {
             // This is not directly related to image analysis but it't a hint the device is probably too slow for it
-            if (!browser.noAnimation) {
+            if (!browser.noAnimation && !browser.edgeUwp) {
                 features.push('imageanalysis');
             }
         }
@@ -282,6 +286,7 @@ define(['appStorage', 'browser'], function (appStorage, browser) {
         capabilities: getCapabilities,
         preferVisualCards: browser.android || browser.chrome,
         moreIcon: browser.safari || browser.edge ? 'dots-horiz' : 'dots-vert',
-        getSyncProfile: getSyncProfile
+        getSyncProfile: getSyncProfile,
+        getDefaultLayout: getDefaultLayout
     };
 });

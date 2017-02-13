@@ -216,9 +216,6 @@
             <button is="emby-button" class="dockedtabs-tab-button emby-tab-button emby-tab-button-active" data-index="0">\
                 <div class="dockedtabs-tab-button-foreground emby-button-foreground"><i class="dockedtabs-tab-button-icon md-icon">home</i><div>' + globalize.translate('TabHome') + '</div></div>\
             </button>\
-            <button is="emby-button" class="dockedtabs-tab-button emby-tab-button docked-tab-library dockedtab-midsize" data-index="1">\
-                <div class="dockedtabs-tab-button-foreground emby-button-foreground"><i class="dockedtabs-tab-button-icon md-icon">dvr</i><div>' + globalize.translate('HeaderLibraries') + '</div></div>\
-            </button>\
             <button is="emby-button" class="dockedtabs-tab-button emby-tab-button docked-tab-livetv hide" data-index="2">\
                 <div class="dockedtabs-tab-button-foreground emby-button-foreground"><i class="dockedtabs-tab-button-icon md-icon">live_tv</i><div>' + globalize.translate('HeaderLiveTV') + '</div></div>\
             </button>\
@@ -232,7 +229,7 @@
         }
 
         html += '<button is="emby-button" class="dockedtabs-tab-button emby-tab-button" data-index="4">\
-                <div class="dockedtabs-tab-button-foreground emby-button-foreground"><i class="dockedtabs-tab-button-icon md-icon">file_download</i><div>' + globalize.translate('HeaderNowPlaying') + '</div></div>\
+                <div class="dockedtabs-tab-button-foreground emby-button-foreground"><i class="dockedtabs-tab-button-icon md-icon">&#xE037;</i><div>' + globalize.translate('HeaderNowPlaying') + '</div></div>\
             </button>\
             ';
 
@@ -280,12 +277,6 @@
             element.querySelector('.docked-tab-livetv').classList.remove('hide');
         } else {
             element.querySelector('.docked-tab-livetv').classList.add('hide');
-        }
-
-        if (hasLiveTv && hasSync) {
-            element.querySelector('.docked-tab-library').classList.add('dockedtab-midsize');
-        } else {
-            element.querySelector('.docked-tab-library').classList.remove('dockedtab-midsize');
         }
 
         var downloadsTab = element.querySelector('.docked-tab-syncdownloads');
