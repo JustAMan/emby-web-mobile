@@ -969,6 +969,7 @@ var AppInfo = {};
 
         paths.hlsjs = bowerPath + "/hlsjs/dist/hls.min";
 
+        define("mediaSession", [embyWebComponentsBowerPath + "/playback/mediasession"]);
         define("webActionSheet", [embyWebComponentsBowerPath + "/actionsheet/actionsheet"], returnFirstDependency);
 
         if (Dashboard.isRunningInCordova()) {
@@ -2545,6 +2546,10 @@ var AppInfo = {};
             postInitDependencies.push('scripts/nowplayingbar');
 
             postInitDependencies.push('bower_components/emby-webcomponents/playback/remotecontrolautoplay');
+
+            if (navigator.mediaSession) {
+                postInitDependencies.push('mediaSession');
+            }
 
             // Prefer custom font over Segoe if on desktop windows
             if (!browserInfo.mobile && navigator.userAgent.toLowerCase().indexOf('windows') != -1) {
