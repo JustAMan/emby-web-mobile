@@ -291,7 +291,7 @@
                     getThumbShape();
 
                 var supportsImageAnalysis = appHost.supports('imageanalysis');
-                var cardLayout = supportsImageAnalysis && (viewType === 'music' || viewType === 'movies' || viewType === 'tvshows' || !viewType);
+                var cardLayout = supportsImageAnalysis && (viewType === 'music' || viewType === 'movies' || viewType === 'tvshows' || viewType === 'musicvideos' || !viewType);
 
                 html += cardBuilder.getCardsHtml({
                     items: items,
@@ -305,7 +305,7 @@
                     overlayPlayButton: viewType !== 'photos',
                     allowBottomPadding: !enableScrollX() && !cardLayout,
                     cardLayout: cardLayout,
-                    showTitle: viewType === 'music' || !viewType || (cardLayout && (viewType === 'movies' || viewType === 'tvshows')),
+                    showTitle: viewType === 'music' || !viewType || cardLayout,
                     showYear: cardLayout && viewType === 'movies',
                     showSeriesYear: cardLayout && viewType === 'tvshows',
                     showParentTitle: viewType === 'music' || !viewType || (cardLayout && (viewType === 'tvshows')),
