@@ -588,7 +588,7 @@
                 icon = i.icon || icon;
 
                 var onclick = i.onclick ? ' function(){' + i.onclick + '}' : 'null';
-                return '<a data-itemid="' + itemId + '" class="lnkMediaFolder sidebarLink" onclick="return LibraryMenu.onLinkClicked(event, this, ' + onclick + ');" href="' + getItemHref(i, i.CollectionType) + '"><span class="sectionName">' + i.Name + '</span></a>';
+                return '<a data-itemid="' + itemId + '" class="lnkMediaFolder sidebarLink" onclick="return LibraryMenu.onLinkClicked(event, this, ' + onclick + ');" href="' + getItemHref(i, i.CollectionType) + '"><i class="md-icon sidebarLinkIcon">' + icon + '</i><span class="sectionName">' + i.Name + '</span></a>';
 
             }).join('');
 
@@ -729,8 +729,8 @@
             });
         },
 
-        setDefaultTitle: function() {
-            
+        setDefaultTitle: function () {
+
             var libraryMenuButtonText = document.querySelector('.libraryMenuButtonText');
             if (libraryMenuButtonText) {
                 libraryMenuButtonText.innerHTML = '<img src="css/images/logo.png" style="height:20px;" />';

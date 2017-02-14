@@ -1,40 +1,28 @@
-﻿define(['cardBuilder', 'imageLoader', 'emby-itemscontainer'], function (cardBuilder, imageLoader) {
+﻿define(['cardBuilder', 'imageLoader', 'libraryBrowser', 'loading', 'emby-itemscontainer'], function (cardBuilder, imageLoader, libraryBrowser, loading) {
     'use strict';
 
     return function (view, params, tabContent) {
 
         var self = this;
-        var data = {};
+        var pageData;
 
-        function getPageData(context) {
-            var key = getSavedQueryKey(context);
-            var pageData = data[key];
+        function getPageData() {
 
             if (!pageData) {
-                pageData = data[key] = {
+                pageData = {
                     query: {
                         StartIndex: 0,
-                        Limit: LibraryBrowser.getDefaultPageSize(),
+                        Limit: 100,
                         Fields: "PrimaryImageAspectRatio"
                     }
                 };
-
-                LibraryBrowser.loadSavedQueryValues(key, pageData.query);
             }
             return pageData;
         }
 
-        function getQuery(context) {
+        function getQuery() {
 
-            return getPageData(context).query;
-        }
-
-        function getSavedQueryKey(context) {
-
-            if (!context.savedQueryKey) {
-                context.savedQueryKey = LibraryBrowser.getSavedQueryKey('channels');
-            }
-            return context.savedQueryKey;
+            return getPageData().query;
         }
 
         function getChannelsHtml(channels) {
@@ -52,9 +40,9 @@
 
         function renderChannels(context, result) {
 
-            var query = getQuery(context);
+            var query = getQuery();
 
-            context.querySelector('.paging').innerHTML = LibraryBrowser.getQueryPagingHtml({
+            context.querySelector('.paging').innerHTML = libraryBrowser.getQueryPagingHtml({
                 startIndex: query.StartIndex,
                 limit: query.Limit,
                 totalRecordCount: result.TotalRecordCount,
@@ -91,8 +79,6 @@
             for (i = 0, length = elems.length; i < length; i++) {
                 elems[i].addEventListener('click', onPreviousPageClick);
             }
-
-            LibraryBrowser.saveQueryValues(getSavedQueryKey(context), query);
         }
 
         function showFilterMenu(context) {
@@ -100,7 +86,7 @@
             require(['components/filterdialog/filterdialog'], function (filterDialogFactory) {
 
                 var filterDialog = new filterDialogFactory({
-                    query: getQuery(context),
+                    query: getQuery(),
                     mode: 'livetvchannels'
                 });
 
@@ -112,19 +98,21 @@
             });
         }
 
-        function reloadItems(context) {
+        function reloadItems(context, save) {
 
-            Dashboard.showLoadingMsg();
+            loading.show();
 
-            var query = getQuery(context);
+            var query = getQuery();
 
-            query.UserId = Dashboard.getCurrentUserId();
+            var apiClient = ApiClient;
 
-            ApiClient.getLiveTvChannels(query).then(function (result) {
+            query.UserId = apiClient.getCurrentUserId();
+
+            apiClient.getLiveTvChannels(query).then(function (result) {
 
                 renderChannels(context, result);
 
-                Dashboard.hideLoadingMsg();
+                loading.hide();
             });
         }
 

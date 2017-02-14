@@ -3,11 +3,11 @@
 }
 
     .libraryPage:not(.noSecondaryNavPage) {
-        padding-top: 91px !important;
+        padding-top: 87px !important;
     }
 
 .pageWithAbsoluteTabs:not(.noSecondaryNavPage) {
-    padding-top: 94px !important;
+    padding-top: 90px !important;
 }
 
 .absolutePageTabContent {
@@ -20,14 +20,9 @@
     z-index: 1;
     margin: 0 !important;
     /* Page needs to supply padding */
-    top: 98px !important;
+    top: 94px !important;
     transition: transform 200ms ease-out;
 }
-
-    .absolutePageTabContent.headroomUnpinned {
-        transform: translateY(-88px);
-        bottom: -88px !important;
-    }
 
 .pageTabContent:not(.is-active) {
     display: none !important;
@@ -50,10 +45,6 @@
 
 .headerUserButtonRound img {
     border-radius: 1000px;
-}
-
-.viewMenuBar paper-icon-button {
-    vertical-align: middle;
 }
 
 .headerButton {
@@ -114,6 +105,7 @@
     text-align: center;
     margin: 0 auto;
     align-items: center;
+    font-size: 92%;
 }
 
 .ui-body-b .libraryViewNav {

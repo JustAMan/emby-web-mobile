@@ -140,21 +140,12 @@
                     }
                 };
 
-                function createMainContentHammer(Hammer) {
+                hammertime.on('swipeleft', onSwipeLeft);
+                hammertime.on('swiperight', onSwipeRight);
 
-                    var hammer = new Hammer(document.querySelector('.skinBody'), null);
-                    return hammer;
-                }
-
-                require(['hammer-main'], function (hammertime) {
-
-                    hammertime.on('swipeleft', onSwipeLeft);
-                    hammertime.on('swiperight', onSwipeRight);
-
-                    ownerpage.addEventListener('viewdestroy', function () {
-                        hammertime.off('swipeleft', onSwipeLeft);
-                        hammertime.off('swiperight', onSwipeRight);
-                    });
+                ownerpage.addEventListener('viewdestroy', function () {
+                    hammertime.off('swipeleft', onSwipeLeft);
+                    hammertime.off('swiperight', onSwipeRight);
                 });
             },
 

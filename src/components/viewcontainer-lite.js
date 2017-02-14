@@ -225,10 +225,19 @@ define(['browser', 'dom', 'layoutManager', 'css!bower_components/emby-webcompone
                 return slide(newAnimatedPage, oldAnimatedPage, transition, isBack);
             } else if (transition === 'fade') {
                 return fade(newAnimatedPage, oldAnimatedPage, transition, isBack);
+            } else {
+                clearAnimation(newAnimatedPage);
+                if (oldAnimatedPage) {
+                    clearAnimation(oldAnimatedPage);
+                }
             }
         }
 
         return Promise.resolve();
+    }
+
+    function clearAnimation(elem) {
+        setAnimation(elem, 'none');
     }
 
     function slide(newAnimatedPage, oldAnimatedPage, transition, isBack) {

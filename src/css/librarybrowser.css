@@ -669,11 +669,7 @@ span.itemCommunityRating:not(:empty) + .userDataIcons {
 @media all and (min-height: 500px) {
 
     .itemsContainerWithAlphaPicker {
-        margin-right: 20px;
-    }
-
-    .absolutePageTabContent .itemsContainerWithAlphaPicker {
-        margin-right: 30px;
+        margin-right: 1em;
     }
 }
 
