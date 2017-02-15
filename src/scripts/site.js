@@ -2401,6 +2401,7 @@ var AppInfo = {};
         list.push('bower_components/emby-webcomponents/htmlvideoplayer/plugin');
 
         if (appHost.supports('remotecontrol')) {
+
             list.push('bower_components/emby-webcomponents/sessionplayer');
 
             if (browser.chrome) {
@@ -2545,7 +2546,12 @@ var AppInfo = {};
 
             postInitDependencies.push('scripts/nowplayingbar');
 
-            postInitDependencies.push('bower_components/emby-webcomponents/playback/remotecontrolautoplay');
+            if (appHost.supports('remotecontrol')) {
+                
+                // For now this is needed because it also performs the mirroring function
+                postInitDependencies.push('playerSelectionMenu');
+                postInitDependencies.push('bower_components/emby-webcomponents/playback/remotecontrolautoplay');
+            }
 
             if (navigator.mediaSession) {
                 postInitDependencies.push('mediaSession');
