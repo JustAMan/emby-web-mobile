@@ -1,4 +1,4 @@
-﻿define(['apiclientcore', 'localassetmanager', 'events'], function (apiclientcorefactory, localassetmanager, events) {
+﻿define(['apiclientcore', 'localassetmanager', 'events', 'appStorage'], function (apiclientcorefactory, localassetmanager, events, appStorage) {
     'use strict';
 
     var localPrefix = 'local:';
@@ -30,15 +30,25 @@
 
         function getCurrentUser() {
 
-            if (apiclientcore.isLoggedIn()) {
-                return apiclientcore.getCurrentUser();
-            }
+            return apiclientcore.getCurrentUser().then(function (user) {
 
-            // TODO: Need to select a user some way if we don't have a user id
-            var id = apiclientcore.getCurrentUserId();
-            var user = localassetmanager.loadOfflineUser(id);
+                appStorage.setItem('user-' + user.Id, JSON.stringify(user));
+                return user;
 
-            return Promise.resolve(user);
+            }, function (error) {
+
+                var userId = apiclientcore.getCurrentUserId();
+
+                if (userId && apiclientcore.accessToken()) {
+                    var json = appStorage.getItem('user-' + userId);
+
+                    if (json) {
+                        return Promise.resolve(JSON.parse(json));
+                    }
+                }
+
+                return Promise.reject(error);
+            });
         }
 
         function getUserViews(userId) {
@@ -67,7 +77,7 @@
 
         function getLocalView(serverId, userId) {
 
-            return localassetmanager.getViews(serverId, userId).then(function (views) {
+            return getLocalFolders(serverId, userId).then(function (views) {
 
                 var localView = null;
 
@@ -85,6 +95,14 @@
             });
         }
 
+        function getLocalFolders(userId) {
+
+            var serverInfo = apiclientcore.serverInfo();
+            userId = userId || serverInfo.UserId;
+
+            return localassetmanager.getViews(serverInfo.Id, userId);
+        }
+
         function getItems(userId, options) {
 
             var serverInfo = apiclientcore.serverInfo();
@@ -92,7 +110,7 @@
 
             if (serverInfo && options.ParentId === 'localview') {
 
-                return localassetmanager.getViews(serverInfo.Id, userId).then(function (items) {
+                return getLocalFolders(serverInfo.Id, userId).then(function (items) {
                     var result = {
                         Items: items,
                         TotalRecordCount: items.length
@@ -171,7 +189,7 @@
                 serverInfo = apiclientcore.serverInfo();
 
                 if (serverInfo) {
-                    return localassetmanager.getViews(serverInfo.Id, userId).then(function (items) {
+                    return getLocalFolders(serverInfo.Id, userId).then(function (items) {
 
                         var views = items.filter(function (item) {
                             return item.Id === itemId;
@@ -516,10 +534,20 @@
             return result;
         }
 
+        self.getLatestOfflineItems = function (options) {
+
+            // Supported options
+            // MediaType - Audio/Video/Photo/Book/Game
+            // Limit
+
+            return Promise.resolve([]);
+        };
+
         self.getCurrentUser = getCurrentUser;
         self.getUserViews = getUserViews;
         self.getItems = getItems;
         self.getItem = getItem;
+        self.getLocalFolders = getLocalFolders;
         self.getSeasons = getSeasons;
         self.getEpisodes = getEpisodes;
         self.getThemeMedia = getThemeMedia;

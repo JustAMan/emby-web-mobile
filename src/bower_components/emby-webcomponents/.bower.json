@@ -14,12 +14,12 @@
   },
   "devDependencies": {},
   "ignore": [],
-  "version": "1.4.518",
-  "_release": "1.4.518",
+  "version": "1.4.519",
+  "_release": "1.4.519",
   "_resolution": {
     "type": "version",
-    "tag": "1.4.518",
-    "commit": "3c06ae2b43db65470b1bd2e55f4ddc49c67cd130"
+    "tag": "1.4.519",
+    "commit": "4f1d8050063446e39e0178d758394e97eafd92c0"
   },
   "_source": "https://github.com/MediaBrowser/emby-webcomponents.git",
   "_target": "^1.2.1",

@@ -252,6 +252,13 @@
         };
 
         self.getApiClients = function () {
+
+            var servers = self.getSavedServers();
+
+            servers.map(function(s) {
+                self.getOrCreateApiClient(s.Id);
+            });
+
             return apiClients;
         };
 
@@ -954,9 +961,7 @@
 
                     if (result.State === ConnectionState.Unavailable) {
 
-                        result.State = result.ConnectUser == null ?
-                            ConnectionState.ConnectSignIn :
-                            ConnectionState.ServerSelection;
+                        result.State = ConnectionState.ServerSelection;
                     }
 
                     console.log('resolving connectToServers with result.State: ' + result.State);
