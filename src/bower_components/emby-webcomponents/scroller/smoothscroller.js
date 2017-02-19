@@ -127,6 +127,8 @@ define(['browser', 'layoutManager', 'dom', 'focusManager', 'scrollStyles'], func
         };
 
         var transform = !options.enableNativeScroll;
+        var enableDirectTransform = transform && !options.horizontal;
+        enableDirectTransform = false;
 
         var hPos = {
             start: 0,
@@ -318,11 +320,7 @@ define(['browser', 'layoutManager', 'dom', 'focusManager', 'scrollStyles'], func
             // Update the animation object
             animation.from = pos.cur;
             animation.to = newPos;
-            animation.tweesing = dragging.tweese || dragging.init && !dragging.slidee;
-            animation.immediate = !animation.tweesing && (immediate || dragging.init && dragging.slidee || !o.speed);
-
-            // Reset dragging tweesing request
-            dragging.tweese = 0;
+            animation.immediate = !(dragging.init && !dragging.slidee) && (immediate || dragging.init && dragging.slidee || !o.speed);
 
             // Start animation rendering
             if (newPos !== pos.dest) {
@@ -331,9 +329,28 @@ define(['browser', 'layoutManager', 'dom', 'focusManager', 'scrollStyles'], func
             }
         }
 
+        function setStyleProperty(elem, name, value) {
+
+            elem.style[name] = value;
+            //requestAnimationFrame(function () {
+            //    elem.style[name] = value;
+            //});
+        }
+
         var scrollEvent = new CustomEvent("scroll");
 
         function renderAnimate() {
+
+            if (enableDirectTransform) {
+                if (o.horizontal) {
+                    setStyleProperty(slideeElement, 'transform', 'translateX(' + (-round(animation.to)) + 'px)');
+                } else {
+                    setStyleProperty(slideeElement, 'transform', 'translateY(' + (-round(animation.to)) + 'px)');
+                }
+                pos.cur = animation.to;
+
+                return;
+            }
 
             var obj = getComputedStyle(slideeElement, null).getPropertyValue('transform').match(/([-+]?(?:\d*\.)?\d+)\D*, ([-+]?(?:\d*\.)?\d+)\D*\)/);
             if (obj) {
@@ -356,31 +373,23 @@ define(['browser', 'layoutManager', 'dom', 'focusManager', 'scrollStyles'], func
                     { transform: 'translate3d(0, ' + (-round(animation.to)) + 'px, 0)', offset: 1 }
                 ];
             }
+            pos.cur = animation.to;
 
             var speed = o.speed;
 
             if (animation.immediate) {
                 speed = o.immediateSpeed || 50;
-                if (!browser.animate) {
-                    o.immediateSpeed = 0;
-                }
             }
 
-            var animationConfig = {
+            slideeElement.animate(keyframes, {
                 duration: speed,
                 iterations: 1,
-                fill: 'both'
-            };
+                fill: 'both',
+                easing: 'ease-out'
 
-            if (browser.animate) {
-                animationConfig.easing = 'ease-out';
-            }
-
-            var animationInstance = slideeElement.animate(keyframes, animationConfig);
-
-            animationInstance.onfinish = function () {
+            }).onfinish = function () {
                 pos.cur = animation.to;
-                document.dispatchEvent(scrollEvent);
+                //document.dispatchEvent(scrollEvent);
             };
         }
 
@@ -863,6 +872,10 @@ define(['browser', 'layoutManager', 'dom', 'focusManager', 'scrollStyles'], func
                 }
             } else {
                 slideeElement.style['will-change'] = 'transform';
+                if (enableDirectTransform) {
+                    slideeElement.style.transition = 'transform ' + o.speed + 'ms ease-out';
+                }
+                //slideeElement.classList.add('smoothscroller');
                 if (o.horizontal) {
                     slideeElement.classList.add('animatedScrollX');
                 } else {

@@ -18,6 +18,10 @@ define(['browser', 'dom', 'layoutManager', 'css!bower_components/emby-webcompone
         if (forceDisableAnimation) {
             return false;
         }
+        // Seeing portions of pages cut off with crosswalk webview
+        if (window.MainActivity && window.MainActivity.getChromeVersion() <= 53) {
+            return false;
+        }
 
         return browser.supportsCssAnimation();
     }

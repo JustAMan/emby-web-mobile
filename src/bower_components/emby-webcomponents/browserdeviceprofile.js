@@ -282,6 +282,11 @@ define(['browser'], function (browser) {
             videoAudioCodecs.push('dts');
         }
 
+        if (browser.tizen) {
+            videoAudioCodecs.push('pcm_s16le');
+            videoAudioCodecs.push('pcm_s24le');
+        }
+
         if (options.supportsTrueHd) {
             videoAudioCodecs.push('truehd');
         }
@@ -344,7 +349,7 @@ define(['browser'], function (browser) {
             profile.DirectPlayProfiles.push(i);
         });
 
-        ['opus', 'mp3', 'aac', 'flac', 'webma', 'wma', 'wav'].filter(canPlayAudioFormat).forEach(function (audioFormat) {
+        ['opus', 'mp3', 'aac', 'flac', 'alac', 'webma', 'wma', 'wav'].filter(canPlayAudioFormat).forEach(function (audioFormat) {
 
             profile.DirectPlayProfiles.push({
                 Container: audioFormat === 'webma' ? 'webma,webm' : audioFormat,

@@ -262,7 +262,7 @@
 
             var hasAnyButton = canPlay;
 
-            if ((item.LocalTrailerCount || (item.RemoteTrailers && item.RemoteTrailers.length)) && item.PlayAccess == 'Full') {
+            if ((item.LocalTrailerCount || (item.RemoteTrailers && item.RemoteTrailers.length))) {
                 hideAll(page, 'btnPlayTrailer', true);
                 hasAnyButton = true;
             } else {
@@ -1869,7 +1869,7 @@
             IncludeItemTypes: "MusicVideo",
             Recursive: true,
             Fields: "DateCreated,CanDelete",
-            Albums: item.Name
+            AlbumIds: item.Id
 
         }).then(function (result) {
             if (result.Items.length) {

@@ -119,11 +119,11 @@
                 if (!browser.touch) {
                     return;
                 }
-                return;
+
                 // implement without hammer
                 var pageCount = ownerpage.querySelectorAll('.pageTabContent').length;
-                var onSwipeLeft = function (e) {
-                    if (LibraryBrowser.allowSwipe(e.target) && ownerpage.contains(e.target)) {
+                var onSwipeLeft = function (e, target) {
+                    if (LibraryBrowser.allowSwipe(target) && ownerpage.contains(target)) {
                         var selected = parseInt(tabs.selectedIndex() || '0');
                         if (selected < (pageCount - 1)) {
                             tabs.selectedIndex(selected + 1);
@@ -131,8 +131,8 @@
                     }
                 };
 
-                var onSwipeRight = function (e) {
-                    if (LibraryBrowser.allowSwipe(e.target) && ownerpage.contains(e.target)) {
+                var onSwipeRight = function (e, target) {
+                    if (LibraryBrowser.allowSwipe(target) && ownerpage.contains(target)) {
                         var selected = parseInt(tabs.selectedIndex() || '0');
                         if (selected > 0) {
                             tabs.selectedIndex(selected - 1);
@@ -140,18 +140,22 @@
                     }
                 };
 
-                hammertime.on('swipeleft', onSwipeLeft);
-                hammertime.on('swiperight', onSwipeRight);
+                require(['touchHelper'], function (TouchHelper) {
 
-                ownerpage.addEventListener('viewdestroy', function () {
-                    hammertime.off('swipeleft', onSwipeLeft);
-                    hammertime.off('swiperight', onSwipeRight);
+                    var touchHelper = new TouchHelper(ownerpage.parentNode.parentNode);
+
+                    Events.on(touchHelper, 'swipeleft', onSwipeLeft);
+                    Events.on(touchHelper, 'swiperight', onSwipeRight);
+
+                    ownerpage.addEventListener('viewdestroy', function () {
+                        touchHelper.destroy();
+                    });
                 });
             },
 
             configurePaperLibraryTabs: function (ownerpage, tabs, panels, animateTabs, enableSwipe) {
 
-                if (!browser.safari && enableSwipe !== false) {
+                if (enableSwipe !== false) {
                     LibraryBrowser.configureSwipeTabs(ownerpage, tabs);
                 }
 
