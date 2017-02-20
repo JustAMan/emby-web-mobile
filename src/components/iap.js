@@ -1,4 +1,4 @@
-﻿define(['globalize', 'shell'], function (globalize, shell) {
+﻿define(['globalize', 'shell', 'browser'], function (globalize, shell, browser) {
     'use strict';
 
     function getProductInfo(feature) {
@@ -53,7 +53,11 @@
     function getPeriodicMessageIntervalMs(feature) {
 
         if (feature === 'playback') {
-            return 86400000;
+
+            if (browser.tv || browser.mobile) {
+                return 86400000;
+            }
+            return 259200000;
         }
 
         return 0;

@@ -2554,6 +2554,10 @@ var AppInfo = {};
                 postInitDependencies.push('bower_components/emby-webcomponents/playback/remotecontrolautoplay');
             }
 
+            if (!appHost.supports('physicalvolumecontrol')) {
+                postInitDependencies.push('bower_components/emby-webcomponents/playback/volumeosd');
+            }
+
             if (navigator.mediaSession) {
                 postInitDependencies.push('mediaSession');
             }
