@@ -107,6 +107,12 @@
             parent.querySelector('.chkImportMissingEpisodesContainer').classList.add('hide');
             parent.querySelector('.chkAutomaticallyGroupSeriesContainer').classList.add('hide');
         }
+
+        if (contentType == 'games' || contentType == 'books') {
+            parent.querySelector('.chkEnableEmbeddedTitlesContainer').classList.add('hide');
+        } else {
+            parent.querySelector('.chkEnableEmbeddedTitlesContainer').classList.remove('hide');
+        }
     }
 
     function getLibraryOptions(parent) {
@@ -123,7 +129,8 @@
             SaveLocalMetadata: parent.querySelector('#chkSaveLocal').checked,
             EnableAutomaticSeriesGrouping: parent.querySelector('.chkAutomaticallyGroupSeries').checked,
             PreferredMetadataLanguage: parent.querySelector('#selectLanguage').value,
-            MetadataCountryCode: parent.querySelector('#selectCountry').value
+            MetadataCountryCode: parent.querySelector('#selectCountry').value,
+            EnableEmbeddedTitles: parent.querySelector('#chkEnableEmbeddedTitles').checked
         };
 
         return options;
@@ -143,6 +150,7 @@
         parent.querySelector('#chkSaveLocal').checked = options.SaveLocalMetadata;
         parent.querySelector('#chkImportMissingEpisodes').checked = options.ImportMissingEpisodes;
         parent.querySelector('.chkAutomaticallyGroupSeries').checked = options.EnableAutomaticSeriesGrouping;
+        parent.querySelector('#chkEnableEmbeddedTitles').checked = options.EnableEmbeddedTitles;
     }
 
     return {

@@ -17,6 +17,10 @@
         height: 16px;
     }
 
+.ui-body-a .listItem-shaded:nth-child(even) {
+    background: #f8f8f8;
+}
+
 /*
  * Gradient Shadow
  */

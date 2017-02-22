@@ -1247,7 +1247,11 @@ var AppInfo = {};
             };
 
             embyRouter.showSelectServer = function () {
-                Dashboard.navigate('selectserver.html');
+                if (Dashboard.isConnectMode()) {
+                    Dashboard.navigate('selectserver.html');
+                } else {
+                    Dashboard.navigate('login.html');
+                }
             };
 
             embyRouter.showWelcome = function () {
