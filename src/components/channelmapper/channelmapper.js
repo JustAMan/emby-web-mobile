@@ -21,7 +21,7 @@ function (dialogHelper, loading, connectionManager, globalize, actionsheet) {
             return elem;
         }
 
-        function mapChannel(button, tunerChannelId, providerChannelId) {
+        function mapChannel(button, channelId, providerChannelId) {
 
             loading.show();
 
@@ -33,7 +33,7 @@ function (dialogHelper, loading, connectionManager, globalize, actionsheet) {
                 url: ApiClient.getUrl('LiveTv/ChannelMappings'),
                 data: {
                     providerId: providerId,
-                    tunerChannelId: tunerChannelId,
+                    tunerChannelId: channelId,
                     providerChannelId: providerChannelId
                 },
                 dataType: 'json'
@@ -56,7 +56,7 @@ function (dialogHelper, loading, connectionManager, globalize, actionsheet) {
                 return;
             }
 
-            var tunerChannelId = btnMap.getAttribute('data-id');
+            var channelId = btnMap.getAttribute('data-id');
             var providerChannelId = btnMap.getAttribute('data-providerid');
 
             var menuItems = currentMappingOptions.ProviderChannels.map(function (m) {
@@ -73,7 +73,7 @@ function (dialogHelper, loading, connectionManager, globalize, actionsheet) {
                 items: menuItems
 
             }).then(function (newChannelId) {
-                mapChannel(btnMap, tunerChannelId, newChannelId);
+                mapChannel(btnMap, channelId, newChannelId);
             });
         }
 

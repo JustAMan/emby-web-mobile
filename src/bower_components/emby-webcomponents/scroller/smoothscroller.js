@@ -71,7 +71,6 @@ define(['browser', 'layoutManager', 'dom', 'focusManager', 'scrollStyles'], func
             horizontal: false, // Switch to horizontal mode.
 
             // Scrolling
-            scrollSource: null, // Element for catching the mouse wheel scrolling. Default is FRAME.
             scrollBy: 0, // Pixels or items to move per one mouse scroll. 0 to disable scrolling.
             scrollHijack: 300, // Milliseconds since last wheel event after which it is acceptable to hijack global scroll.
 
@@ -101,12 +100,12 @@ define(['browser', 'layoutManager', 'dom', 'focusManager', 'scrollStyles'], func
             // native smooth scroll
             options.enableNativeScroll = true;
         }
-        else if (options.requireAnimation && browser.animate) {
+        else if (options.requireAnimation && (browser.animate || browser.edge)) {
 
             // transform is the only way to guarantee animation
             options.enableNativeScroll = false;
         }
-        else if (!layoutManager.tv || !browser.animate) {
+        else if (!layoutManager.tv || !(browser.animate || browser.edge)) {
 
             options.enableNativeScroll = true;
         }
@@ -127,17 +126,9 @@ define(['browser', 'layoutManager', 'dom', 'focusManager', 'scrollStyles'], func
         };
 
         var transform = !options.enableNativeScroll;
-        var enableDirectTransform = transform && !options.horizontal;
-        enableDirectTransform = false;
-
-        var hPos = {
-            start: 0,
-            end: 0,
-            cur: 0
-        };
 
         // Miscellaneous
-        var scrollSource = o.scrollSource ? o.scrollSource : frame;
+        var scrollSource = frame;
         var dragSourceElement = o.dragSource ? o.dragSource : frame;
         var animation = {};
         var dragging = {
@@ -149,13 +140,13 @@ define(['browser', 'layoutManager', 'dom', 'focusManager', 'scrollStyles'], func
             resetTime: 200
         };
 
-        var i, l;
-
         // Expose properties
         self.initialized = 0;
         self.slidee = slideeElement;
         self.options = o;
         self.dragging = dragging;
+
+        var nativeScrollElement = frame;
 
         function sibling(n, elem) {
             var matched = [];
@@ -179,7 +170,8 @@ define(['browser', 'layoutManager', 'dom', 'focusManager', 'scrollStyles'], func
         function load(isInit) {
 
             // Reset global variables
-            frameSize = getWidthOrHeight(frame, o.horizontal ? 'width' : 'height');
+            frameSize = o.horizontal ? (o.frameSizeElement || frame).offsetWidth : (o.frameSizeElement || frame).offsetHeight;
+
             var slideeSize = o.scrollWidth || Math.max(slideeElement[o.horizontal ? 'offsetWidth' : 'offsetHeight'], slideeElement[o.horizontal ? 'scrollWidth' : 'scrollHeight']);
 
             // Set position limits & relativess
@@ -192,92 +184,22 @@ define(['browser', 'layoutManager', 'dom', 'focusManager', 'scrollStyles'], func
             }
         }
 
-        var pnum = (/[+-]?(?:\d*\.|)\d+(?:[eE][+-]?\d+|)/).source;
-        var rnumnonpx = new RegExp("^(" + pnum + ")(?!px)[a-z%]+$", "i");
+        function initFrameResizeObserver() {
 
-        function getWidthOrHeight(elem, name, extra) {
+            var observerOptions = {};
 
-            // Start with offset property, which is equivalent to the border-box value
-            var valueIsBorderBox = true,
-                val = name === "width" ? elem.offsetWidth : elem.offsetHeight,
-                styles = getComputedStyle(elem, null),
-                isBorderBox = styles.getPropertyValue("box-sizing") === "border-box";
-
-            // Some non-html elements return undefined for offsetWidth, so check for null/undefined
-            // svg - https://bugzilla.mozilla.org/show_bug.cgi?id=649285
-            // MathML - https://bugzilla.mozilla.org/show_bug.cgi?id=491668
-            if (val <= 0 || val == null) {
-                // Fall back to computed then uncomputed css if necessary
-                //val = curCSS(elem, name, styles);
-                if (val < 0 || val == null) {
-                    val = elem.style[name];
+            self.frameResizeObserver = new ResizeObserver(function (entries) {
+                for (var j = 0, length2 = entries.length; j < length2; j++) {
+                    var entry = entries[j];
+                    var target = entry.target;
+                    console.log('resize: ' + frame.className);
+                    load(false);
                 }
-
-                // Computed unit is not pixels. Stop here and return.
-                if (rnumnonpx.test(val)) {
-                    return val;
-                }
-
-                // Check for style in case a browser which returns unreliable values
-                // for getComputedStyle silently falls back to the reliable elem.style
-                valueIsBorderBox = isBorderBox &&
-                (support.boxSizingReliable() || val === elem.style[name]);
-
-                // Normalize "", auto, and prepare for extra
-                val = parseFloat(val) || 0;
-            }
-
-            // Use the active box-sizing model to add/subtract irrelevant styles
-            return (val +
-                    augmentWidthOrHeight(
-                        elem,
-                        name,
-                        extra || (isBorderBox ? "border" : "content"),
-                        valueIsBorderBox,
-                        styles
-                    )
+            },
+            observerOptions
             );
-        }
 
-        var cssExpand = ["Top", "Right", "Bottom", "Left"];
-
-        function augmentWidthOrHeight(elem, name, extra, isBorderBox, styles) {
-            var i = extra === (isBorderBox ? "border" : "content") ?
-                    // If we already have the right measurement, avoid augmentation
-                    4 :
-                    // Otherwise initialize for horizontal or vertical properties
-                    name === "width" ? 1 : 0,
-
-                val = 0;
-
-            for (; i < 4; i += 2) {
-                // Both box models exclude margin, so add it if we want it
-                if (extra === "margin") {
-                    //val += jQuery.css(elem, extra + cssExpand[i], true, styles);
-                }
-
-                if (isBorderBox) {
-                    // border-box includes padding, so remove it if we want content
-                    if (extra === "content") {
-                        //val -= jQuery.css(elem, "padding" + cssExpand[i], true, styles);
-                    }
-
-                    // At this point, extra isn't border nor margin, so remove border
-                    if (extra !== "margin") {
-                        //val -= jQuery.css(elem, "border" + cssExpand[i] + "Width", true, styles);
-                    }
-                } else {
-                    // At this point, extra isn't content, so add padding
-                    //val += jQuery.css(elem, "padding" + cssExpand[i], true, styles);
-
-                    // At this point, extra isn't content nor padding, so add border
-                    if (extra !== "padding") {
-                        //val += jQuery.css(elem, "border" + cssExpand[i] + "Width", true, styles);
-                    }
-                }
-            }
-
-            return val;
+            self.frameResizeObserver.observe(frame);
         }
 
         self.reload = function () { load(); };
@@ -307,73 +229,57 @@ define(['browser', 'layoutManager', 'dom', 'focusManager', 'scrollStyles'], func
 		 *
 		 * @return {Void}
 		 */
-        function slideTo(newPos, immediate) {
+        function slideTo(newPos, immediate, fullItemPos) {
 
             newPos = within(newPos, pos.start, pos.end);
 
             if (!transform) {
 
-                nativeScrollTo(slideeElement, newPos, immediate);
+                nativeScrollTo(nativeScrollElement, newPos, immediate);
                 return;
             }
 
             // Update the animation object
             animation.from = pos.cur;
             animation.to = newPos;
-            animation.immediate = !(dragging.init && !dragging.slidee) && (immediate || dragging.init && dragging.slidee || !o.speed);
+            animation.immediate = immediate || dragging.init || !o.speed;
+
+            var now = new Date().getTime();
+
+            if (o.autoImmediate) {
+                if (!animation.immediate && (now - (animation.lastAnimate || 0)) <= 50) {
+                    animation.immediate = true;
+                }
+            }
+
+            if (!animation.immediate && o.skipSlideToWhenVisible && fullItemPos && fullItemPos.isVisible) {
+
+                return;
+            }
 
             // Start animation rendering
             if (newPos !== pos.dest) {
                 pos.dest = newPos;
                 renderAnimate(animation);
+
+                animation.lastAnimate = now;
             }
         }
 
-        function setStyleProperty(elem, name, value) {
+        function setStyleProperty(elem, name, value, speed) {
+
+            elem.style.transition = 'none';
+
+            void elem.offsetWidth;
+
+            elem.style.transition = 'transform ' + speed + 'ms ease-out';
 
             elem.style[name] = value;
-            //requestAnimationFrame(function () {
-            //    elem.style[name] = value;
-            //});
         }
 
-        var scrollEvent = new CustomEvent("scroll");
+        var currentAnimation;
 
         function renderAnimate() {
-
-            if (enableDirectTransform) {
-                if (o.horizontal) {
-                    setStyleProperty(slideeElement, 'transform', 'translateX(' + (-round(animation.to)) + 'px)');
-                } else {
-                    setStyleProperty(slideeElement, 'transform', 'translateY(' + (-round(animation.to)) + 'px)');
-                }
-                pos.cur = animation.to;
-
-                return;
-            }
-
-            var obj = getComputedStyle(slideeElement, null).getPropertyValue('transform').match(/([-+]?(?:\d*\.)?\d+)\D*, ([-+]?(?:\d*\.)?\d+)\D*\)/);
-            if (obj) {
-                // [1] = x, [2] = y
-                pos.cur = parseInt(o.horizontal ? obj[1] : obj[2]) * -1;
-            }
-
-            var keyframes;
-
-            animation.to = round(animation.to);
-
-            if (o.horizontal) {
-                keyframes = [
-                    { transform: 'translate3d(' + (-round(pos.cur || animation.from)) + 'px, 0, 0)', offset: 0 },
-                    { transform: 'translate3d(' + (-round(animation.to)) + 'px, 0, 0)', offset: 1 }
-                ];
-            } else {
-                keyframes = [
-                    { transform: 'translate3d(0, ' + (-round(pos.cur || animation.from)) + 'px, 0)', offset: 0 },
-                    { transform: 'translate3d(0, ' + (-round(animation.to)) + 'px, 0)', offset: 1 }
-                ];
-            }
-            pos.cur = animation.to;
 
             var speed = o.speed;
 
@@ -381,16 +287,12 @@ define(['browser', 'layoutManager', 'dom', 'focusManager', 'scrollStyles'], func
                 speed = o.immediateSpeed || 50;
             }
 
-            slideeElement.animate(keyframes, {
-                duration: speed,
-                iterations: 1,
-                fill: 'both',
-                easing: 'ease-out'
-
-            }).onfinish = function () {
-                pos.cur = animation.to;
-                //document.dispatchEvent(scrollEvent);
-            };
+            if (o.horizontal) {
+                setStyleProperty(slideeElement, 'transform', 'translateX(' + (-round(animation.to)) + 'px)', speed);
+            } else {
+                setStyleProperty(slideeElement, 'transform', 'translateY(' + (-round(animation.to)) + 'px)', speed);
+            }
+            pos.cur = animation.to;
         }
 
         function getBoundingClientRect(elem) {
@@ -416,7 +318,11 @@ define(['browser', 'layoutManager', 'dom', 'focusManager', 'scrollStyles'], func
             var slideeOffset = getBoundingClientRect(slideeElement);
             var itemOffset = getBoundingClientRect(item);
 
+            var slideeStartPos = o.horizontal ? slideeOffset.left : slideeOffset.top;
+            var slideeEndPos = o.horizontal ? slideeOffset.right : slideeOffset.bottom;
+
             var offset = o.horizontal ? itemOffset.left - slideeOffset.left : itemOffset.top - slideeOffset.top;
+
             var size = o.horizontal ? itemOffset.width : itemOffset.height;
             if (!size && size !== 0) {
                 size = item[o.horizontal ? 'offsetWidth' : 'offsetHeight'];
@@ -427,17 +333,24 @@ define(['browser', 'layoutManager', 'dom', 'focusManager', 'scrollStyles'], func
             if (!transform) {
                 centerOffset = 0;
                 if (o.horizontal) {
-                    offset += slideeElement.scrollLeft;
+                    offset += nativeScrollElement.scrollLeft;
                 } else {
-                    offset += slideeElement.scrollTop;
+                    offset += nativeScrollElement.scrollTop;
                 }
             }
+
+            var currentStart = pos.cur;
+            var currentEnd = currentStart + frameSize;
+
+            //console.log('offset:' + offset + ' currentStart:' + currentStart + ' currentEnd:' + currentEnd);
+            var isVisible = offset >= currentStart && (offset + size) <= currentEnd;
 
             return {
                 start: offset,
                 center: offset + centerOffset - (frameSize / 2) + (size / 2),
                 end: offset - frameSize + size,
-                size: size
+                size: size,
+                isVisible: isVisible
             };
         };
 
@@ -501,8 +414,9 @@ define(['browser', 'layoutManager', 'dom', 'focusManager', 'scrollStyles'], func
                 //}
 
                 var itemPos = self.getPos(item);
+
                 if (itemPos) {
-                    slideTo(itemPos[location], immediate, true);
+                    slideTo(itemPos[location], immediate, itemPos);
                 }
             }
         }
@@ -543,31 +457,8 @@ define(['browser', 'layoutManager', 'dom', 'focusManager', 'scrollStyles'], func
             to('center', item, immediate);
         };
 
-        /**
-		 * Initialize continuous movement.
-		 *
-		 * @return {Void}
-		 */
-        function continuousInit(source) {
-            dragging.released = 0;
-            dragging.source = source;
-            dragging.slidee = source === 'slidee';
-        }
-
         function dragInitSlidee(event) {
-            dragInit(event, 'slidee');
-        }
-
-        /**
-		 * Dragging initiator.
-		 *a
-		 * @param  {Event} event
-		 *
-		 * @return {Void}
-		 */
-        function dragInit(event, source) {
             var isTouch = event.type === 'touchstart';
-            var isSlidee = source === 'slidee';
 
             // Ignore when already in progress, or interactive element in non-touch navivagion
             if (dragging.init || !isTouch && isInteractive(event.target)) {
@@ -575,7 +466,7 @@ define(['browser', 'layoutManager', 'dom', 'focusManager', 'scrollStyles'], func
             }
 
             // SLIDEE dragging conditions
-            if (isSlidee && !(isTouch ? o.touchDragging : o.mouseDragging && event.which < 2)) {
+            if (!(isTouch ? o.touchDragging : o.mouseDragging && event.which < 2)) {
                 return;
             }
 
@@ -585,7 +476,7 @@ define(['browser', 'layoutManager', 'dom', 'focusManager', 'scrollStyles'], func
             }
 
             // Reset dragging object
-            continuousInit(source);
+            dragging.released = 0;
 
             // Properties used in dragHandler
             dragging.init = 0;
@@ -594,13 +485,13 @@ define(['browser', 'layoutManager', 'dom', 'focusManager', 'scrollStyles'], func
             var pointer = isTouch ? event.touches[0] : event;
             dragging.initX = pointer.pageX;
             dragging.initY = pointer.pageY;
-            dragging.initPos = isSlidee ? pos.cur : hPos.cur;
+            dragging.initPos = pos.cur;
             dragging.start = +new Date();
             dragging.time = 0;
             dragging.path = 0;
             dragging.delta = 0;
             dragging.locked = 0;
-            dragging.pathToLock = isSlidee ? isTouch ? 30 : 10 : 0;
+            dragging.pathToLock = isTouch ? 30 : 10;
 
             // Bind dragging events
             if (isTouch) {
@@ -618,9 +509,7 @@ define(['browser', 'layoutManager', 'dom', 'focusManager', 'scrollStyles'], func
             }
 
             // Add dragging class
-            if (isSlidee) {
-                slideeElement.classList.add(o.draggedClass);
-            }
+            slideeElement.classList.add(o.draggedClass);
         }
 
         /**
@@ -660,10 +549,10 @@ define(['browser', 'layoutManager', 'dom', 'focusManager', 'scrollStyles'], func
                 }
             }
 
-            event.preventDefault();
+            //event.preventDefault();
 
             // Disable click on a source element, as it is unwelcome when dragging
-            if (!dragging.locked && dragging.path > dragging.pathToLock && dragging.slidee) {
+            if (!dragging.locked && dragging.path > dragging.pathToLock) {
                 dragging.locked = 1;
                 dragging.source.addEventListener('click', disableOneEvent);
             }
@@ -673,7 +562,7 @@ define(['browser', 'layoutManager', 'dom', 'focusManager', 'scrollStyles'], func
                 dragEnd();
             }
 
-            slideTo(dragging.slidee ? round(dragging.initPos - dragging.delta) : handleToSlidee(dragging.initPos + dragging.delta));
+            slideTo(round(dragging.initPos - dragging.delta));
         }
 
         /**
@@ -698,9 +587,7 @@ define(['browser', 'layoutManager', 'dom', 'focusManager', 'scrollStyles'], func
                 });
             }
 
-            if (dragging.slidee) {
-                slideeElement.classList.remove(o.draggedClass);
-            }
+            slideeElement.classList.remove(o.draggedClass);
 
             // Make sure that disableOneEvent is not active in next tick.
             setTimeout(function () {
@@ -774,9 +661,9 @@ define(['browser', 'layoutManager', 'dom', 'focusManager', 'scrollStyles'], func
                 }
 
                 if (o.horizontal) {
-                    slideeElement.scrollLeft += delta;
+                    nativeScrollElement.scrollLeft += delta;
                 } else {
-                    slideeElement.scrollTop += delta;
+                    nativeScrollElement.scrollTop += delta;
                 }
             }
         }
@@ -791,6 +678,11 @@ define(['browser', 'layoutManager', 'dom', 'focusManager', 'scrollStyles'], func
             dom.removeEventListener(window, 'resize', onResize, {
                 passive: true
             });
+
+            if (self.frameResizeObserver) {
+                self.frameResizeObserver.disconnect();
+                self.frameResizeObserver = null;
+            }
 
             // Reset native FRAME element scroll
             dom.removeEventListener(frame, 'scroll', resetScroll, {
@@ -840,6 +732,10 @@ define(['browser', 'layoutManager', 'dom', 'focusManager', 'scrollStyles'], func
             }
         }
 
+        self.getScrollPosition = function() {
+            return pos.cur;
+        };
+
         /**
 		 * Initialize.
 		 *
@@ -850,32 +746,25 @@ define(['browser', 'layoutManager', 'dom', 'focusManager', 'scrollStyles'], func
                 return;
             }
 
-            // Set required styles
-            var movables = [];
-            if (slideeElement) {
-                movables.push(slideeElement);
-            }
-
             if (!transform) {
                 if (o.horizontal) {
                     if (layoutManager.desktop) {
-                        slideeElement.classList.add('smoothScrollX');
+                        nativeScrollElement.classList.add('smoothScrollX');
                     } else {
-                        slideeElement.classList.add('hiddenScrollX');
+                        nativeScrollElement.classList.add('hiddenScrollX');
                     }
                 } else {
                     if (layoutManager.desktop) {
-                        slideeElement.classList.add('smoothScrollY');
+                        nativeScrollElement.classList.add('smoothScrollY');
                     } else {
-                        slideeElement.classList.add('hiddenScrollY');
+                        nativeScrollElement.classList.add('hiddenScrollY');
                     }
                 }
             } else {
+                frame.style.overflow = 'hidden';
                 slideeElement.style['will-change'] = 'transform';
-                if (enableDirectTransform) {
-                    slideeElement.style.transition = 'transform ' + o.speed + 'ms ease-out';
-                }
-                //slideeElement.classList.add('smoothscroller');
+                slideeElement.style.transition = 'transform ' + o.speed + 'ms ease-out';
+
                 if (o.horizontal) {
                     slideeElement.classList.add('animatedScrollX');
                 } else {
@@ -896,7 +785,11 @@ define(['browser', 'layoutManager', 'dom', 'focusManager', 'scrollStyles'], func
                     passive: true
                 });
 
-                if (!o.scrollWidth) {
+                if (window.ResizeObserver) {
+                    initFrameResizeObserver();
+                }
+
+                else if (!o.scrollWidth) {
                     dom.addEventListener(window, 'resize', onResize, {
                         passive: true
                     });
