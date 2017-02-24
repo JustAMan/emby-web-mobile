@@ -71,8 +71,8 @@ define(['browser', 'layoutManager', 'dom', 'focusManager', 'scrollStyles'], func
             horizontal: false, // Switch to horizontal mode.
 
             // Scrolling
-            scrollBy: 0, // Pixels or items to move per one mouse scroll. 0 to disable scrolling.
-            scrollHijack: 300, // Milliseconds since last wheel event after which it is acceptable to hijack global scroll.
+            mouseWheel: true,
+            scrollBy: 0, // Pixels or items to move per one mouse scroll. 0 to disable scrolling
 
             // Dragging
             dragSource: null, // Selector or DOM element for catching dragging events. Default is FRAME.
@@ -100,12 +100,12 @@ define(['browser', 'layoutManager', 'dom', 'focusManager', 'scrollStyles'], func
             // native smooth scroll
             options.enableNativeScroll = true;
         }
-        else if (options.requireAnimation && (browser.animate || browser.edge)) {
+        else if (options.requireAnimation && (browser.animate)) {
 
             // transform is the only way to guarantee animation
             options.enableNativeScroll = false;
         }
-        else if (!layoutManager.tv || !(browser.animate || browser.edge)) {
+        else if (!layoutManager.tv || !(browser.animate)) {
 
             options.enableNativeScroll = true;
         }
@@ -266,14 +266,14 @@ define(['browser', 'layoutManager', 'dom', 'focusManager', 'scrollStyles'], func
             }
         }
 
-        function setStyleProperty(elem, name, value, speed) {
+        function setStyleProperty(elem, name, value, speed, resetTransition) {
 
-            elem.style.transition = 'none';
-
-            void elem.offsetWidth;
+            if (resetTransition || browser.edge) {
+                elem.style.transition = 'none';
+                void elem.offsetWidth;
+            }
 
             elem.style.transition = 'transform ' + speed + 'ms ease-out';
-
             elem.style[name] = value;
         }
 
@@ -293,6 +293,8 @@ define(['browser', 'layoutManager', 'dom', 'focusManager', 'scrollStyles'], func
                 setStyleProperty(slideeElement, 'transform', 'translateY(' + (-round(animation.to)) + 'px)', speed);
             }
             pos.cur = animation.to;
+
+            //frame.dispatchEvent(new CustomEvent('scroll', {}));
         }
 
         function getBoundingClientRect(elem) {
@@ -801,19 +803,23 @@ define(['browser', 'layoutManager', 'dom', 'focusManager', 'scrollStyles'], func
                     });
                 }
 
-                // Scrolling navigation
-                dom.addEventListener(scrollSource, wheelEvent, scrollHandler, {
-                    passive: true
-                });
+                if (o.mouseWheel) {
+                    // Scrolling navigation
+                    dom.addEventListener(scrollSource, wheelEvent, scrollHandler, {
+                        passive: true
+                    });
+                }
 
             } else if (o.horizontal) {
 
                 // Don't bind to mouse events with vertical scroll since the mouse wheel can handle this natively
 
-                // Scrolling navigation
-                dom.addEventListener(scrollSource, wheelEvent, scrollHandler, {
-                    passive: true
-                });
+                if (o.mouseWheel) {
+                    // Scrolling navigation
+                    dom.addEventListener(scrollSource, wheelEvent, scrollHandler, {
+                        passive: true
+                    });
+                }
             }
 
             dom.addEventListener(frame, 'click', onFrameClick, {

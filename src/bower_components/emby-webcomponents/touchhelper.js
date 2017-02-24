@@ -6,15 +6,19 @@ define(['dom', 'events'], function (dom, events) {
         return e.changedTouches || e.targetTouches || e.touches;
     }
 
-    function TouchHelper(elem) {
+    function TouchHelper(elem, options) {
 
+        options = options || {};
         var touchTarget;
         var touchStartX;
         var touchStartY;
         var self = this;
 
-        var swipeXThreshold = 50;
+        var swipeXThreshold = options.swipeXThreshold || 50;
+        var swipeYThreshold = options.swipeYThreshold || 50;
         var swipeXMaxY = 30;
+
+        var excludeTagNames = options.ignoreTagNames || [];
 
         var touchStart = function (e) {
 
@@ -24,13 +28,22 @@ define(['dom', 'events'], function (dom, events) {
             touchStartY = 0;
 
             if (touch) {
+
+                var currentTouchTarget = touch.target;
+
+                if (dom.parentWithTag(currentTouchTarget, excludeTagNames)) {
+                    return;
+                }
+
+                touchTarget = currentTouchTarget;
                 touchStartX = touch.clientX;
                 touchStartY = touch.clientY;
-                touchTarget = touch.target;
             }
         };
 
         var touchEnd = function (e) {
+
+            var isTouchMove = e.type === 'touchmove';
 
             if (touchTarget) {
                 var touch = getTouches(e)[0];
@@ -38,11 +51,14 @@ define(['dom', 'events'], function (dom, events) {
                 var deltaX;
                 var deltaY;
 
+                var clientX;
+                var clientY;
+
                 if (touch) {
-                    var touchEndX = touch.clientX || 0;
-                    var touchEndY = touch.clientY || 0;
-                    deltaX = touchEndX - (touchStartX || 0);
-                    deltaY = touchEndY - (touchStartY || 0);
+                    clientX = touch.clientX || 0;
+                    clientY = touch.clientY || 0;
+                    deltaX = clientX - (touchStartX || 0);
+                    deltaY = clientY - (touchStartY || 0);
                 } else {
                     deltaX = 0;
                     deltaY = 0;
@@ -54,11 +70,33 @@ define(['dom', 'events'], function (dom, events) {
                 else if (deltaX < (0 - swipeXThreshold) && Math.abs(deltaY) < swipeXMaxY) {
                     events.trigger(self, 'swipeleft', [touchTarget]);
                 }
+                else if (deltaY < (0 - swipeYThreshold) && Math.abs(deltaX) < swipeXMaxY) {
+                    events.trigger(self, 'swipeup', [touchTarget, {
+                        deltaY: deltaY,
+                        deltaX: deltaX,
+                        clientX: clientX,
+                        clientY: clientY
+                    }]);
+                }
+                else if (deltaY > swipeYThreshold && Math.abs(deltaX) < swipeXMaxY) {
+                    events.trigger(self, 'swipedown', [touchTarget, {
+                        deltaY: deltaY,
+                        deltaX: deltaX,
+                        clientX: clientX,
+                        clientY: clientY
+                    }]);
+                }
+
+                if (isTouchMove && options.preventDefaultOnMove) {
+                    e.preventDefault();
+                }
             }
 
-            touchTarget = null;
-            touchStartX = 0;
-            touchStartY = 0;
+            if (!isTouchMove) {
+                touchTarget = null;
+                touchStartX = 0;
+                touchStartY = 0;
+            }
         };
 
         this.touchStart = touchStart;
@@ -67,6 +105,11 @@ define(['dom', 'events'], function (dom, events) {
         dom.addEventListener(elem, 'touchstart', touchStart, {
             passive: true
         });
+        if (options.triggerOnMove) {
+            dom.addEventListener(elem, 'touchmove', touchEnd, {
+                passive: !options.preventDefaultOnMove
+            });
+        }
         dom.addEventListener(elem, 'touchend', touchEnd, {
             passive: true
         });
@@ -83,6 +126,9 @@ define(['dom', 'events'], function (dom, events) {
         var touchEnd = this.touchEnd;
 
         dom.removeEventListener(elem, 'touchstart', touchStart, {
+            passive: true
+        });
+        dom.removeEventListener(elem, 'touchmove', touchEnd, {
             passive: true
         });
         dom.removeEventListener(elem, 'touchend', touchEnd, {
