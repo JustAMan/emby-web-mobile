@@ -15,9 +15,9 @@
                     query: {
                         SortBy: "SortName",
                         SortOrder: "Ascending",
-                        IncludeItemTypes: "Audio,MusicAlbum",
+                        IncludeItemTypes: "Audio",
                         Recursive: true,
-                        Fields: "DateCreated,ItemCounts",
+                        Fields: "PrimaryImageAspectRatio,ItemCounts",
                         StartIndex: 0
                     },
                     view: libraryBrowser.getSavedView(key) || (appHost.preferVisualCards ? 'PosterCard' : 'Poster')

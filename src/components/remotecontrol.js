@@ -312,6 +312,8 @@
             buttonVisible(context.querySelector('.btnStop'), item != null);
             buttonVisible(context.querySelector('.btnNextTrack'), item != null);
             buttonVisible(context.querySelector('.btnPreviousTrack'), item != null);
+            buttonVisible(context.querySelector('.btnRewind'), item != null && item.MediaType == 'Video');
+            buttonVisible(context.querySelector('.btnFastForward'), item != null && item.MediaType == 'Video');
 
             var positionSlider = context.querySelector('.nowPlayingPositionSlider');
             if (positionSlider && !positionSlider.dragging) {
@@ -771,6 +773,20 @@
 
                 if (currentPlayer) {
                     playbackManager.nextTrack(currentPlayer);
+                }
+            });
+
+            context.querySelector('.btnRewind').addEventListener('click', function () {
+
+                if (currentPlayer) {
+                    playbackManager.rewind(currentPlayer);
+                }
+            });
+
+            context.querySelector('.btnFastForward').addEventListener('click', function () {
+
+                if (currentPlayer) {
+                    playbackManager.fastForward(currentPlayer);
                 }
             });
 

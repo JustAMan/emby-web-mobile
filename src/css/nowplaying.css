@@ -162,11 +162,16 @@
     width: 6em;
 }
 
-
-
 @media all and (max-width: 400px) {
 
     .playlist .listItemMediaInfo {
+        display: none !important;
+    }
+}
+
+@media all and (max-width: 640px) {
+
+    .btnNowPlayingFastForward, .btnNowPlayingRewind {
         display: none !important;
     }
 }
