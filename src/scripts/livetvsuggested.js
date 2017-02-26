@@ -132,6 +132,7 @@
             IsMovie: false,
             IsSports: false,
             IsKids: false,
+            IsNews: false,
             IsSeries: true,
             EnableTotalRecordCount: false,
             Fields: "ChannelInfo",
@@ -139,7 +140,7 @@
 
         }).then(function (result) {
 
-            renderItems(page, result.Items, 'upcomingProgramItems');
+            renderItems(page, result.Items, 'upcomingEpisodeItems');
         });
 
         ApiClient.getLiveTvRecommendedPrograms({
@@ -191,6 +192,25 @@
         }).then(function (result) {
 
             renderItems(page, result.Items, 'upcomingKidsItems');
+        });
+
+        ApiClient.getLiveTvRecommendedPrograms({
+
+            userId: Dashboard.getCurrentUserId(),
+            IsAiring: false,
+            HasAired: false,
+            limit: getLimit(),
+            IsMovie: false,
+            IsSports: false,
+            IsKids: false,
+            IsSeries: false,
+            EnableTotalRecordCount: false,
+            Fields: "ChannelInfo",
+            EnableImageTypes: "Primary,Thumb"
+
+        }).then(function (result) {
+
+            renderItems(page, result.Items, 'upcomingProgramItems');
         });
     }
 

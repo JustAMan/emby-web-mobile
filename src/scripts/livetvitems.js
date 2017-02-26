@@ -128,6 +128,18 @@
             else if (params.IsMovie == 'false') {
                 query.IsMovie = false;
             }
+            if (params.IsSeries == 'true') {
+                query.IsSeries = true;
+            }
+            else if (params.IsSeries == 'false') {
+                query.IsSeries = false;
+            }
+            if (params.IsNews == 'true') {
+                query.IsNews = true;
+            }
+            else if (params.IsNews == 'false') {
+                query.IsNews = false;
+            }
             if (params.IsSports == 'true') {
                 query.IsSports = true;
             }
