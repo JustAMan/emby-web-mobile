@@ -1167,11 +1167,24 @@ var AppInfo = {};
         define("connectionmanager", [apiClientBowerPath + "/connectionmanager"]);
 
         define("cameraRoll", [apiClientBowerPath + "/cameraroll"], returnFirstDependency);
-        define("contentuploader", [apiClientBowerPath + "/sync/contentuploader"]);
-        define("serversync", [apiClientBowerPath + "/sync/serversync"]);
-        define("multiserversync", [apiClientBowerPath + "/sync/multiserversync"]);
-        define("offlineusersync", [apiClientBowerPath + "/sync/offlineusersync"]);
-        define("mediasync", [apiClientBowerPath + "/sync/mediasync"]);
+        define("contentuploader", [apiClientBowerPath + "/sync/contentuploader"], returnFirstDependency);
+        define("serversync", [apiClientBowerPath + "/sync/serversync"], returnFirstDependency);
+        define("multiserversync", [apiClientBowerPath + "/sync/multiserversync"], returnFirstDependency);
+        define("mediasync", [apiClientBowerPath + "/sync/mediasync"], returnFirstDependency);
+        define("localsync", [apiClientBowerPath + "/sync/localsync"], returnFirstDependency);
+
+        define('localassetmanager', [apiClientBowerPath + '/localassetmanager'], returnFirstDependency);
+        define('itemrepository', [apiClientBowerPath + '/sync/itemrepository'], returnFirstDependency);
+        define('useractionrepository', [apiClientBowerPath + '/sync/useractionrepository'], returnFirstDependency);
+
+        if (self.Windows) {
+            define('bgtaskregister', ['environments/windows-uwp/bgtaskregister'], returnFirstDependency);
+            define('transfermanager', ['environments/windows-uwp/transfermanager'], returnFirstDependency);
+            define('filerepository', ['environments/windows-uwp/filerepository'], returnFirstDependency);
+        } else {
+            define("transfermanager", [apiClientBowerPath + "/sync/transfermanager"], returnFirstDependency);
+            define("filerepository", [apiClientBowerPath + "/sync/filerepository"], returnFirstDependency);
+        }
 
         define("swiper", [bowerPath + "/Swiper/dist/js/swiper.min", "css!" + bowerPath + "/Swiper/dist/css/swiper.min"], returnFirstDependency);
 

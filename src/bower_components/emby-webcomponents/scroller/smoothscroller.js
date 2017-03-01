@@ -93,6 +93,8 @@ define(['browser', 'layoutManager', 'dom', 'focusManager', 'scrollStyles'], func
 
         var isSmoothScrollSupported = 'scrollBehavior' in document.documentElement.style;
 
+        var browserSupportsAnimation = browser.animate ? true : false;
+
         // native scroll is a must with touch input
         // also use native scroll when scrolling vertically in desktop mode - excluding horizontal because the mouse wheel support is choppy at the moment
         // in cases with firefox, if the smooth scroll api is supported then use that because their implementation is very good
@@ -100,12 +102,12 @@ define(['browser', 'layoutManager', 'dom', 'focusManager', 'scrollStyles'], func
             // native smooth scroll
             options.enableNativeScroll = true;
         }
-        else if (options.requireAnimation && (browser.animate)) {
+        else if (options.requireAnimation && browserSupportsAnimation) {
 
             // transform is the only way to guarantee animation
             options.enableNativeScroll = false;
         }
-        else if (!layoutManager.tv || !(browser.animate)) {
+        else if (!layoutManager.tv || !browserSupportsAnimation) {
 
             options.enableNativeScroll = true;
         }
@@ -116,7 +118,6 @@ define(['browser', 'layoutManager', 'dom', 'focusManager', 'scrollStyles'], func
 
         // Frame
         var slideeElement = o.slidee ? o.slidee : sibling(frame.firstChild)[0];
-        var frameSize = 0;
         var pos = {
             start: 0,
             center: 0,
@@ -159,6 +160,25 @@ define(['browser', 'layoutManager', 'dom', 'focusManager', 'scrollStyles'], func
             return matched;
         }
 
+        var requiresReflow = true;
+
+        var frameSize = 0;
+        function ensureSizeInfo() {
+
+            if (requiresReflow) {
+
+                requiresReflow = false;
+
+                // Reset global variables
+                frameSize = o.horizontal ? (frame).offsetWidth : (frame).offsetHeight;
+
+                var slideeSize = o.scrollWidth || Math.max(slideeElement[o.horizontal ? 'offsetWidth' : 'offsetHeight'], slideeElement[o.horizontal ? 'scrollWidth' : 'scrollHeight']);
+
+                // Set position limits & relativess
+                pos.end = max(slideeSize - frameSize, 0);
+            }
+        }
+
         /**
 		 * Loading function.
 		 *
@@ -169,16 +189,12 @@ define(['browser', 'layoutManager', 'dom', 'focusManager', 'scrollStyles'], func
 		 */
         function load(isInit) {
 
-            // Reset global variables
-            frameSize = o.horizontal ? (o.frameSizeElement || frame).offsetWidth : (o.frameSizeElement || frame).offsetHeight;
-
-            var slideeSize = o.scrollWidth || Math.max(slideeElement[o.horizontal ? 'offsetWidth' : 'offsetHeight'], slideeElement[o.horizontal ? 'scrollWidth' : 'scrollHeight']);
-
-            // Set position limits & relativess
-            pos.start = 0;
-            pos.end = max(slideeSize - frameSize, 0);
+            requiresReflow = true;
 
             if (!isInit) {
+
+                ensureSizeInfo();
+
                 // Fix possible overflowing
                 slideTo(within(pos.dest, pos.start, pos.end));
             }
@@ -193,7 +209,7 @@ define(['browser', 'layoutManager', 'dom', 'focusManager', 'scrollStyles'], func
                     var entry = entries[j];
                     var target = entry.target;
                     console.log('resize: ' + frame.className);
-                    load(false);
+                    onResize();
                 }
             },
             observerOptions
@@ -230,6 +246,8 @@ define(['browser', 'layoutManager', 'dom', 'focusManager', 'scrollStyles'], func
 		 * @return {Void}
 		 */
         function slideTo(newPos, immediate, fullItemPos) {
+
+            ensureSizeInfo();
 
             newPos = within(newPos, pos.start, pos.end);
 
@@ -294,7 +312,9 @@ define(['browser', 'layoutManager', 'dom', 'focusManager', 'scrollStyles'], func
             }
             pos.cur = animation.to;
 
-            //frame.dispatchEvent(new CustomEvent('scroll', {}));
+            if (o.dispatchScrollEvent) {
+                frame.dispatchEvent(new CustomEvent('scroll', {}));
+            }
         }
 
         function getBoundingClientRect(elem) {
@@ -342,6 +362,8 @@ define(['browser', 'layoutManager', 'dom', 'focusManager', 'scrollStyles'], func
                 }
             }
 
+            ensureSizeInfo();
+
             var currentStart = pos.cur;
             var currentEnd = currentStart + frameSize;
 
@@ -358,6 +380,8 @@ define(['browser', 'layoutManager', 'dom', 'focusManager', 'scrollStyles'], func
         };
 
         self.getCenterPosition = function (item) {
+
+            ensureSizeInfo();
 
             var pos = self.getPos(item);
             return within(pos.center, pos.start, pos.end);
@@ -497,18 +521,21 @@ define(['browser', 'layoutManager', 'dom', 'focusManager', 'scrollStyles'], func
             dragging.pathToLock = isTouch ? 30 : 10;
 
             // Bind dragging events
-            if (isTouch) {
-                dragTouchEvents.forEach(function (eventName) {
-                    dom.addEventListener(document, eventName, dragHandler, {
-                        passive: true
+            if (transform) {
+
+                if (isTouch) {
+                    dragTouchEvents.forEach(function (eventName) {
+                        dom.addEventListener(document, eventName, dragHandler, {
+                            passive: true
+                        });
                     });
-                });
-            } else if (transform) {
-                dragMouseEvents.forEach(function (eventName) {
-                    dom.addEventListener(document, eventName, dragHandler, {
-                        passive: true
+                } else {
+                    dragMouseEvents.forEach(function (eventName) {
+                        dom.addEventListener(document, eventName, dragHandler, {
+                            passive: true
+                        });
                     });
-                });
+                }
             }
 
             // Add dragging class
@@ -576,19 +603,17 @@ define(['browser', 'layoutManager', 'dom', 'focusManager', 'scrollStyles'], func
         function dragEnd() {
             dragging.released = true;
 
-            if (dragging.touch) {
-                dragTouchEvents.forEach(function (eventName) {
-                    dom.removeEventListener(document, eventName, dragHandler, {
-                        passive: true
-                    });
+            dragTouchEvents.forEach(function (eventName) {
+                dom.removeEventListener(document, eventName, dragHandler, {
+                    passive: true
                 });
-            } else {
-                dragMouseEvents.forEach(function (eventName) {
-                    dom.removeEventListener(document, eventName, dragHandler, {
-                        passive: true
-                    });
+            });
+
+            dragMouseEvents.forEach(function (eventName) {
+                dom.removeEventListener(document, eventName, dragHandler, {
+                    passive: true
                 });
-            }
+            });
 
             slideeElement.classList.remove(o.draggedClass);
 
@@ -643,6 +668,8 @@ define(['browser', 'layoutManager', 'dom', 'focusManager', 'scrollStyles'], func
 		 * @return {Void}
 		 */
         function scrollHandler(event) {
+
+            ensureSizeInfo();
 
             // Ignore if there is no scrolling to be done
             if (!o.scrollBy || pos.start === pos.end) {
@@ -735,7 +762,7 @@ define(['browser', 'layoutManager', 'dom', 'focusManager', 'scrollStyles'], func
             }
         }
 
-        self.getScrollPosition = function() {
+        self.getScrollPosition = function () {
             return pos.cur;
         };
 
@@ -775,14 +802,12 @@ define(['browser', 'layoutManager', 'dom', 'focusManager', 'scrollStyles'], func
                 }
             }
 
-            if (o.horizontal || transform) {
+            if (transform) {
+
                 // This can prevent others from being able to listen to mouse events
                 dom.addEventListener(dragSourceElement, 'mousedown', dragInitSlidee, {
                     //passive: true
                 });
-            }
-
-            if (transform) {
 
                 dom.addEventListener(dragSourceElement, 'touchstart', dragInitSlidee, {
                     passive: true

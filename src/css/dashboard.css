@@ -1,4 +1,8 @@
-﻿.dashboardFooter {
+﻿.dashboardDocument {
+    font-family: -apple-system, BlinkMacSystemFont, "Roboto", "Segoe UI", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", 'Open Sans', sans-serif;
+}
+
+.dashboardFooter {
     margin-top: 50px;
     text-align: center;
 }

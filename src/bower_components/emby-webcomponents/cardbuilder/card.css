@@ -71,11 +71,16 @@ button {
 
 .cardBox {
     padding: 0 !important;
-    margin: .45em;
+    margin: .427em;
     transition: none;
     border: 0 solid transparent;
     /* Needed in case cardBox is a button */
     background-color: transparent;
+}
+
+.layout-tv .cardBox {
+    margin: .38em;
+    border: .09em solid transparent;
 }
 
 .cardBox-focustransform {
@@ -83,11 +88,7 @@ button {
     transition: transform 200ms ease-out;
 }
 
-.card-focusscale:focus > .cardBox-focustransform, .cardBox-scaled {
-    transform: scale(1.16, 1.16);
-}
-
-.cardBox-scaled-small {
+.card-focusscale:focus > .cardBox-focustransform {
     transform: scale(1.16, 1.16);
 }
 
@@ -98,8 +99,6 @@ button {
 }
 
     .card:focus .cardBox {
-        margin: .36em;
-        border-width: .09em;
         border-color: transparent;
     }
 
@@ -257,6 +256,14 @@ button {
     text-align: left;
 }
 
+.layout-tv .cardText {
+    padding: .1em .5em;
+}
+
+.innerCardFooter > .cardText {
+    padding: .3em .5em;
+}
+
 .singleCardText {
     padding: .5em;
 }
@@ -266,7 +273,8 @@ button {
 }
 
 .cardText-secondary {
-    opacity: .6;
+    opacity: .5;
+    font-size: 90%;
 }
 
 .cardText-rightmargin {
@@ -338,13 +346,7 @@ button {
     margin: 0 .35em .5em 0;
     z-index: 1;
     padding: 6px;
-    /*opacity: 0;
-    transition: opacity 0.5s ease-in;  */
 }
-
-    /*.card:hover .cardOverlayButton {
-    opacity: 1;
-}*/
 
     .cardOverlayButton:hover {
         background-color: rgba(0,0,0,.9) !important;
@@ -551,6 +553,10 @@ button {
     .overflowPortraitCard-scalable {
         width: 18vw;
     }
+
+    .overflowSquareCard-scalable {
+        width: 18vw;
+    }
 }
 
 
@@ -569,6 +575,10 @@ button {
     }
 
     .overflowPortraitCard-scalable {
+        width: 15vw;
+    }
+
+    .overflowSquareCard-scalable {
         width: 15vw;
     }
 
@@ -652,7 +662,7 @@ button {
 }
 
 .itemsContainer-tv > .squareCard-scalable {
-    width: 14.285714285714285714285714285714%;
+    width: 16.666666666666666666666666666667%;
 }
 
 .itemsContainer-tv > .portraitCard-scalable {
@@ -667,6 +677,6 @@ button {
     width: 23vw;
 }
 
-.itemsContainer-tv > .overflowSquareCard-scalable {
-    width: 13vw;
+.itemsContainer-tv > .overflowSquareCard-scalable, .itemsContainer-tv > .overflowPortraitCard-scalable {
+    width: 14.9vw;
 }

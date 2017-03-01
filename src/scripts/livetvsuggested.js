@@ -210,6 +210,12 @@
 
         }).then(function (result) {
 
+            if (result.Items.length) {
+                page.querySelector('.upcomingPrograms').classList.remove('hide');
+            } else {
+                page.querySelector('.upcomingPrograms').classList.add('hide');
+            }
+
             renderItems(page, result.Items, 'upcomingProgramItems');
         });
     }

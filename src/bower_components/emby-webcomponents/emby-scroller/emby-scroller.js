@@ -53,15 +53,6 @@
             slider.style['white-space'] = 'nowrap';
         }
 
-        var frameSizeElement;
-        var frameSizeConfig = this.getAttribute('data-framesize');
-
-        if (frameSizeConfig === 'matchparent') {
-            frameSizeElement = this.parentNode;
-        }
-        else if (frameSizeConfig === 'matchgrandparent') {
-            frameSizeElement = this.parentNode.parentNode;
-        }
         var options = {
             horizontal: horizontal,
             mouseDragging: 1,
@@ -74,9 +65,9 @@
             elasticBounds: 1,
             dragHandle: 1,
             scrollWidth: 500000,
-            frameSizeElement: frameSizeElement,
             autoImmediate: true,
-            skipSlideToWhenVisible: this.getAttribute('data-skipfocuswhenvisible') === 'true'
+            skipSlideToWhenVisible: this.getAttribute('data-skipfocuswhenvisible') === 'true',
+            dispatchScrollEvent: this.getAttribute('data-scrollevent') === 'true'
         };
 
         // If just inserted it might not have any height yet - yes this is a hack
