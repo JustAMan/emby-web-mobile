@@ -15,7 +15,6 @@
                     query: {
                         SortBy: "SortName",
                         SortOrder: "Ascending",
-                        IncludeItemTypes: "Audio",
                         Recursive: true,
                         Fields: "PrimaryImageAspectRatio,ItemCounts",
                         StartIndex: 0
@@ -63,9 +62,7 @@
                         shape: "backdrop",
                         preferThumb: true,
                         context: 'music',
-                        showItemCounts: true,
                         centerText: true,
-                        lazy: true,
                         overlayMoreButton: true,
                         showTitle: true
                     });
@@ -77,10 +74,8 @@
                         shape: "backdrop",
                         preferThumb: true,
                         context: 'music',
-                        showItemCounts: true,
                         cardLayout: true,
                         showTitle: true,
-                        lazy: true,
                         vibrant: true
                     });
                 }
@@ -89,8 +84,6 @@
                         items: result.Items,
                         shape: "auto",
                         context: 'music',
-                        showItemCounts: true,
-                        lazy: true,
                         cardLayout: true,
                         showTitle: true,
                         vibrant: true
@@ -102,8 +95,6 @@
                         shape: "auto",
                         context: 'music',
                         centerText: true,
-                        showItemCounts: true,
-                        lazy: true,
                         overlayMoreButton: true,
                         showTitle: true
                     });

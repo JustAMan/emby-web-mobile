@@ -154,10 +154,10 @@
                     depends.push('scripts/tvlatest');
                     break;
                 case 2:
-                    depends.push('scripts/tvupcoming');
+                    depends.push('scripts/tvshows');
                     break;
                 case 3:
-                    depends.push('scripts/tvshows');
+                    depends.push('scripts/tvupcoming');
                     break;
                 case 4:
                     depends.push('scripts/tvgenres');

@@ -19,7 +19,7 @@
                         Recursive: true,
                         EnableTotalRecordCount: false
                     },
-                    view: libraryBrowser.getSavedView(key) || (appHost.preferVisualCards ? 'PosterCard' : 'Poster')
+                    view: 'Poster'
                 };
 
                 pageData.query.ParentId = params.topParentId;
@@ -153,9 +153,7 @@
                     cardBuilder.buildCards(result.Items, {
                         itemsContainer: elem,
                         shape: getPortraitShape(),
-                        showTitle: true,
                         scalable: true,
-                        centerText: true,
                         overlayMoreButton: true,
                         allowBottomPadding: false
                     });

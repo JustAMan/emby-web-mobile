@@ -110,9 +110,7 @@
                         context: 'music',
                         showTitle: true,
                         coverImage: true,
-                        lazy: true,
                         cardLayout: true,
-                        showSongCount: true,
                         vibrant: true
                     });
                 }

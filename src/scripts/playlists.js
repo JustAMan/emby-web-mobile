@@ -114,10 +114,8 @@
                         html = cardBuilder.getCardsHtml({
                             items: result.Items,
                             shape: "square",
-                            showTitle: true,
-                            lazy: true,
                             coverImage: true,
-                            showItemCounts: true,
+                            showTitle: true,
                             cardLayout: true,
                             vibrant: true
                         });
@@ -128,7 +126,6 @@
                             shape: "backdrop",
                             showTitle: true,
                             centerText: true,
-                            lazy: true,
                             preferThumb: true,
                             overlayPlayButton: true
                         });
@@ -138,10 +135,8 @@
                             items: result.Items,
                             shape: "backdrop",
                             showTitle: true,
-                            lazy: true,
                             preferThumb: true,
                             cardLayout: true,
-                            showItemCounts: true,
                             vibrant: true
                         });
                     }
@@ -151,9 +146,7 @@
                             items: result.Items,
                             shape: "square",
                             showTitle: true,
-                            lazy: true,
                             coverImage: true,
-                            showItemCounts: true,
                             centerText: true,
                             overlayPlayButton: true
                         });

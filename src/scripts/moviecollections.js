@@ -99,7 +99,6 @@
                         shape: "backdrop",
                         preferThumb: true,
                         context: 'movies',
-                        lazy: true,
                         overlayPlayButton: true,
                         showTitle: true
                     });
@@ -114,7 +113,6 @@
                         lazy: true,
                         cardLayout: true,
                         showTitle: true,
-                        showItemCounts: true,
                         vibrant: true
                     });
                 }
@@ -145,7 +143,6 @@
                         showTitle: true,
                         centerText: false,
                         cardLayout: true,
-                        showItemCounts: true,
                         vibrant: true
                     });
                 }
