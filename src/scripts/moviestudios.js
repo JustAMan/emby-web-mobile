@@ -14,9 +14,8 @@
                 query: {
                     SortBy: "SortName",
                     SortOrder: "Ascending",
-                    IncludeItemTypes: "Movie",
                     Recursive: true,
-                    Fields: "DateCreated,ItemCounts,PrimaryImageAspectRatio",
+                    Fields: "DateCreated,PrimaryImageAspectRatio",
                     StartIndex: 0
                 }
             };
@@ -50,7 +49,6 @@
                 preferThumb: true,
                 showTitle: true,
                 scalable: true,
-                showItemCounts: true,
                 centerText: true,
                 overlayMoreButton: true
             });

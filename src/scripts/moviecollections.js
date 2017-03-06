@@ -25,7 +25,7 @@
                         StartIndex: 0,
                         Limit: pageSize
                     },
-                    view: libraryBrowser.getSavedView(key) || (appHost.preferVisualCards ? 'PosterCard' : 'Poster')
+                    view: libraryBrowser.getSavedView(key) || 'Poster'
                 };
 
                 libraryBrowser.loadSavedQueryValues(key, pageData.query);
@@ -100,6 +100,7 @@
                         preferThumb: true,
                         context: 'movies',
                         overlayPlayButton: true,
+                        centerText: true,
                         showTitle: true
                     });
                 }
@@ -154,7 +155,6 @@
                         shape: "auto",
                         context: 'movies',
                         centerText: true,
-                        lazy: true,
                         overlayPlayButton: true,
                         showTitle: true
                     });

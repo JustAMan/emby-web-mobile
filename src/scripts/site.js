@@ -1304,7 +1304,7 @@ var AppInfo = {};
             };
 
             embyRouter.showFavorites = function () {
-                Dashboard.navigate('favorites.html');
+                Dashboard.navigate('home.html?tab=1');
             };
 
             embyRouter.showSettings = function () {
@@ -1763,13 +1763,6 @@ var AppInfo = {};
             dependencies: [],
             autoFocus: false,
             roles: 'admin'
-        });
-
-        defineRoute({
-            path: '/favorites.html',
-            dependencies: [],
-            autoFocus: false,
-            controller: 'scripts/favorites'
         });
 
         defineRoute({
@@ -2387,7 +2380,8 @@ var AppInfo = {};
         //'plugins/logoscreensaver/plugin',
         //'plugins/backdropscreensaver/plugin',
         //'plugins/defaultsoundeffects/plugin',
-        'bower_components/emby-webcomponents/playback/playbackvalidation'
+        'bower_components/emby-webcomponents/playback/playbackvalidation',
+        'bower_components/emby-webcomponents/playback/playaccessvalidation'
         ];
 
         if (Dashboard.isRunningInCordova() && browser.android) {

@@ -17,7 +17,7 @@
                         SortBy: "SortName",
                         SortOrder: "Ascending",
                         Recursive: true,
-                        Fields: "PrimaryImageAspectRatio,SortName,ItemCounts,BasicSyncInfo",
+                        Fields: "PrimaryImageAspectRatio,SortName,BasicSyncInfo",
                         StartIndex: 0,
                         ImageTypeLimit: 1,
                         EnableImageTypes: "Primary,Backdrop,Banner,Thumb",

@@ -223,6 +223,10 @@ define(['appStorage', 'browser'], function (appStorage, browser) {
             features.push('remotecontrol');
         }
 
+        if (!browser.operaTv && !browser.tizen && !browser.orsay && !browser.web0s && !browser.edgeUwp) {
+            features.push('remotemedia');
+        }
+
         return features;
     }();
 

@@ -197,7 +197,6 @@
                 showTitle: true,
                 lazy: true,
                 coverImage: true,
-                showItemCounts: true,
                 centerText: !supportsImageAnalysis,
                 overlayPlayButton: !supportsImageAnalysis,
                 allowBottomPadding: !enableScrollX(),
