@@ -1,4 +1,4 @@
-﻿define(['apphost', 'listViewStyle'], function (appHost) {
+﻿define(['apphost', 'connectionManager', 'listViewStyle'], function (appHost, connectionManager) {
     'use strict';
 
     return function (view, params) {
@@ -35,12 +35,20 @@
 
             Dashboard.getCurrentUser().then(function (user) {
 
-                page.querySelector('.headerUser').innerHTML = user.Name;
+                var headerUser = page.querySelector('.headerUser');
+
+                headerUser.innerHTML = user.Name;
 
                 if (user.Policy.IsAdministrator) {
                     page.querySelector('.adminSection').classList.remove('hide');
                 } else {
                     page.querySelector('.adminSection').classList.add('hide');
+                }
+
+                if (user.EnableAutoLogin && connectionManager.getSavedServers().length < 2) {
+                    view.querySelector('.btnLogout').classList.add('hide');
+                } else {
+                    view.querySelector('.btnLogout').classList.remove('hide');
                 }
             });
 
