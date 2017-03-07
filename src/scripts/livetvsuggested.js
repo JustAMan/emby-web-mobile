@@ -31,7 +31,6 @@
             coverImage: true,
             lazy: true,
             cardLayout: true,
-            vibrant: true,
             allowBottomPadding: !enableScrollX(),
             preferThumb: 'auto'
 
@@ -61,7 +60,6 @@
                 showAirEndTime: true,
                 showChannelName: true,
                 cardLayout: true,
-                vibrant: true,
                 preferThumb: true,
                 coverImage: true,
                 overlayText: false
@@ -243,7 +241,6 @@
             showAirTime: true,
             showAirDateTime: true,
             showChannelName: true,
-            vibrant: true,
             cardLayout: supportsImageAnalysis
 
         }, cardOptions));

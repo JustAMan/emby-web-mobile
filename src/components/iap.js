@@ -57,7 +57,7 @@
             if (browser.tv || browser.mobile) {
                 return 86400000;
             }
-            return 259200000;
+            return 345600000;
         }
 
         return 0;

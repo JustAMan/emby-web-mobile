@@ -1313,7 +1313,7 @@
                     scrollClass = 'smoothScrollX';
                 }
 
-                if (result.Items.length == 1 && item.Type === 'Episode') {
+                if (result.Items.length < 2 && item.Type === 'Episode') {
 
                     return;
 

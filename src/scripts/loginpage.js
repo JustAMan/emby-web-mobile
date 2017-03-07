@@ -105,7 +105,7 @@
             html += '<div class="cardScalable visualCardBox-cardScalable">';
 
             html += '<div class="cardPadder cardPadder-square"></div>';
-            html += '<a class="cardContent" href="#" data-ajax="false" data-haspw="' + user.HasPassword + '" data-username="' + user.Name + '" data-userid="' + user.Id + '">';
+            html += '<a class="cardContent" href="#" data-haspw="' + user.HasPassword + '" data-username="' + user.Name + '" data-userid="' + user.Id + '">';
 
             var imgUrl;
 
@@ -140,7 +140,9 @@
             html += '</div>';
         }
 
-        context.querySelector('#divUsers').innerHTML = html;
+        var container = context.querySelector('#divUsers');
+
+        container.innerHTML = html;
     }
 
     return function (view, params) {
@@ -226,8 +228,12 @@
 
                 } else {
 
-                    showVisualForm();
-                    loadUserList(view, apiClient, users);
+                    if (users.length && users[0].EnableAutoLogin) {
+                        authenticateUserByName(view, apiClient, users[0].Name, '');
+                    } else {
+                        showVisualForm();
+                        loadUserList(view, apiClient, users);
+                    }
                 }
 
                 Dashboard.hideLoadingMsg();

@@ -1124,6 +1124,10 @@ define(['datetime', 'imageLoader', 'connectionManager', 'itemHelper', 'focusMana
 
             if (layoutManager.tv) {
                 cardBoxClass += ' cardBox-focustransform';
+
+                if (options.cardLayout || !separateCardBox) {
+                    cardBoxClass += ' card-focuscontent';
+                }
             }
 
             var footerCssClass;
@@ -1236,6 +1240,10 @@ define(['datetime', 'imageLoader', 'connectionManager', 'itemHelper', 'focusMana
                 }
 
                 var cardScalableClass = 'cardScalable';
+
+                if (layoutManager.tv && !options.cardLayout) {
+                    cardScalableClass += ' card-focuscontent';
+                }
                 cardImageContainerOpen = '<div class="' + cardBoxClass + '"><div class="' + cardScalableClass + '"><div class="cardPadder-' + options.shape + '"></div>' + cardContentOpen + cardImageContainerOpen;
                 cardBoxClose = '</div>';
                 cardScalableClose = '</div>';
@@ -1280,7 +1288,8 @@ define(['datetime', 'imageLoader', 'connectionManager', 'itemHelper', 'focusMana
 
             var tagName = (layoutManager.tv || !scalable) && !overlayButtons ? 'button' : 'div';
 
-            var prefix = (item.SortName || item.Name || '')[0];
+            var nameWithPrefix = (item.SortName || item.Name || '');
+            var prefix = nameWithPrefix.substring(0, Math.min(3, nameWithPrefix.length));
 
             if (prefix) {
                 prefix = prefix.toUpperCase();
