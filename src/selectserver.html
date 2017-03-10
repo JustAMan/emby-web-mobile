@@ -1,51 +1,26 @@
-﻿<div id="selectServerPage" data-role="page" class="page noSecondaryNavPage standalonePage" data-theme="b">
+﻿<div id="selectServerPage" data-role="page" class="page noSecondaryNavPage standalonePage pageContainer fullWidth vertical flex flex-direction-column" data-theme="b">
 
-    <div data-role="content">
+    <div is="emby-scroller" class="flex flex-grow" data-mousewheel="true" data-horizontal="false" data-centerfocus="card">
+        <div class="scrollSlider flex flex-grow flex-direction-column">
+            <h1 class="pageHeader hide" style="text-align: center;">${HeaderSelectServer}</h1>
 
-        <div class="readOnlyContent" style="margin: 0 auto;">
+            <div class="mainContent">
 
-            <div style="margin:1em 0 .5em;padding-left:5px;">
-                <h1 style="display:inline-block;vertical-align:middle;margin: 0;">${HeaderSelectServer}</h1>
-                <a href="https://github.com/MediaBrowser/Wiki/wiki/Emby%20Connect" target="_blank" class="clearLink" style="margin-top: 0; display: inline-block; vertical-align: middle; margin-left: 1em;">
-                    <button is="emby-button" type="button" class="raised button-accent mini">
-                        <i class="md-icon">info</i>
-                        <span>${ButtonHelp}</span>
-                    </button>
-                </a>
             </div>
 
-            <div class="serverList paperList"></div>
-            <br />
-            <div class="noServersMessage hide" style="padding-left:5px;">
-                ${MessageNoServersAvailableToConnect}
-                <br /><br />
-            </div>
-
-            <div class="addServer" style="margin:0 0 1em;">
-                <a href="connectlogin.html?mode=manualserver" class="clearLink">
-                    <button is="emby-button" type="button" class="raised cancel block">
-                        <span>${ButtonAddServer}</span>
-                    </button>
-                </a>
-            </div>
-
-            <div class="connectLogin hide" style="margin:1em 0;">
-                <a href="connectlogin.html?mode=connect" class="clearLink">
-                    <button is="emby-button" type="button" class="raised button-accent block">
-                        <span>${ButtonSignInWithConnect}</span>
-                    </button>
-                </a>
-            </div>
-
-            <div class="invitationSection hide">
-                <br />
-                <h1 style="margin-bottom:.5em;padding-left:5px;">${HeaderInvitations}</h1>
-
-                <div class="invitationList paperList">
-
-                </div>
+            <div class="padded-top padded-left padded-right flex justify-content-center flex-wrap-wrap buttons hide" style="margin: 1em auto 1em;">
+                <button is="emby-button" type="button" class="raised cancel btnAddServer block" style="margin: .25em;">
+                    <span>${ButtonNewServer}</span>
+                </button>
+                <button is="emby-button" type="button" class="raised cancel btnConnect block" style="margin: .25em;">
+                    <span>${HeaderSignInWithConnect}</span>
+                </button>
+                <button is="emby-button" type="button" class="raised cancel btnOffline block hide" style="margin: .25em;">
+                    <span class="btnOfflineText"></span>
+                </button>
             </div>
         </div>
-
     </div>
+
+
 </div>

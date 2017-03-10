@@ -1,388 +1,242 @@
-﻿define(['appSettings', 'paper-icon-button-light'], function (appSettings) {
+﻿define(['loading', 'layoutManager', 'appSettings', 'apphost', 'focusManager', 'connectionManager', 'backdrop', 'globalize', 'staticBackdrops', 'actionsheet', 'dom', 'material-icons', 'flexStyles', 'emby-scroller', 'emby-itemscontainer', 'cardStyle'], function (loading, layoutManager, appSettings, appHost, focusManager, connectionManager, backdrop, globalize, staticBackdrops, actionSheet, dom) {
     'use strict';
 
-    function updatePageStyle(page) {
-
-        if (getParameterByName('showuser') == '1') {
-            page.classList.add('libraryPage');
-            page.classList.add('noSecondaryNavPage');
-            page.classList.remove('standalonePage');
-        } else {
-            page.classList.add('standalonePage');
-            page.classList.remove('noSecondaryNavPage');
-            page.classList.remove('libraryPage');
-        }
+    function getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
-    function showServerConnectionFailure() {
+    function renderSelectServerItems(view, servers) {
 
-        alertText(Globalize.translate('MessageUnableToConnectToServer'), Globalize.translate("HeaderConnectionFailure"));
-    }
+        var items = servers.map(function (server) {
 
-    function getServerHtml(server) {
+            return {
+                name: server.Name,
+                showIcon: true,
+                icon: '&#xE307;',
+                cardType: '',
+                id: server.Id,
+                server: server
+            };
 
-        var html = '';
-
-        html += '<div class="listItem serverItem" data-id="' + server.Id + '">';
-
-        html += '<button type="button" is="emby-button" class="fab mini autoSize blue lnkServer" item-icon><i class="md-icon">wifi</i></button>';
-
-        html += '<div class="listItemBody lnkServer">';
-        html += '<a class="clearLink" href="#">';
-
-        html += '<div>';
-        html += server.Name;
-        html += '</div>';
-
-        //html += '<div secondary>';
-        //html += MediaBrowser.ServerInfo.getServerAddress(server, server.LastConnectionMode);
-        //html += '</div>';
-
-        html += '</a>';
-        html += '</div>';
-
-        if (server.Id) {
-            html += '<button is="paper-icon-button-light" class="btnServerMenu autoSize"><i class="md-icon">more_vert</i></button>';
-        }
-
-        html += '</div>';
-
-        return html;
-    }
-
-    function renderServers(page, servers) {
-
-        if (servers.length) {
-            page.querySelector('.noServersMessage').classList.add('hide');
-            page.querySelector('.serverList').classList.remove('hide');
-        } else {
-            page.querySelector('.serverList').classList.add('hide');
-            page.querySelector('.noServersMessage').classList.remove('hide');
-        }
-
-        var html = '';
-
-        html += servers.map(getServerHtml).join('');
-
-        page.querySelector('.serverList').innerHTML = html;
-    }
-
-    function alertText(text, title) {
-        alertTextWithOptions({
-            title: title,
-            text: text
         });
-    }
 
-    function alertTextWithOptions(options) {
-        require(['alert'], function (alert) {
-            alert(options);
-        });
-    }
+        var html = items.map(function (item) {
 
-    function showGeneralError() {
+            var cardImageContainer;
 
-        Dashboard.hideLoadingMsg();
-        alertText(Globalize.translate('DefaultErrorMessage'));
-    }
-
-    function parentWithClass(elem, className) {
-
-        while (!elem.classList || !elem.classList.contains(className)) {
-            elem = elem.parentNode;
-
-            if (!elem) {
-                return null;
+            if (item.showIcon) {
+                cardImageContainer = '<i class="cardImageIcon md-icon">' + item.icon + '</i>';
+            } else {
+                cardImageContainer = '<div class="cardImage" style="' + item.cardImageStyle + '"></div>';
             }
-        }
 
-        return elem;
+            var cardBoxCssClass = 'cardBox';
+
+            if (layoutManager.tv) {
+                cardBoxCssClass += ' cardBox-focustransform';
+            }
+
+            var tagName = 'button';
+            var innerOpening = '<div class="' + cardBoxCssClass + '">';
+            var innerClosing = '</div>';
+
+            return '\
+<' + tagName + ' raised class="card overflowSquareCard loginSquareCard scalableCard overflowSquareCard-scalable" style="display:inline-block;" data-id="' + item.id + '" data-url="' + (item.url || '') + '" data-cardtype="' + item.cardType + '">\
+' + innerOpening + '<div class="cardScalable card-focuscontent">\
+<div class="cardPadder cardPadder-square"></div>\
+<div class="cardContent">\
+<div class="cardImageContainer coveredImage" style="background:#0288D1;border-radius:.15em;">\
+'+ cardImageContainer + '</div>\
+</div>\
+</div>\
+<div class="cardFooter">\
+<div class="cardText cardTextCentered">' + item.name + '</div>\
+</div>'+ innerClosing + '\
+</'+ tagName + '>';
+
+        }).join('');
+
+        var itemsContainer = view.querySelector('.servers');
+        itemsContainer.innerHTML = html;
+
+        loading.hide();
+    }
+
+    function updatePageStyle(view, params) {
+
+        if (params.showuser == '1') {
+            view.classList.add('libraryPage');
+            view.classList.remove('standalonePage');
+        } else {
+            view.classList.add('standalonePage');
+            view.classList.remove('libraryPage');
+        }
     }
 
     return function (view, params) {
 
-        var cachedServers;
+        var self = this;
+        var servers;
 
-        function connectToServer(page, server) {
+        var scrollX = !layoutManager.desktop;
+        scrollX = false;
 
-            Dashboard.showLoadingMsg();
+        function connectToServer(server) {
 
-            ConnectionManager.connectToServer(server, {
+            loading.show();
 
+            connectionManager.connectToServer(server, {
                 enableAutoLogin: appSettings.enableAutoLogin()
 
             }).then(function (result) {
 
-                Dashboard.hideLoadingMsg();
-
-                var apiClient = result.ApiClient;
-
-                switch (result.State) {
-
-                    case MediaBrowser.ConnectionState.SignedIn:
-                        {
-                            Dashboard.onServerChanged(apiClient.getCurrentUserId(), apiClient.accessToken(), apiClient);
-                            Dashboard.navigate('home.html');
-                        }
-                        break;
-                    case MediaBrowser.ConnectionState.ServerSignIn:
-                        {
-                            Dashboard.onServerChanged(null, null, apiClient);
-                            Dashboard.navigate('login.html?serverid=' + result.Servers[0].Id);
-                        }
-                        break;
-                    case MediaBrowser.ConnectionState.ServerUpdateNeeded:
-                        {
-                            alertTextWithOptions({
-                                text: Globalize.translate('core#ServerUpdateNeeded', 'https://emby.media'),
-                                html: Globalize.translate('core#ServerUpdateNeeded', '<a href="https://emby.media">https://emby.media</a>')
-                            });
-                        }
-                        break;
-                    default:
-                        showServerConnectionFailure();
-                        break;
-                }
-
+                loading.hide();
+                startupHelper.handleConnectionResult(result, view);
             });
         }
 
-        function acceptInvitation(page, id) {
+        function deleteServer(server) {
 
-            Dashboard.showLoadingMsg();
+            loading.show();
 
-            // Add/Update connect info
-            ConnectionManager.acceptServer(id).then(function () {
+            connectionManager.deleteServer(server.Id).then(function () {
 
-                Dashboard.hideLoadingMsg();
-                loadPage(page);
+                loading.hide();
+                loadServers();
 
             }, function () {
 
-                showGeneralError();
-            });
-        }
-
-        function deleteServer(page, serverId) {
-
-            Dashboard.showLoadingMsg();
-
-            // Add/Update connect info
-            ConnectionManager.deleteServer(serverId).then(function () {
-
-                Dashboard.hideLoadingMsg();
-
-                loadPage(page);
-
-            }, function () {
-
-                showGeneralError();
+                loading.hide();
+                loadServers();
 
             });
         }
 
-        function rejectInvitation(page, id) {
-
-            Dashboard.showLoadingMsg();
-
-            // Add/Update connect info
-            ConnectionManager.rejectServer(id).then(function () {
-
-                Dashboard.hideLoadingMsg();
-
-                loadPage(page);
-
-            }, function () {
-
-                showGeneralError();
-
-            });
-        }
-
-        function showServerMenu(elem) {
-
-            var card = parentWithClass(elem, 'serverItem');
-            var page = parentWithClass(elem, 'page');
-            var serverId = card.getAttribute('data-id');
+        function onServerClick(server) {
 
             var menuItems = [];
 
             menuItems.push({
-                name: Globalize.translate('ButtonDelete'),
+                name: globalize.translate('Connect'),
+                id: 'connect'
+            });
+
+            menuItems.push({
+                name: globalize.translate('Delete'),
                 id: 'delete'
             });
 
-            require(['actionsheet'], function (actionsheet) {
+            actionSheet.show({
+                items: menuItems,
+                title: server.Name
 
-                actionsheet.show({
-                    items: menuItems,
-                    positionTo: elem,
-                    callback: function (id) {
+            }).then(function (id) {
 
-                        switch (id) {
+                switch (id) {
 
-                            case 'delete':
-                                deleteServer(page, serverId);
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                });
-
+                    case 'connect':
+                        connectToServer(server);
+                        break;
+                    case 'delete':
+                        deleteServer(server);
+                        break;
+                    default:
+                        break;
+                }
             });
         }
 
-        function showPendingInviteMenu(elem) {
+        function onServersRetrieved(result) {
 
-            var card = parentWithClass(elem, 'inviteItem');
-            var page = parentWithClass(elem, 'page');
-            var invitationId = card.getAttribute('data-id');
+            servers = result;
+            renderSelectServerItems(view, result);
+            view.querySelector('.pageHeader').classList.remove('hide');
+            view.querySelector('.buttons').classList.remove('hide');
 
-            var menuItems = [];
-
-            menuItems.push({
-                name: Globalize.translate('ButtonAccept'),
-                id: 'accept'
-            });
-
-            menuItems.push({
-                name: Globalize.translate('ButtonReject'),
-                id: 'reject'
-            });
-
-            require(['actionsheet'], function (actionsheet) {
-
-                actionsheet.show({
-                    items: menuItems,
-                    positionTo: elem,
-                    callback: function (id) {
-
-                        switch (id) {
-
-                            case 'accept':
-                                acceptInvitation(page, invitationId);
-                                break;
-                            case 'reject':
-                                rejectInvitation(page, invitationId);
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                });
-
-            });
-        }
-
-        function getPendingInviteHtml(invite) {
-
-            var html = '';
-
-            html += '<div class="listItem inviteItem" data-id="' + invite.Id + '">';
-
-            html += '<button type="button" is="emby-button" class="fab mini autoSize blue lnkServer" item-icon><i class="md-icon">wifi</i></button>';
-
-            html += '<div class="listItemBody">';
-
-            html += '<div>';
-            html += invite.Name;
-            html += '</div>';
-
-            html += '</div>';
-
-            html += '<button is="paper-icon-button-light" class="btnInviteMenu autoSize"><i class="md-icon">more_vert</i></button>';
-
-            html += '</div>';
-
-            return html;
-        }
-
-        function renderInvitations(page, list) {
-
-            if (list.length) {
-                page.querySelector('.invitationSection').classList.remove('hide');
-            } else {
-                page.querySelector('.invitationSection').classList.add('hide');
+            if (layoutManager.tv) {
+                focusManager.autoFocus(view);
             }
-
-            var html = list.map(getPendingInviteHtml).join('');
-
-            page.querySelector('.invitationList').innerHTML = html;
         }
 
-        function loadInvitations(page) {
+        function loadServers() {
 
-            if (ConnectionManager.isLoggedIntoConnect()) {
+            loading.show();
 
-                ConnectionManager.getUserInvitations().then(function (list) {
+            connectionManager.getAvailableServers().then(onServersRetrieved, function (result) {
 
-                    renderInvitations(page, list);
+                onServersRetrieved([]);
+            });
+        }
 
-                });
+        function initContent() {
+
+            updatePageStyle(view, params);
+
+            if (scrollX) {
+                view.querySelector('.mainContent').innerHTML = '<div is="emby-scroller" class="padded-top-focusscale padded-bottom-focusscale" data-mousewheel="false" data-horizontal="true" data-centerfocus="card"><div is="emby-itemscontainer" class="scrollSlider focuscontainer-x padded-left padded-right servers" style="display:block;text-align:center;"></div></div>';
 
             } else {
-
-                renderInvitations(page, []);
+                view.querySelector('.mainContent').innerHTML = '<div is="emby-scroller" class="padded-top-focusscale padded-bottom-focusscale" data-mousewheel="false" data-horizontal="true" data-centerfocus="card"><div is="emby-itemscontainer" class="scrollSlider focuscontainer-x padded-left padded-right servers" style="display:block;text-align:center;"></div></div>';
             }
 
-        }
+            view.querySelector('.btnOfflineText').innerHTML = globalize.translate('sharedcomponents#HeaderDownloadedMedia');
 
-        function loadPage(page) {
-
-            Dashboard.showLoadingMsg();
-
-            ConnectionManager.getAvailableServers().then(function (servers) {
-
-                servers = servers.slice(0);
-                cachedServers = servers;
-
-                renderServers(page, servers);
-
-                Dashboard.hideLoadingMsg();
-            });
-
-            loadInvitations(page);
-
-            if (ConnectionManager.isLoggedIntoConnect()) {
-                page.querySelector('.connectLogin').classList.add('hide');
-            } else {
-                page.querySelector('.connectLogin').classList.remove('hide');
+            if (appHost.supports('sync')) {
+                view.querySelector('.btnOffline').classList.remove('hide');
             }
         }
 
-        view.querySelector('.invitationList').addEventListener('click', function (e) {
+        initContent();
 
-            var btnInviteMenu = parentWithClass(e.target, 'btnInviteMenu');
-            if (btnInviteMenu) {
-                showPendingInviteMenu(btnInviteMenu);
-            }
-        });
-        view.querySelector('.serverList').addEventListener('click', function (e) {
+        var backdropUrl = staticBackdrops.getRandomImageUrl();
 
-            var lnkServer = parentWithClass(e.target, 'lnkServer');
-            if (lnkServer) {
-                var item = parentWithClass(lnkServer, 'serverItem');
-                var id = item.getAttribute('data-id');
+        view.addEventListener("viewshow", function (e) {
 
-                var server = cachedServers.filter(function (s) {
-                    return s.Id == id;
-                })[0];
+            var isRestored = e.detail.isRestored;
 
-                connectToServer(view, server);
-            }
+            Emby.Page.setTitle(null);
+            backdrop.setBackdrop(backdropUrl);
 
-            var btnServerMenu = parentWithClass(e.target, 'btnServerMenu');
-            if (btnServerMenu) {
-                showServerMenu(btnServerMenu);
+            if (!isRestored) {
+                loadServers(!isRestored);
             }
         });
 
-        view.addEventListener('viewbeforeshow', function () {
-            updatePageStyle(this);
+        view.querySelector('.btnAddServer').addEventListener("click", function (e) {
+
+            Emby.Page.show('/connectlogin.html?mode=manualserver');
         });
-        view.addEventListener('viewshow', function () {
-            loadPage(this);
+
+        view.querySelector('.btnConnect').addEventListener("click", function (e) {
+
+            Emby.Page.show('/connectlogin.html?mode=connect');
+        });
+
+        view.querySelector('.btnOffline').addEventListener("click", function (e) {
+
+            Emby.Page.show('/offline/offline.html');
+        });
+
+        view.querySelector('.servers').addEventListener('click', function (e) {
+
+            var card = dom.parentWithClass(e.target, 'card');
+
+            if (card) {
+                var url = card.getAttribute('data-url');
+
+                if (url) {
+                    Emby.Page.show(url);
+                } else {
+
+                    var id = card.getAttribute('data-id');
+                    var server = servers.filter(function (s) {
+                        return s.Id === id;
+                    })[0];
+
+                    onServerClick(server);
+                }
+            }
         });
     };
+
 });
