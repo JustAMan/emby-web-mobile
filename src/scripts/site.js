@@ -945,7 +945,6 @@ var AppInfo = {};
             chromecasthelpers: 'components/chromecasthelpers',
             events: apiClientBowerPath + '/events',
             credentialprovider: apiClientBowerPath + '/credentials',
-            apiclient: apiClientBowerPath + '/apiclient',
             connectionManagerFactory: bowerPath + '/emby-apiclient/connectionmanager',
             visibleinviewport: embyWebComponentsBowerPath + "/visibleinviewport",
             browserdeviceprofile: embyWebComponentsBowerPath + "/browserdeviceprofile",
@@ -1367,6 +1366,13 @@ var AppInfo = {};
         var apiClientBowerPath = bowerPath + "/emby-apiclient";
         var embyWebComponentsBowerPath = bowerPath + '/emby-webcomponents';
 
+        if (Dashboard.isRunningInCordova() && browser.android) {
+            define("apiclientcore", ['bower_components/emby-apiclient/apiclient'], returnFirstDependency);
+            define("apiclient", ['bower_components/emby-apiclient/apiclientex'], returnFirstDependency);
+        } else {
+            define("apiclient", ['bower_components/emby-apiclient/apiclient'], returnFirstDependency);
+        }
+
         if (Dashboard.isRunningInCordova() && browser.safari) {
             define("actionsheet", ["cordova/actionsheet"], returnFirstDependency);
         } else {
@@ -1600,7 +1606,7 @@ var AppInfo = {};
         Emby.Page.addRoute(path, newRoute);
     }
 
-    function defineCoreRoutes() {
+    function defineCoreRoutes(appHost) {
 
         console.log('Defining core routes');
 
@@ -2036,6 +2042,17 @@ var AppInfo = {};
             transition: 'fade',
             controller: 'scripts/myprofile'
         });
+
+        if (appHost.supports('sync')) {
+            defineRoute({
+                path: '/offline/offline.html',
+                transition: 'false',
+                controller: 'offline/offline',
+                dependencies: [],
+                anonymous: true,
+                startup: false
+            });
+        }
 
         defineRoute({
             path: '/mysync.html',
@@ -2526,7 +2543,7 @@ var AppInfo = {};
 
             window.Emby = {};
             window.Emby.Page = pageObjects;
-            defineCoreRoutes();
+            defineCoreRoutes(appHost);
             Emby.Page.start({
                 click: true,
                 hashbang: Dashboard.isRunningInCordova()

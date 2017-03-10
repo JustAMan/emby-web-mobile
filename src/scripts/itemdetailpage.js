@@ -186,7 +186,7 @@
     }
 
     function reloadPlayButtons(page, item) {
-        
+
         var canPlay = false;
 
         if (item.Type == 'Program') {
@@ -1344,7 +1344,9 @@
                 });
             }
 
-            page.querySelector('#childrenCollapsible').classList.remove('hide');
+            if (item.Type !== "BoxSet") {
+                page.querySelector('#childrenCollapsible').classList.remove('hide');
+            }
 
             if (scrollX) {
                 childrenItemsContainer.classList.add(scrollClass);
@@ -1369,7 +1371,7 @@
             if (item.Type == "BoxSet") {
 
                 var collectionItemTypes = [
-                    { name: globalize.translate('HeaderMovies'), type: 'Movie' },
+                    { name: globalize.translate('HeaderVideos'), mediaType: 'Video' },
                     { name: globalize.translate('HeaderSeries'), type: 'Series' },
                     { name: globalize.translate('HeaderAlbums'), type: 'MusicAlbum' },
                     { name: globalize.translate('HeaderGames'), type: 'Game' },
@@ -1598,6 +1600,17 @@
         }
     }
 
+    function filterItemsByCollectionItemType(items, typeInfo) {
+
+        return items.filter(function (item) {
+
+            if (typeInfo.mediaType) {
+                return item.MediaType == typeInfo.mediaType;
+            }
+            return item.Type == typeInfo.type;
+        });
+    }
+
     function renderCollectionItems(page, parentItem, types, items) {
 
         // First empty out existing content
@@ -1608,11 +1621,7 @@
 
             var type = types[i];
 
-            var typeItems = items.filter(function (curr) {
-
-                return curr.Type == type.type;
-
-            });
+            var typeItems = filterItemsByCollectionItemType(items, type);
 
             if (typeItems.length) {
                 renderCollectionItemType(page, parentItem, type, typeItems);
@@ -1625,7 +1634,7 @@
 
             return !types.filter(function (t) {
 
-                return t.type == curr.Type;
+                return filterItemsByCollectionItemType([curr], t).length > 0;
 
             }).length;
 
@@ -1931,7 +1940,6 @@
 
                 chaptercardbuilder.buildChapterCards(item, chapters, {
                     itemsContainer: scenesContent,
-                    coverImage: true,
                     width: 400,
                     backdropShape: getThumbShape(),
                     squareShape: getSquareShape()

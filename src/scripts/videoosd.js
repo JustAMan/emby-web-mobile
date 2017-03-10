@@ -939,7 +939,7 @@
         view.querySelector('.pageContainer').addEventListener('click', function () {
 
             // TODO: Replace this check with click vs tap detection
-            if (!browser.touch) {
+            if (!layoutManager.mobile) {
                 playbackManager.playPause(currentPlayer);
             }
             showOsd();
