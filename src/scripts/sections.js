@@ -514,7 +514,7 @@
 
         var query = {
 
-            Limit: enableScrollX() ? 20 : 10,
+            Limit: enableScrollX() ? 24 : 15,
             Fields: "PrimaryImageAspectRatio,SeriesInfo,DateCreated,BasicSyncInfo",
             UserId: userId,
             ImageTypeLimit: 1,

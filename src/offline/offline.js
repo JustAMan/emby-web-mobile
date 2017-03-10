@@ -121,7 +121,7 @@ define(['globalize', 'connectionManager', 'focusManager', 'cardBuilder', 'emby-i
 
         view.addEventListener('viewshow', function (e) {
 
-            Emby.Page.setTitle(globalize.translate('Offline'));
+            Emby.Page.setTitle(globalize.translate('sharedcomponents#Downloads'));
 
             var isRestored = e.detail.isRestored;
 

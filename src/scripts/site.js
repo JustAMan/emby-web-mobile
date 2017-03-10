@@ -694,6 +694,10 @@ var AppInfo = {};
         if (window.$) {
             $.ajax = newApiClient.ajax;
         }
+
+        require(['globalize'], function (globalize) {
+            newApiClient.downloadsTitleText = globalize.translate('sharedcomponents#Downloads');
+        });
     }
 
     function defineConnectionManager(connectionManager) {
