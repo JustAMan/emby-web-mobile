@@ -799,3 +799,63 @@ span.itemCommunityRating:not(:empty) + .userDataIcons {
 .mediaInfoText-upper {
     text-transform: uppercase;
 }
+
+.padded-left {
+    padding-left: 1em;
+}
+
+.padded-left-withalphapicker {
+    padding-left: 1em;
+}
+
+.padded-right {
+    padding-right: 1em;
+}
+
+.padded-top {
+    padding-top: 1em;
+}
+
+.padded-bottom {
+    padding-bottom: 1em;
+}
+
+.padded-top-focusscale {
+    padding-top: 1.6em;
+    margin-top: -1.6em;
+}
+
+.padded-bottom-focusscale {
+    padding-bottom: 1.6em;
+    margin-bottom: -1.6em;
+}
+
+@media all and (min-width: 800px) {
+
+    .padded-left {
+        padding-left: 2%;
+    }
+
+    .padded-left-withalphapicker {
+        padding-left: 4%;
+    }
+
+    .padded-right {
+        padding-right: 2%;
+    }
+}
+
+@media all and (min-width: 1280px) {
+
+    .padded-left {
+        padding-left: 4%;
+    }
+
+    .padded-left-withalphapicker {
+        padding-left: 4.4%;
+    }
+
+    .padded-right {
+        padding-right: 4%;
+    }
+}
