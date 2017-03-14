@@ -20,37 +20,57 @@
     <div class="backgroundContainer"></div>
     <div class="mainDrawer hide"><div class="mainDrawer-scrollContainer scrollContainer"></div></div>
     <div class="skinHeader"></div>
-    <div class="mainAnimatedPages skinBody hide">﻿<div id="playbackConfigurationPage" data-role="page" class="page type-interior playbackConfigurationPage withTabs" data-require="scripts/playbackconfiguration,emby-input,emby-button">
+    <div class="mainAnimatedPages skinBody hide">﻿<div id="liveTvTunerPage" data-role="page" class="page type-interior liveTvSettingsPage withTabs" data-helpurl="https://github.com/MediaBrowser/Wiki/wiki/Live%20TV">
 
     <div data-role="content">
         <div class="content-primary">
 
-            <form class="playbackConfigurationForm">
-                <div class="inputContainer">
-                    <input is="emby-input" type="number" id="txtMinResumePct" name="txtMinResumePct" pattern="[0-9]*" required min="0" max="100" label="${LabelMinResumePercentage}"></input>
-                    <div class="fieldDescription">
-                        ${LabelMinResumePercentageHelp}
-                    </div>
+            <form>
+                <h1>${HeaderLiveTvTunerSetup}</h1>
+
+                <button is="emby-button" type="button" class="raised button-cancel block btnDetect hide" style="margin-bottom:3em;">${HeaderDetectMyDevices}</button>
+
+                <div class="selectContainer">
+                    <select is="emby-select" class="selectType" label="${LabelTunerType}" required="required"></select>
                 </div>
-                <div class="inputContainer">
-                    <input is="emby-input" type="number" id="txtMaxResumePct" name="txtMaxResumePct" pattern="[0-9]*" required min="1" max="100" label="${LabelMaxResumePercentage}"></input>
-                    <div class="fieldDescription">
-                        ${LabelMaxResumePercentageHelp}
-                    </div>
-                </div>
-                <div class="inputContainer">
-                    <input is="emby-input" type="number" id="txtMinResumeDuration" name="txtMinResumeDuration" pattern="[0-9]*" required min="0" label="${LabelMinResumeDuration}"></input>
-                    <div class="fieldDescription">
-                        ${LabelMinResumeDurationHelp}
+
+                <div class="inputContainer fldPath hide">
+                    <div style="display: flex; align-items: center;">
+                        <div style="flex-grow: 1;">
+                            <input is="emby-input" class="txtDevicePath" label="${LabelFileOrUrl}" required="required" autocomplete="off"/>
+                        </div>
+                        <button type="button" is="paper-icon-button-light" class="btnSelectPath hide"><i class="md-icon">search</i></button>
                     </div>
                 </div>
 
-
+                <div class="checkboxContainer checkboxContainer-withDescription fldFavorites hide">
+                    <label>
+                        <input type="checkbox" is="emby-checkbox" class="chkFavorite" />
+                        <span>${LabelImportOnlyFavoriteChannels}</span>
+                    </label>
+                    <div class="fieldDescription checkboxFieldDescription">${ImportFavoriteChannelsHelp}</div>
+                </div>
+                <div class="checkboxContainer checkboxContainer-withDescription fldTranscode hide">
+                    <label>
+                        <input type="checkbox" is="emby-checkbox" class="chkTranscode" />
+                        <span>${LabelAllowHWTranscoding}</span>
+                    </label>
+                    <div class="fieldDescription checkboxFieldDescription">${AllowHWTranscodingHelp}</div>
+                </div>
+                <p class="drmMessage hide">${DrmChannelsNotImported}</p>
                 <br />
-                <div><button is="emby-button" type="submit" class="raised button-submit block"><span>${ButtonSave}</span></button></div>
+                <div>
+                    <button is="emby-button" type="submit" class="raised button-submit block">
+                        <span>${ButtonSave}</span>
+                    </button>
+                    <button is="emby-button" type="button" class="raised button-cancel block btnCancel" onclick="history.back();">
+                        <span>${ButtonCancel}</span>
+                    </button>
+                </div>
             </form>
         </div>
     </div>
-</div></div>
+</div>
+</div>
 <script>window.dashboardVersion='3.2.7.5';</script><script src="bower_components/requirejs/require.js?v=3.2.7.5" defer></script><script src="scripts/site.js?v=3.2.7.5" defer></script></body>
 </html>
