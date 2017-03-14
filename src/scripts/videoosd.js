@@ -136,13 +136,13 @@
         function doVolumeTouch(deltaY, player, viewHeight) {
 
             var delta = -((deltaY / viewHeight) * 100);
+            alert(delta);
+            var newValue = playbackManager.getVolume(player) + delta;
 
-            var newVolume = playbackManager.getVolume(player) + delta;
+            newValue = Math.min(newValue, 100);
+            newValue = Math.max(newValue, 0);
 
-            newVolume = Math.min(newVolume, 100);
-            newVolume = Math.max(newVolume, 0);
-
-            playbackManager.setVolume(newVolume, player);
+            playbackManager.setVolume(newValue, player);
         }
 
         function initSwipeEvents() {

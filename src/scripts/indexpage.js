@@ -12,10 +12,12 @@
             case 1:
                 return 'resume';
             case 2:
-                return 'nextup';
+                return 'resumeaudio';
             case 3:
-                return 'latestmedia';
+                return 'nextup';
             case 4:
+                return 'latestmedia';
+            case 5:
                 return 'latesttvrecordings';
             default:
                 return '';
@@ -53,7 +55,10 @@
             return Sections.loadlibraryButtons(elem, userId, index);
         }
         else if (section == 'resume') {
-            return Sections.loadResume(elem, userId);
+            return Sections.loadResumeVideo(elem, userId);
+        }
+        else if (section == 'resumeaudio') {
+            return Sections.loadResumeAudio(elem, userId);
         }
         else if (section == 'nextup') {
             return Sections.loadNextUp(elem, userId);
@@ -75,7 +80,7 @@
     function loadSections(page, user, userSettings) {
 
         var i, length;
-        var sectionCount = 5;
+        var sectionCount = 6;
 
         var elem = page.querySelector('.sections');
 

@@ -4,18 +4,14 @@
     var systemInfo;
     function getSystemInfo() {
 
-        var deferred = jQuery.Deferred();
-
         if (systemInfo) {
-            deferred.resolveWith(null, [systemInfo]);
+            return Promise.resolve(systemInfo);
         } else {
-            ApiClient.getPublicSystemInfo().then(function (info) {
+            return ApiClient.getPublicSystemInfo().then(function (info) {
                 systemInfo = info;
-                deferred.resolveWith(null, [systemInfo]);
+                return info;
             });
         }
-
-        return deferred.promise();
     }
 
     function onDialogClosed() {

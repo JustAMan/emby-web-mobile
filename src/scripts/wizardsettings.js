@@ -90,7 +90,9 @@
 
     function navigateToNextPage() {
 
-        Dashboard.navigate('wizardlivetvtuner.html');
+        require(['scripts/wizardcontroller'], function (wizardcontroller) {
+            wizardcontroller.navigateToComponents();
+        });
     }
 
     function onSubmit() {

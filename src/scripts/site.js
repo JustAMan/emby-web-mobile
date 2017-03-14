@@ -503,7 +503,7 @@ var Dashboard = {
         }, {
             name: Globalize.translate('TabLiveTV'),
             href: "livetvstatus.html",
-            pageIds: ['liveTvStatusPage', 'liveTvSettingsPage', 'liveTvTunerProviderHdHomerunPage', 'liveTvTunerProviderM3UPage', 'liveTvTunerProviderSatPage'],
+            pageIds: ['liveTvStatusPage', 'liveTvSettingsPage', 'liveTvTunerPage'],
             icon: 'dvr'
         }, {
             name: Globalize.translate('TabNotifications'),
@@ -992,6 +992,9 @@ var AppInfo = {};
         } else {
             define("lazyLoader", [embyWebComponentsBowerPath + "/lazyloader/lazyloader-scroll"], returnFirstDependency);
         }
+
+        define("tunerPicker", ["components/tunerpicker"], returnFirstDependency);
+
         define("imageLoader", [embyWebComponentsBowerPath + "/images/imagehelper"], returnFirstDependency);
         define("appfooter", ["components/appfooter/appfooter"], returnFirstDependency);
         define("dockedtabs", ["components/dockedtabs/dockedtabs"], returnFirstDependency);
@@ -1570,7 +1573,7 @@ var AppInfo = {};
 
         var baseUrl = 'strings/';
 
-        var languages = ['ar', 'bg-bg', 'ca', 'cs', 'da', 'de', 'el', 'en-gb', 'en-us', 'es-ar', 'es-mx', 'es', 'fi', 'fr', 'gsw', 'he', 'hr', 'hu', 'id', 'it', 'kk', 'ko', 'ms', 'nb', 'nl', 'pl', 'pt-br', 'pt-pt', 'ro', 'ru', 'sl-si', 'sv', 'tr', 'uk', 'vi', 'zh-cn', 'zh-hk', 'zh-tw'];
+        var languages = ['ar', 'bg-bg', 'ca', 'cs', 'da', 'de', 'el', 'en-gb', 'en-us', 'es-ar', 'es-mx', 'es', 'fa', 'fi', 'fr', 'gsw', 'he', 'hr', 'hu', 'id', 'it', 'kk', 'ko', 'ms', 'nb', 'nl', 'pl', 'pt-br', 'pt-pt', 'ro', 'ru', 'sl-si', 'sv', 'tr', 'uk', 'vi', 'zh-cn', 'zh-hk', 'zh-tw'];
 
         var translations = languages.map(function (i) {
             return {
@@ -1927,25 +1930,11 @@ var AppInfo = {};
         });
 
         defineRoute({
-            path: '/livetvtunerprovider-hdhomerun.html',
+            path: '/livetvtuner.html',
             dependencies: [],
-            autoFocus: false,
-            roles: 'admin'
-        });
-
-        defineRoute({
-            path: '/livetvtunerprovider-m3u.html',
-            dependencies: [],
-            autoFocus: false,
-            roles: 'admin'
-        });
-
-        defineRoute({
-            path: '/livetvtunerprovider-satip.html',
-            dependencies: ['emby-input'],
             autoFocus: false,
             roles: 'admin',
-            controller: 'dashboard/livetvtunerprovider-satip'
+            controller: 'dashboard/livetvtuner'
         });
 
         defineRoute({
@@ -2323,20 +2312,6 @@ var AppInfo = {};
 
         defineRoute({
             path: '/wizardlibrary.html',
-            dependencies: ['dashboardcss'],
-            autoFocus: false,
-            anonymous: true
-        });
-
-        defineRoute({
-            path: '/wizardlivetvguide.html',
-            dependencies: ['dashboardcss'],
-            autoFocus: false,
-            anonymous: true
-        });
-
-        defineRoute({
-            path: '/wizardlivetvtuner.html',
             dependencies: ['dashboardcss'],
             autoFocus: false,
             anonymous: true

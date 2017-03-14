@@ -39,6 +39,21 @@
         });
     }
 
+    function populateRefreshInterval(select) {
+
+        var html = "";
+
+        html += "<option value='0'>" + globalize.translate('Never') + "</option>";
+
+        html += [30, 60, 90].map(function (val) {
+
+            return "<option value='" + val + "'>" + globalize.translate('EveryNDays', val) + "</option>";
+
+        }).join('');
+
+        select.innerHTML = html;
+    }
+
     function embed(parent, contentType, libraryOptions) {
 
         return new Promise(function (resolve, reject) {
@@ -50,6 +65,8 @@
 
                 var template = this.response;
                 parent.innerHTML = globalize.translateDocument(template);
+
+                populateRefreshInterval(parent.querySelector('#selectAutoRefreshInterval'));
 
                 var promises = [
                     populateLanguages(parent.querySelector('#selectLanguage')),
@@ -80,12 +97,14 @@
             parent.querySelector('.chkEnableInternetProvidersContainer').classList.add('hide');
             parent.querySelector('.fldMetadataLanguage').classList.add('hide');
             parent.querySelector('.fldMetadataCountry').classList.add('hide');
+            parent.querySelector('.fldAutoRefreshInterval').classList.add('hide');
         } else {
             parent.querySelector('.chkEnablePhotosContainer').classList.add('hide');
             parent.querySelector('.chkDownloadImagesInAdvanceContainer').classList.remove('hide');
             parent.querySelector('.chkEnableInternetProvidersContainer').classList.remove('hide');
             parent.querySelector('.fldMetadataLanguage').classList.remove('hide');
             parent.querySelector('.fldMetadataCountry').classList.remove('hide');
+            parent.querySelector('.fldAutoRefreshInterval').classList.remove('hide');
         }
 
         if (contentType == 'photos') {
@@ -130,6 +149,7 @@
             EnableAutomaticSeriesGrouping: parent.querySelector('.chkAutomaticallyGroupSeries').checked,
             PreferredMetadataLanguage: parent.querySelector('#selectLanguage').value,
             MetadataCountryCode: parent.querySelector('#selectCountry').value,
+            AutomaticRefreshIntervalDays: parseInt(parent.querySelector('#selectAutoRefreshInterval').value),
             EnableEmbeddedTitles: parent.querySelector('#chkEnableEmbeddedTitles').checked
         };
 
@@ -140,6 +160,7 @@
 
         parent.querySelector('#selectLanguage').value = options.PreferredMetadataLanguage || '';
         parent.querySelector('#selectCountry').value = options.MetadataCountryCode || '';
+        parent.querySelector('#selectAutoRefreshInterval').value = options.AutomaticRefreshIntervalDays || '0';
 
         parent.querySelector('.chkEnablePhotos').checked = options.EnablePhotos;
         parent.querySelector('.chkEnableRealtimeMonitor').checked = options.EnableRealtimeMonitor;

@@ -123,6 +123,7 @@
             enableUserDataButtons: false,
             image: false,
             showProgramDateTime: true,
+            showChannel: true,
             mediaInfo: false,
             action: 'none',
             moreButton: false,

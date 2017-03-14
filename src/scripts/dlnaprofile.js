@@ -250,25 +250,26 @@
 
         var index = 0;
 
-        var html = '<ul data-role="listview" data-inset="true" data-split-icon="delete">' + profiles.map(function (h) {
+        var html = '<div class="paperList">' + profiles.map(function (h) {
 
-            var li = '<li>';
+            var li = '<div class="listItem lnkEditSubProfile" data-index="' + index + '">';
 
-            li += '<a href="#" class="lnkEditSubProfile" data-index="' + index + '">';
+            li += '<i class="md-icon listItemIcon">info</i>';
+            li += '<div class="listItemBody">';
 
-            li += '<div style="font-weight:normal;">' + (h.Format || '') + '</div>';
+            li += '<h3 class="listItemBodyText">' + (h.Format || '') + '</h3>';
 
-            li += '</a>';
+            li += '</div>';
 
-            li += '<a class="btnDeleteProfile" href="#" data-icon="delete" data-index="' + index + '"></a>';
+            li += '<button type="button" is="paper-icon-button-light" class="btnDeleteProfile listItemButton" data-index="' + index + '"><i class="md-icon">delete</i></button>';
 
-            li += '</li>';
+            li += '</div>';
 
             index++;
 
             return li;
 
-        }).join('') + '</ul>';
+        }).join('') + '</div>';
 
         var elem = $('.subtitleProfileList', page).html(html).trigger('create');
 

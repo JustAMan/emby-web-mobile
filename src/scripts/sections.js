@@ -437,7 +437,7 @@
         });
     }
 
-    function loadResume(elem, userId) {
+    function loadResumeVideo(elem, userId) {
 
         var screenWidth = dom.getWindowSize().innerWidth;
 
@@ -464,8 +464,9 @@
             CollapseBoxSetItems: false,
             ExcludeLocationTypes: "Virtual",
             ImageTypeLimit: 1,
-            EnableImageTypes: "Primary,Backdrop,Banner,Thumb",
-            EnableTotalRecordCount: false
+            EnableImageTypes: "Primary,Backdrop,Thumb",
+            EnableTotalRecordCount: false,
+            MediaTypes: 'Video'
         };
 
         return ApiClient.getItems(userId, options).then(function (result) {
@@ -474,6 +475,80 @@
 
             if (result.Items.length) {
                 html += '<h1 class="listHeader">' + Globalize.translate('HeaderContinueWatching') + '</h1>';
+                if (enableScrollX()) {
+                    html += '<div is="emby-itemscontainer" class="hiddenScrollX itemsContainer">';
+                } else {
+                    html += '<div is="emby-itemscontainer" class="itemsContainer vertical-wrap">';
+                }
+
+                var supportsImageAnalysis = appHost.supports('imageanalysis');
+                var cardLayout = supportsImageAnalysis;
+
+                html += cardBuilder.getCardsHtml({
+                    items: result.Items,
+                    preferThumb: true,
+                    shape: getThumbShape(),
+                    overlayText: false,
+                    showTitle: true,
+                    showParentTitle: true,
+                    lazy: true,
+                    showDetailsMenu: true,
+                    overlayPlayButton: true,
+                    context: 'home',
+                    centerText: !cardLayout,
+                    allowBottomPadding: false,
+                    cardLayout: cardLayout,
+                    showYear: true,
+                    lines: 2,
+                    vibrant: cardLayout && supportsImageAnalysis
+                });
+                html += '</div>';
+            }
+
+            elem.innerHTML = html;
+
+            imageLoader.lazyChildren(elem);
+        });
+    }
+
+    function loadResumeAudio(elem, userId) {
+
+        var screenWidth = dom.getWindowSize().innerWidth;
+
+        var limit;
+
+        if (enableScrollX()) {
+
+            limit = 12;
+
+        } else {
+
+            limit = screenWidth >= 1920 ? 8 : (screenWidth >= 1600 ? 8 : (screenWidth >= 1200 ? 9 : 6));
+            limit = Math.min(limit, 5);
+        }
+
+        var options = {
+
+            SortBy: "DatePlayed",
+            SortOrder: "Descending",
+            Filters: "IsResumable",
+            Limit: limit,
+            Recursive: true,
+            Fields: "PrimaryImageAspectRatio,BasicSyncInfo",
+            CollapseBoxSetItems: false,
+            ExcludeLocationTypes: "Virtual",
+            ImageTypeLimit: 1,
+            EnableImageTypes: "Primary,Backdrop,Thumb",
+            EnableTotalRecordCount: false,
+            MediaTypes: 'Audio'
+        };
+
+        return ApiClient.getItems(userId, options).then(function (result) {
+
+            var html = '';
+
+            if (result.Items.length) {
+                html += '<h1 class="listHeader">' + Globalize.translate('HeaderContinueListening') + '</h1>';
                 if (enableScrollX()) {
                     html += '<div is="emby-itemscontainer" class="hiddenScrollX itemsContainer">';
                 } else {
@@ -701,7 +776,8 @@
         loadRecentlyAdded: loadRecentlyAdded,
         loadLatestChannelMedia: loadLatestChannelMedia,
         loadLibraryTiles: loadLibraryTiles,
-        loadResume: loadResume,
+        loadResumeVideo: loadResumeVideo,
+        loadResumeAudio: loadResumeAudio,
         loadNextUp: loadNextUp,
         loadLatestChannelItems: loadLatestChannelItems,
         loadLatestLiveTvRecordings: loadLatestLiveTvRecordings,

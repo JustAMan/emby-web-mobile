@@ -1,4 +1,4 @@
-﻿define(['userSettingsBuilder', 'listViewStyle'], function (userSettingsBuilder) {
+﻿define(['userSettingsBuilder', 'dom', 'globalize', 'listViewStyle'], function (userSettingsBuilder, dom, globalize) {
     'use strict';
 
     function renderViews(page, user, result) {
@@ -48,7 +48,7 @@
             if (excludeItemTypes.indexOf(i.Type) !== -1) {
                 return '';
             }
-            
+
             var currentHtml = '';
 
             var id = 'chkIncludeInLatest' + i.Id;
@@ -94,11 +94,11 @@
 
             if (index > 0) {
 
-                currentHtml += '<button type="button" is="paper-icon-button-light" class="btnViewItemUp btnViewItemMove autoSize" title="' + Globalize.translate('ButtonUp') + '"><i class="md-icon">keyboard_arrow_up</i></button>';
+                currentHtml += '<button type="button" is="paper-icon-button-light" class="btnViewItemUp btnViewItemMove autoSize" title="' + globalize.translate('ButtonUp') + '"><i class="md-icon">keyboard_arrow_up</i></button>';
             }
             else if (result.Items.length > 1) {
 
-                currentHtml += '<button type="button" is="paper-icon-button-light" class="btnViewItemDown btnViewItemMove autoSize" title="' + Globalize.translate('ButtonDown') + '"><i class="md-icon">keyboard_arrow_down</i></button>';
+                currentHtml += '<button type="button" is="paper-icon-button-light" class="btnViewItemDown btnViewItemMove autoSize" title="' + globalize.translate('ButtonDown') + '"><i class="md-icon">keyboard_arrow_down</i></button>';
             }
 
 
@@ -120,6 +120,8 @@
         page.querySelector('#selectHomeSection2').value = userSettings.get('homesection1') || '';
         page.querySelector('#selectHomeSection3').value = userSettings.get('homesection2') || '';
         page.querySelector('#selectHomeSection4').value = userSettings.get('homesection3') || '';
+        page.querySelector('#selectHomeSection5').value = userSettings.get('homesection4') || '';
+        page.querySelector('#selectHomeSection6').value = userSettings.get('homesection5') || '';
 
         var promise1 = ApiClient.getUserViews({}, user.Id);
         var promise2 = ApiClient.getJSON(ApiClient.getUrl("Users/" + user.Id + "/GroupingOptions"));
@@ -182,6 +184,8 @@
         userSettingsInstance.set('homesection1', page.querySelector('#selectHomeSection2').value);
         userSettingsInstance.set('homesection2', page.querySelector('#selectHomeSection3').value);
         userSettingsInstance.set('homesection3', page.querySelector('#selectHomeSection4').value);
+        userSettingsInstance.set('homesection4', page.querySelector('#selectHomeSection5').value);
+        userSettingsInstance.set('homesection5', page.querySelector('#selectHomeSection6').value);
 
         if (user.Id === Dashboard.getCurrentUserId()) {
             refreshGlobalUserSettings(userSettingsInstance);
@@ -205,7 +209,7 @@
                 Dashboard.hideLoadingMsg();
                 if (!AppInfo.enableAutoSave) {
                     require(['toast'], function (toast) {
-                        toast(Globalize.translate('SettingsSaved'));
+                        toast(globalize.translate('SettingsSaved'));
                     });
                 }
 
@@ -213,19 +217,6 @@
                 Dashboard.hideLoadingMsg();
             });
         });
-    }
-
-    function parentWithClass(elem, className) {
-
-        while (!elem.classList || !elem.classList.contains(className)) {
-            elem = elem.parentNode;
-
-            if (!elem) {
-                return null;
-            }
-        }
-
-        return elem;
     }
 
     function getSibling(elem, type, className) {
@@ -253,6 +244,14 @@
         var userSettings = new userSettingsBuilder();
         var userSettingsLoaded;
 
+        function initLabels() {
+            for (var i = 1; i <= 6; i++) {
+
+                view.querySelector('#selectHomeSection' + i).setLabel(globalize.translate('LabelHomeScreenSectionValue', i));
+
+            }
+        }
+
         function onSubmit(e) {
 
             userSettings.setUserInfo(userId, ApiClient).then(function () {
@@ -269,10 +268,10 @@
 
         view.querySelector('.viewOrderList').addEventListener('click', function (e) {
 
-            var target = parentWithClass(e.target, 'btnViewItemMove');
+            var target = dom.parentWithClass(e.target, 'btnViewItemMove');
 
-            var li = parentWithClass(target, 'viewItem');
-            var ul = parentWithClass(li, 'paperList');
+            var li = dom.parentWithClass(target, 'viewItem');
+            var ul = dom.parentWithClass(li, 'paperList');
 
             if (target.classList.contains('btnViewItemDown')) {
 
@@ -318,6 +317,11 @@
         } else {
             view.querySelector('.btnSave').classList.remove('hide');
         }
+
+        view.addEventListener('viewbeforeshow', function () {
+            var page = this;
+            initLabels();
+        });
 
         view.addEventListener('viewshow', function () {
             var page = this;

@@ -197,7 +197,7 @@
 
                 var device = devices[i];
 
-                var href = 'livetvtunerprovider-' + device.Type + '.html?id=' + device.Id;
+                var href = 'livetvtuner.html?id=' + device.Id;
 
                 html += '<div class="listItem">';
 
@@ -513,46 +513,7 @@
 
     function addDevice(button) {
 
-        var menuItems = [];
-
-        //menuItems.push({
-        //    name: getTunerName('satip'),
-        //    id: 'satip'
-        //});
-
-        menuItems.push({
-            name: 'HDHomerun',
-            id: 'hdhomerun'
-        });
-
-        menuItems.push({
-            name: getTunerName('m3u'),
-            id: 'm3u'
-        });
-
-        menuItems.push({
-            name: Globalize.translate('ButtonOther'),
-            id: 'other'
-        });
-
-        require(['actionsheet'], function (actionsheet) {
-
-            actionsheet.show({
-                items: menuItems,
-                positionTo: button,
-                callback: function (id) {
-
-                    if (id == 'other') {
-                        Dashboard.alert({
-                            message: Globalize.translate('ForAdditionalLiveTvOptions')
-                        });
-                    } else {
-                        Dashboard.navigate('livetvtunerprovider-' + id + '.html');
-                    }
-                }
-            });
-
-        });
+        Dashboard.navigate('livetvtuner.html');
     }
 
     function getTabs() {
