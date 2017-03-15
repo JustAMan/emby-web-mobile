@@ -1,4 +1,4 @@
-﻿define(['jQuery', 'scripts/taskbutton', 'listViewStyle'], function ($, taskButton) {
+﻿define(['jQuery', 'scripts/taskbutton', 'dom', 'layoutManager', 'listViewStyle', 'flexStyles', 'emby-itemscontainer', 'cardStyle', 'material-icons'], function ($, taskButton, dom, layoutManager) {
     'use strict';
 
     function resetTuner(page, id) {
@@ -186,50 +186,60 @@
         Dashboard.hideLoadingMsg();
     }
 
-    function renderDevices(page, devices) {
+    function getDeviceHtml(device) {
 
         var html = '';
+        var cssClass = "card scalableCard";
+        var cardBoxCssClass = 'cardBox visualCardBox';
+        var padderClass;
 
-        if (devices.length) {
-            html += '<div class="paperList">';
+        cssClass += " backdropCard backdropCard-scalable";
+        padderClass = 'cardPadder-backdrop';
 
-            for (var i = 0, length = devices.length; i < length; i++) {
-
-                var device = devices[i];
-
-                var href = 'livetvtuner.html?id=' + device.Id;
-
-                html += '<div class="listItem">';
-
-                html += '<i class="listItemIcon md-icon">live_tv</i>';
-
-                html += '<div class="listItemBody two-line">';
-                html += '<a class="clearLink" href="' + href + '">';
-                html += '<h3 class="listItemBodyText">';
-                html += device.FriendlyName || getTunerName(device.Type);
-                html += '</h3>';
-
-                html += '<div class="listItemBodyText secondary">';
-                html += device.Url;
-                html += '</div>';
-                html += '</a>';
-                html += '</div>';
-
-                html += '<button type="button" is="paper-icon-button-light" class="btnDeleteDevice" data-id="' + device.Id + '" title="' + Globalize.translate('ButtonDelete') + '"><i class="md-icon">delete</i></button>';
-                html += '</div>';
-            }
-
-            html += '</div>';
+        if (layoutManager.tv) {
+            cssClass += ' card-focusscale';
+            cardBoxCssClass += ' cardBox-focustransform';
         }
 
-        var elem = $('.devicesList', page).html(html);
+        cardBoxCssClass += ' card-focuscontent';
 
-        $('.btnDeleteDevice', elem).on('click', function () {
+        html += '<button type="button" class="' + cssClass + '" data-id="' + device.Id + '">';
+        html += '<div class="' + cardBoxCssClass + '">';
+        html += '<div class="cardScalable visualCardBox-cardScalable">';
+        html += '<div class="' + padderClass + '"></div>';
 
-            var id = this.getAttribute('data-id');
+        html += '<div class="cardContent searchImage">';
 
-            deleteDevice(page, id);
-        });
+        html += '<div class="cardImageContainer coveredImage"><i class="cardImageIcon md-icon">dvr</i></div>';
+
+        html += '</div>';
+        html += '</div>';
+
+        html += '<div class="cardFooter visualCardBox-cardFooter">';
+        html += '<div class="cardText">' + (device.FriendlyName || device.Type) + '</div>';
+
+        html += '<div class="cardText cardText-secondary">';
+        html += device.Url || '&nbsp;';
+        html += '</div>';
+
+        html += '</div>';
+        html += '</div>';
+        html += '</button>';
+        return html;
+    }
+
+    function renderDevices(page, devices) {
+
+        var html = devices.map(getDeviceHtml).join('');
+
+        page.querySelector('.devicesList').innerHTML = html;
+
+        //$('.btnDeleteDevice', elem).on('click', function () {
+
+        //    var id = this.getAttribute('data-id');
+
+        //    deleteDevice(page, id);
+        //});
     }
 
     function deleteDevice(page, id) {
@@ -532,6 +542,15 @@
          }];
     }
 
+    function onDevicesListClick(e) {
+
+        var card = dom.parentWithClass(e.target, 'card');
+        if (card) {
+            var id = card.getAttribute('data-id');
+            Dashboard.navigate('livetvtuner.html?id=' + id);
+        }
+    }
+
     $(document).on('pageinit', "#liveTvStatusPage", function () {
 
         var page = this;
@@ -548,6 +567,8 @@
         $('.btnAddProvider', page).on('click', function () {
             addProvider(this);
         });
+
+        page.querySelector('.devicesList').addEventListener('click', onDevicesListClick);
 
     }).on('pageshow', "#liveTvStatusPage", function () {
 

@@ -6,15 +6,16 @@
 
         var html = '';
 
-        html += '<div class="formDialogContent smoothScrollY" style="padding-top:2em;">';
+        html += '<div class="formDialogContent smoothScrollY">';
         html += '<div class="dialogContentInner dialog-content-centered">';
 
 
         html += '<div class="loadingContent hide">';
-        html += '<p>' + globalize.translate('DetectingDevices') + '...</p>';
+        html += '<h1>' + globalize.translate('DetectingDevices') + '...</h1>';
         html += '<p>' + globalize.translate('MessagePleaseWait') + '</p>';
         html += '</div>';
 
+        html += '<h1 style="margin-bottom:.25em;" class="devicesHeader hide">' + globalize.translate('HeaderNewDevices') + '</h1>';
         html += '<div is="emby-itemscontainer" class="results vertical-wrap">';
         html += '</div>';
 
@@ -75,6 +76,13 @@
             html += getDeviceHtml(devices[i]);
         }
 
+        if (!devices.length) {
+            html = '<p>'+globalize.translate('NoNewDevicesFound') + '</p>';
+            view.querySelector('.devicesHeader').classList.add('hide');
+        } else {
+            view.querySelector('.devicesHeader').classList.remove('hide');
+        }
+
         var elem = view.querySelector('.results');
         elem.innerHTML = html;
 
@@ -89,7 +97,11 @@
 
         view.querySelector('.loadingContent').classList.remove('hide');
 
-        return ApiClient.getJSON(ApiClient.getUrl('LiveTv/Tuners/Discvover')).then(function (devices) {
+        return ApiClient.getJSON(ApiClient.getUrl('LiveTv/Tuners/Discvover', {
+
+            NewDevicesOnly: true
+
+        })).then(function (devices) {
 
             currentDevices = devices;
             renderDevices(view, devices);

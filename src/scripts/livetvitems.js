@@ -58,29 +58,24 @@
 
                 page.querySelector('.listTopPaging').innerHTML = pagingHtml;
 
-                var supportsImageAnalysis = appHost.supports('imageanalysis') && (params.type == 'Recordings' || params.type == 'RecordingSeries');
-
                 html = cardBuilder.getCardsHtml({
                     items: result.Items,
                     shape: query.IsMovie || params.type == 'RecordingSeries' ? 'portrait' : "backdrop",
                     preferThumb: !query.IsMovie && params.type != 'RecordingSeries',
                     inheritThumb: params.type == 'Recordings',
                     context: 'livetv',
-                    centerText: !supportsImageAnalysis,
+                    centerText: true,
                     lazy: true,
                     overlayText: false,
-                    showParentTitleOrTitle: true,
-                    showTitle: false,
+                    showTitle: true,
                     showParentTitle: query.IsSeries !== false && !query.IsMovie,
                     showAirTime: params.type != 'Recordings' && params.type != 'RecordingSeries',
                     showAirDateTime: params.type != 'Recordings' && params.type != 'RecordingSeries',
                     showChannelName: params.type != 'Recordings' && params.type != 'RecordingSeries',
-                    overlayMoreButton: !supportsImageAnalysis,
+                    overlayMoreButton: true,
                     showYear: query.IsMovie && params.type == 'Recordings',
                     showSeriesYear: params.type === 'RecordingSeries',
-                    coverImage: true,
-                    cardLayout: supportsImageAnalysis,
-                    vibrant: supportsImageAnalysis
+                    coverImage: true
                 });
 
                 var elem = page.querySelector('.itemsContainer');
