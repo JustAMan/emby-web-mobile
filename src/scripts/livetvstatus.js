@@ -203,7 +203,7 @@
 
         cardBoxCssClass += ' card-focuscontent';
 
-        html += '<button type="button" class="' + cssClass + '" data-id="' + device.Id + '">';
+        html += '<div type="button" class="' + cssClass + '" data-id="' + device.Id + '">';
         html += '<div class="' + cardBoxCssClass + '">';
         html += '<div class="cardScalable visualCardBox-cardScalable">';
         html += '<div class="' + padderClass + '"></div>';
@@ -216,6 +216,9 @@
         html += '</div>';
 
         html += '<div class="cardFooter visualCardBox-cardFooter">';
+
+        html += '<button is="paper-icon-button-light" class="itemAction btnCardOptions autoSize" data-action="menu"><i class="md-icon">more_vert</i></button>';
+
         html += '<div class="cardText">' + (device.FriendlyName || device.Type) + '</div>';
 
         html += '<div class="cardText cardText-secondary">';
@@ -224,7 +227,7 @@
 
         html += '</div>';
         html += '</div>';
-        html += '</button>';
+        html += '</div>';
         return html;
     }
 
@@ -233,13 +236,6 @@
         var html = devices.map(getDeviceHtml).join('');
 
         page.querySelector('.devicesList').innerHTML = html;
-
-        //$('.btnDeleteDevice', elem).on('click', function () {
-
-        //    var id = this.getAttribute('data-id');
-
-        //    deleteDevice(page, id);
-        //});
     }
 
     function deleteDevice(page, id) {
@@ -542,12 +538,57 @@
          }];
     }
 
+    function showDeviceMenu(button, tunerDeviceId) {
+
+        var items = [];
+
+        items.push({
+            name: Globalize.translate('ButtonDelete'),
+            id: 'delete'
+        });
+
+        items.push({
+            name: Globalize.translate('ButtonEdit'),
+            id: 'edit'
+        });
+
+        require(['actionsheet'], function (actionsheet) {
+
+            actionsheet.show({
+                items: items,
+                positionTo: button
+
+            }).then(function (id) {
+
+                switch (id) {
+
+                    case 'delete':
+                        deleteDevice(dom.parentWithClass(button, 'page'), tunerDeviceId);
+                        break;
+                    case 'edit':
+                        Dashboard.navigate('livetvtuner.html?id=' + tunerDeviceId);
+                        break;
+                    default:
+                        break;
+                }
+            });
+
+        });
+    }
+
     function onDevicesListClick(e) {
 
         var card = dom.parentWithClass(e.target, 'card');
         if (card) {
             var id = card.getAttribute('data-id');
-            Dashboard.navigate('livetvtuner.html?id=' + id);
+
+            var btnCardOptions = dom.parentWithClass(e.target, 'btnCardOptions');
+
+            if (btnCardOptions) {
+                showDeviceMenu(btnCardOptions, id);
+            } else {
+                Dashboard.navigate('livetvtuner.html?id=' + id);
+            }
         }
     }
 
