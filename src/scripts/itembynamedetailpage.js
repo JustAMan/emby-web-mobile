@@ -29,7 +29,7 @@
         if (item.SeriesCount) {
 
             sections.push({
-                name: Globalize.translate('TabSeries'),
+                name: Globalize.translate('TabShows'),
                 type: 'Series'
             });
         }

@@ -1,22 +1,99 @@
 define(['appStorage', 'browser'], function (appStorage, browser) {
     'use strict';
 
-    function getDeviceProfile() {
+    function getBaseProfileOptions(item) {
 
-        // TODO
-        return null;
+        var disableHlsVideoAudioCodecs = [];
+        var enableMkvProgressive = true;
+
+        if (item) {
+            // this does not work with hls.js + edge, but seems to be fine in other browsers
+            if ((browser.edge && !item.RunTimeTicks) || !canPlayNativeHls()) {
+                disableHlsVideoAudioCodecs.push('mp3');
+
+                // hls.js does not support this
+                disableHlsVideoAudioCodecs.push('ac3');
+            }
+            enableMkvProgressive = (item.RunTimeTicks && browser.edgeUwp) ? true : false;
+        }
+
+        return {
+            enableMkvProgressive: enableMkvProgressive,
+            disableHlsVideoAudioCodecs: disableHlsVideoAudioCodecs
+        };
+    }
+
+    function canPlayNativeHls() {
+        var media = document.createElement('video');
+
+        if (media.canPlayType('application/x-mpegURL').replace(/no/, '') ||
+            media.canPlayType('application/vnd.apple.mpegURL').replace(/no/, '')) {
+            return true;
+        }
+
+        return false;
+    }
+
+    function getDeviceProfileForWindowsUwp(item) {
+
+        return new Promise(function (resolve, reject) {
+
+            require(['browserdeviceprofile', 'environments/windows-uwp/mediacaps'], function (profileBuilder, uwpMediaCaps) {
+
+                var profileOptions = getBaseProfileOptions(item);
+                profileOptions.supportsDts = uwpMediaCaps.supportsDTS();
+                profileOptions.supportsTrueHd = uwpMediaCaps.supportsDolby();
+                profileOptions.audioChannels = uwpMediaCaps.getAudioChannels();
+
+                resolve(profileBuilder(profileOptions));
+            });
+        });
+    }
+
+    function getDeviceProfile(item) {
+
+        if (self.Windows) {
+            return getDeviceProfileForWindowsUwp(item);
+        }
+
+        return new Promise(function (resolve, reject) {
+
+            require(['browserdeviceprofile'], function (profileBuilder) {
+
+                var profile = profileBuilder(getBaseProfileOptions(item));
+
+                if (!browser.edge && !browser.msie) {
+                    // libjass not working here
+                    profile.SubtitleProfiles.push({
+                        Format: 'ass',
+                        Method: 'External'
+                    });
+                    profile.SubtitleProfiles.push({
+                        Format: 'ssa',
+                        Method: 'External'
+                    });
+                }
+
+                resolve(profile);
+            });
+        });
     }
 
     function getCapabilities() {
 
-        var caps = {
-            PlayableMediaTypes: ['Audio', 'Video'],
+        return getDeviceProfile().then(function (profile) {
 
-            SupportsPersistentIdentifier: false,
-            DeviceProfile: getDeviceProfile()
-        };
+            var supportsPersistentIdentifier = browser.edgeUwp ? true : false;
 
-        return caps;
+            var caps = {
+                PlayableMediaTypes: ['Audio', 'Video'],
+
+                SupportsPersistentIdentifier: supportsPersistentIdentifier,
+                DeviceProfile: profile
+            };
+
+            return caps;
+        });
     }
 
     function generateDeviceId() {
@@ -287,10 +364,11 @@ define(['appStorage', 'browser'], function (appStorage, browser) {
                 return appInfo;
             });
         },
-        capabilities: getCapabilities,
+        getCapabilities: getCapabilities,
         preferVisualCards: browser.android || browser.chrome,
         moreIcon: browser.safari || browser.edge ? 'dots-horiz' : 'dots-vert',
         getSyncProfile: getSyncProfile,
-        getDefaultLayout: getDefaultLayout
+        getDefaultLayout: getDefaultLayout,
+        getDeviceProfile: getDeviceProfile
     };
 });

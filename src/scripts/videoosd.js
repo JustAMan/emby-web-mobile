@@ -136,7 +136,6 @@
         function doVolumeTouch(deltaY, player, viewHeight) {
 
             var delta = -((deltaY / viewHeight) * 100);
-            alert(delta);
             var newValue = playbackManager.getVolume(player) + delta;
 
             newValue = Math.min(newValue, 100);
@@ -159,14 +158,26 @@
             });
         }
 
+        function getDisplayItem(item) {
+
+            if (item.Type === 'TvChannel') {
+
+                var apiClient = connectionManager.getApiClient(item.ServerId);
+                return apiClient.getItem(apiClient.getCurrentUserId(), item.Id).then(function (refreshedItem) {
+                    return refreshedItem.CurrentProgram || refreshedItem;
+                });
+            }
+
+            return Promise.resolve(item);
+        }
+
         function updateNowPlayingInfo(state) {
 
             var item = state.NowPlayingItem;
             currentItem = item;
 
-            setPoster(item);
-
             if (!item) {
+                setPoster(null);
                 Emby.Page.setTitle('');
                 nowPlayingVolumeSlider.disabled = true;
                 nowPlayingPositionSlider.disabled = true;
@@ -181,14 +192,18 @@
                 return;
             }
 
-            setTitle(item);
+            getDisplayItem(item).then(function (displayItem) {
+                setPoster(displayItem);
+                setTitle(displayItem);
 
-            view.querySelector('.osdTitle').innerHTML = itemHelper.getDisplayName(item);
-            view.querySelector('.osdMediaInfo').innerHTML = mediaInfo.getPrimaryMediaInfoHtml(item, {
-                runtime: false,
-                subtitles: false,
-                tomatoes: false,
-                endsAt: false
+                view.querySelector('.osdTitle').innerHTML = itemHelper.getDisplayName(displayItem);
+                view.querySelector('.osdMediaInfo').innerHTML = mediaInfo.getPrimaryMediaInfoHtml(displayItem, {
+                    runtime: false,
+                    subtitles: false,
+                    tomatoes: false,
+                    endsAt: false,
+                    episodeTitle: false
+                });
             });
 
             nowPlayingVolumeSlider.disabled = false;

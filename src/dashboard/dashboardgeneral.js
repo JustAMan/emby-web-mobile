@@ -88,16 +88,18 @@
 
                     brandingConfig.LoginDisclaimer = form.querySelector('#txtLoginDisclaimer').value;
                     brandingConfig.CustomCss = form.querySelector('#txtCustomCss').value;
-
                     if (currentBrandingOptions && brandingConfig.CustomCss != currentBrandingOptions.CustomCss) {
                         requiresReload = true;
                     }
 
-                    ApiClient.updateNamedConfiguration(brandingConfigKey, brandingConfig).then(Dashboard.processServerConfigurationUpdateResult);
+                    ApiClient.updateNamedConfiguration(brandingConfigKey, brandingConfig).then(function() {
 
-                    if (requiresReload && !AppInfo.isNativeApp) {
-                        window.location.reload(true);
-                    }
+                        Dashboard.processServerConfigurationUpdateResult();
+
+                        if (requiresReload && !AppInfo.isNativeApp) {
+                            window.location.reload(true);
+                        }
+                    });
                 });
 
             });

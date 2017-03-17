@@ -220,8 +220,6 @@
 
     function renderItems(page, items, sectionClass, overlayButton, cardOptions) {
 
-        var supportsImageAnalysis = appHost.supports('imageanalysis');
-
         cardOptions = cardOptions || {};
 
         var html = cardBuilder.getCardsHtml(Object.assign({
@@ -231,17 +229,16 @@
             shape: (enableScrollX() ? 'overflowBackdrop' : 'backdrop'),
             showParentTitleOrTitle: true,
             showTitle: false,
-            centerText: !supportsImageAnalysis,
+            centerText: true,
             coverImage: true,
             overlayText: false,
             lazy: true,
-            overlayMoreButton: overlayButton != 'play' && !supportsImageAnalysis,
+            overlayMoreButton: overlayButton != 'play',
             overlayPlayButton: overlayButton == 'play',
             allowBottomPadding: !enableScrollX(),
             showAirTime: true,
             showAirDateTime: true,
-            showChannelName: true,
-            cardLayout: supportsImageAnalysis
+            showChannelName: true
 
         }, cardOptions));
 

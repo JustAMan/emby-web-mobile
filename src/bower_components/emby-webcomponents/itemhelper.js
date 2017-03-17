@@ -26,13 +26,13 @@ define(['apphost'], function (appHost) {
 
             name = Globalize.translate('sharedcomponents#ValueSpecialEpisodeName', name);
 
-        } else if ((item.Type === "Episode" || item.Type === 'Program') && item.IndexNumber != null && item.ParentIndexNumber != null) {
+        } else if ((item.Type === "Episode" || item.Type === 'Program') && item.IndexNumber != null) {
 
             var displayIndexNumber = item.IndexNumber;
 
             var number = displayIndexNumber;
 
-            if (options.includeParentInfo !== false) {
+            if (options.includeParentInfo !== false && item.ParentIndexNumber != null) {
                 number = "S" + item.ParentIndexNumber + ", E" + number;
             }
 
