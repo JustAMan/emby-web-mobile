@@ -225,7 +225,7 @@
             getDisplayItem(item).then(function (displayItem) {
 
                 updateRecordingButton(displayItem);
-                setPoster(displayItem);
+                setPoster(displayItem, item);
                 setTitle(displayItem);
 
                 var osdParentTitle = view.querySelector('.osdParentTitle');
@@ -259,10 +259,12 @@
                     osdTitleSmall.innerHTML = '';
                 }
 
-                var displayName = itemHelper.getDisplayName(displayItem, {
-                    includeParentInfo: false,
-                    includeIndexNumber: false
-                });
+                // Don't use this for live tv programs because this is contained in mediaInfo.getPrimaryMediaInfoHtml
+                var displayName = displayItem.Type === 'Program' ? '' :
+                    itemHelper.getDisplayName(displayItem, {
+                        includeParentInfo: false,
+                        includeIndexNumber: false
+                    });
                 titleElement.innerHTML = displayName;
 
                 if (displayName) {
@@ -276,8 +278,9 @@
                     subtitles: false,
                     tomatoes: false,
                     endsAt: false,
-                    episodeTitle: false,
-                    originalAirDate: false
+                    episodeTitle: true,
+                    originalAirDate: false,
+                    episodeTitleIndexNumber: false
                 });
 
                 var secondaryMediaInfo = view.querySelector('.osdSecondaryMediaInfo');
@@ -328,7 +331,7 @@
             }
         }
 
-        function setPoster(item) {
+        function setPoster(item, secondaryItem) {
 
             var osdPoster = view.querySelector('.osdPoster');
 
@@ -337,6 +340,12 @@
                 var imgUrl = seriesImageUrl(item, { type: 'Primary' }) ||
                     seriesImageUrl(item, { type: 'Thumb' }) ||
                     imageUrl(item, { type: 'Primary' });
+
+                if (!imgUrl && secondaryItem) {
+                    imgUrl = seriesImageUrl(secondaryItem, { type: 'Primary' }) ||
+                       seriesImageUrl(secondaryItem, { type: 'Thumb' }) ||
+                       imageUrl(secondaryItem, { type: 'Primary' });
+                }
 
                 if (imgUrl) {
                     osdPoster.innerHTML = '<img src="' + imgUrl + '" />';
