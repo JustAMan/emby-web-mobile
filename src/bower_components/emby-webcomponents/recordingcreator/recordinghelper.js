@@ -5,23 +5,22 @@
 
         loading.show();
 
-        apiClient.getItem(apiClient.getCurrentUserId(), programId).then(function (item) {
+        return apiClient.getItem(apiClient.getCurrentUserId(), programId).then(function (item) {
 
             if (item.IsSeries) {
                 // cancel, then create series
-                cancelTimer(apiClient, timerId, false).then(function () {
-                    apiClient.getNewLiveTvTimerDefaults({ programId: programId }).then(function (timerDefaults) {
+                return cancelTimer(apiClient, timerId, false).then(function () {
+                    return apiClient.getNewLiveTvTimerDefaults({ programId: programId }).then(function (timerDefaults) {
 
-                        apiClient.createLiveTvSeriesTimer(timerDefaults).then(function () {
+                        return apiClient.createLiveTvSeriesTimer(timerDefaults).then(function () {
 
                             loading.hide();
-                            sendToast(globalize.translate('sharedcomponents#SeriesRecordingScheduled'));
                         });
                     });
                 });
             } else {
                 // cancel 
-                cancelTimer(apiClient, timerId, true);
+                return cancelTimer(apiClient, timerId, true);
             }
         });
     }
@@ -98,7 +97,6 @@
 
             if (hideLoading) {
                 loading.hide();
-                sendToast(globalize.translate('sharedcomponents#RecordingCancelled'));
             }
         });
     }
@@ -115,14 +113,7 @@
             return promise.then(function () {
 
                 loading.hide();
-                sendToast(globalize.translate('sharedcomponents#RecordingScheduled'));
             });
-        });
-    }
-
-    function sendToast(msg) {
-        require(['toast'], function (toast) {
-            toast(msg);
         });
     }
 

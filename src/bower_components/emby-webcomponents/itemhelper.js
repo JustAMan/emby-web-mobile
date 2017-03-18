@@ -26,13 +26,13 @@ define(['apphost'], function (appHost) {
 
             name = Globalize.translate('sharedcomponents#ValueSpecialEpisodeName', name);
 
-        } else if ((item.Type === "Episode" || item.Type === 'Program') && item.IndexNumber != null) {
+        } else if ((item.Type === "Episode" || item.Type === 'Program') && item.IndexNumber != null && item.ParentIndexNumber != null && options.includeIndexNumber !== false) {
 
             var displayIndexNumber = item.IndexNumber;
 
             var number = displayIndexNumber;
 
-            if (options.includeParentInfo !== false && item.ParentIndexNumber != null) {
+            if (options.includeParentInfo !== false) {
                 number = "S" + item.ParentIndexNumber + ", E" + number;
             }
 
@@ -42,8 +42,9 @@ define(['apphost'], function (appHost) {
                 number += "-" + displayIndexNumber;
             }
 
-            name = name ? (number + " - " + name) : number;
-
+            if (number) {
+                name = name ? (number + " - " + name) : number;
+            }
         }
 
         return name;

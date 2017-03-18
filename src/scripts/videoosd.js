@@ -89,6 +89,7 @@
         var lastUpdateTime = 0;
         var isEnabled;
         var currentItem;
+        var recordingButtonManager;
 
         var nowPlayingVolumeSlider = view.querySelector('.osdVolumeSlider');
         var nowPlayingVolumeSliderContainer = view.querySelector('.osdVolumeSliderContainer');
@@ -171,6 +172,34 @@
             return Promise.resolve(item);
         }
 
+        function updateRecordingButton(item) {
+
+            if (item.Type !== 'Program') {
+
+                if (recordingButtonManager) {
+                    recordingButtonManager.destroy();
+                    recordingButtonManager = null;
+                }
+                view.querySelector('.btnRecord').classList.add('hide');
+                return;
+            }
+
+            if (recordingButtonManager) {
+                recordingButtonManager.refreshItem(item);
+                return;
+            }
+
+            require(['recordingButton'], function (RecordingButton) {
+
+                recordingButtonManager = new RecordingButton({
+                    item: item,
+                    button: view.querySelector('.btnRecord')
+                });
+
+                view.querySelector('.btnRecord').classList.remove('hide');
+            });
+        }
+
         function updateNowPlayingInfo(state) {
 
             var item = state.NowPlayingItem;
@@ -188,22 +217,80 @@
                 view.querySelector('.btnAudio').classList.add('hide');
 
                 view.querySelector('.osdTitle').innerHTML = '';
+                view.querySelector('.osdTitleSmall').innerHTML = '';
                 view.querySelector('.osdMediaInfo').innerHTML = '';
                 return;
             }
 
             getDisplayItem(item).then(function (displayItem) {
+
+                updateRecordingButton(displayItem);
                 setPoster(displayItem);
                 setTitle(displayItem);
 
-                view.querySelector('.osdTitle').innerHTML = itemHelper.getDisplayName(displayItem);
+                var osdParentTitle = view.querySelector('.osdParentTitle');
+
+                var parentName = displayItem.SeriesName || displayItem.Album;
+
+                if (displayItem.EpisodeTitle || displayItem.IsSeries) {
+                    parentName = displayItem.Name;
+                }
+
+                osdParentTitle.innerHTML = parentName || '';
+                var isShowingParentName;
+                if (parentName) {
+                    view.querySelector('.osdParentTitleContainer').classList.remove('hide');
+                    isShowingParentName = true;
+                } else {
+                    view.querySelector('.osdParentTitleContainer').classList.add('hide');
+                }
+
+                var osdTitle = view.querySelector('.osdTitle');
+                var osdTitleSmall = view.querySelector('.osdTitleSmall');
+                var titleElement;
+
+                if (isShowingParentName) {
+                    titleElement = osdTitleSmall;
+                    osdTitle.classList.add('hide');
+                    osdTitle.innerHTML = '';
+                } else {
+                    titleElement = osdTitle;
+                    osdTitleSmall.classList.add('hide');
+                    osdTitleSmall.innerHTML = '';
+                }
+
+                var displayName = itemHelper.getDisplayName(displayItem, {
+                    includeParentInfo: false,
+                    includeIndexNumber: false
+                });
+                titleElement.innerHTML = displayName;
+
+                if (displayName) {
+                    titleElement.classList.remove('hide');
+                } else {
+                    titleElement.classList.add('hide');
+                }
+
                 view.querySelector('.osdMediaInfo').innerHTML = mediaInfo.getPrimaryMediaInfoHtml(displayItem, {
                     runtime: false,
                     subtitles: false,
                     tomatoes: false,
                     endsAt: false,
-                    episodeTitle: false
+                    episodeTitle: false,
+                    originalAirDate: false
                 });
+
+                var secondaryMediaInfo = view.querySelector('.osdSecondaryMediaInfo');
+                var secondaryMediaInfoHtml = mediaInfo.getSecondaryMediaInfoHtml(displayItem, {
+                    startDate: false
+                });
+                secondaryMediaInfo.innerHTML = secondaryMediaInfoHtml;
+
+                if (secondaryMediaInfoHtml) {
+                    secondaryMediaInfo.classList.remove('hide');
+                } else {
+                    secondaryMediaInfo.classList.add('hide');
+                }
             });
 
             nowPlayingVolumeSlider.disabled = false;
@@ -434,8 +521,19 @@
                 case 'previous':
                     showOsd();
                     break;
+                case 'record':
+                    onRecordingCommand();
+                    showOsd();
+                    break;
                 default:
                     break;
+            }
+        }
+
+        function onRecordingCommand() {
+            var btnRecord = view.querySelector('.btnRecord');
+            if (!btnRecord.classList.contains('hide')) {
+                btnRecord.click();
             }
         }
 
@@ -941,6 +1039,14 @@
             if (self.touchHelper) {
                 self.touchHelper.destroy();
                 self.touchHelper = null;
+            }
+        });
+
+        view.addEventListener('viewdestroy', function () {
+
+            if (recordingButtonManager) {
+                recordingButtonManager.destroy();
+                recordingButtonManager = null;
             }
         });
 
