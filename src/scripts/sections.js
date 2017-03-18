@@ -291,6 +291,7 @@
                     getThumbShape();
 
                 var supportsImageAnalysis = appHost.supports('imageanalysis');
+                supportsImageAnalysis = false;
                 var cardLayout = supportsImageAnalysis && (viewType === 'music' || viewType === 'movies' || viewType === 'tvshows' || viewType === 'musicvideos' || !viewType);
 
                 html += cardBuilder.getCardsHtml({
@@ -482,6 +483,7 @@
                 }
 
                 var supportsImageAnalysis = appHost.supports('imageanalysis');
+                supportsImageAnalysis = false;
                 var cardLayout = supportsImageAnalysis;
 
                 html += cardBuilder.getCardsHtml({
@@ -555,8 +557,7 @@
                     html += '<div is="emby-itemscontainer" class="itemsContainer vertical-wrap">';
                 }
 
-                var supportsImageAnalysis = appHost.supports('imageanalysis');
-                var cardLayout = supportsImageAnalysis;
+                var cardLayout = false;
 
                 html += cardBuilder.getCardsHtml({
                     items: result.Items,
@@ -573,8 +574,7 @@
                     allowBottomPadding: false,
                     cardLayout: cardLayout,
                     showYear: true,
-                    lines: 2,
-                    vibrant: cardLayout && supportsImageAnalysis
+                    lines: 2
                 });
                 html += '</div>';
             }
@@ -614,6 +614,7 @@
                 }
 
                 var supportsImageAnalysis = appHost.supports('imageanalysis');
+                supportsImageAnalysis = false;
 
                 html += cardBuilder.getCardsHtml({
                     items: result.Items,
@@ -746,8 +747,6 @@
                 html += '<div is="emby-itemscontainer" class="itemsContainer vertical-wrap">';
             }
 
-            var supportsImageAnalysis = appHost.supports('imageanalysis');
-
             html += cardBuilder.getCardsHtml({
                 items: result.Items,
                 shape: enableScrollX() ? 'autooverflow' : 'auto',
@@ -756,13 +755,12 @@
                 coverImage: true,
                 lazy: true,
                 showDetailsMenu: true,
-                centerText: !supportsImageAnalysis,
+                centerText: true,
                 overlayText: false,
                 overlayPlayButton: true,
                 allowBottomPadding: !enableScrollX(),
                 preferThumb: true,
-                cardLayout: supportsImageAnalysis,
-                vibrant: supportsImageAnalysis
+                cardLayout: false
 
             });
             html += '</div>';

@@ -3,8 +3,6 @@
     display: flex;
     padding: .5em 0;
     /* Override size from librarymenu */
-    font-size: inherit;
-    font-size: 13px;
 }
 
 .dockedtabs-tab-button {
@@ -12,7 +10,7 @@
     align-items: center;
     justify-content: center;
     text-transform: none !important;
-    font-size: 11.6px !important;
+    font-size: 82% !important;
     padding: 0 !important;
     margin: 0 !important;
     text-align: center;
@@ -28,13 +26,9 @@
     display: block;
 }
 
-.dockedtabs-tab-button, .dockedtabs-tab-button-foreground {
-    font-weight: normal !important;
-}
-
 .dockedtabs-tab-button-icon {
     margin-bottom: .25em;
-    font-size: 22px;
+    font-size: 190%;
 }
 
 @media all and (max-width: 640px) {

@@ -2495,6 +2495,10 @@ var AppInfo = {};
         deps.push('apphost');
         deps.push('embyRouter');
 
+        if (browserInfo.iOS) {
+            document.documentElement.classList.add('smallerFontSize');
+        }
+
         if (!(AppInfo.isNativeApp && browserInfo.android)) {
             document.documentElement.classList.add('minimumSizeTabs');
         }

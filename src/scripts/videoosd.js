@@ -260,7 +260,7 @@
                 }
 
                 // Don't use this for live tv programs because this is contained in mediaInfo.getPrimaryMediaInfoHtml
-                var displayName = displayItem.Type === 'Program' ? '' :
+                var displayName = displayItem.Type === 'Program' && isShowingParentName ? '' :
                     itemHelper.getDisplayName(displayItem, {
                         includeParentInfo: false,
                         includeIndexNumber: false

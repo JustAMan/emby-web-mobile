@@ -73,8 +73,7 @@
 
             var container = page.querySelector('#resumableItems');
 
-            var supportsImageAnalysis = appHost.supports('imageanalysis');
-            var cardLayout = appHost.preferVisualCards;
+            var cardLayout = false;
 
             cardBuilder.buildCards(result.Items, {
                 itemsContainer: container,
@@ -84,9 +83,9 @@
                 overlayPlayButton: true,
                 allowBottomPadding: allowBottomPadding,
                 cardLayout: cardLayout,
-                vibrant: cardLayout && supportsImageAnalysis,
-                showTitle: cardLayout,
-                showYear: cardLayout
+                showTitle: true,
+                showYear: true,
+                centerText: !cardLayout
             });
 
         });

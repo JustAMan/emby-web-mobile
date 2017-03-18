@@ -39,6 +39,10 @@ html {
     font-size: 88%;
 }
 
+.smallerFontSize {
+    font-size: 82%;
+}
+
 h1 {
     font-family: -apple-system-headline, system-ui, BlinkMacSystemFont, "Roboto", "Segoe UI", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", 'Open Sans', sans-serif;
 }
