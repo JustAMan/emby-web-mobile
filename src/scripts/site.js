@@ -1376,8 +1376,9 @@ var AppInfo = {};
         var embyWebComponentsBowerPath = bowerPath + '/emby-webcomponents';
 
         if (Dashboard.isRunningInCordova() && browser.android) {
-            define("apiclientcore", ['bower_components/emby-apiclient/apiclient'], returnFirstDependency);
-            define("apiclient", ['bower_components/emby-apiclient/apiclientex'], returnFirstDependency);
+            //define("apiclientcore", ['bower_components/emby-apiclient/apiclient'], returnFirstDependency);
+            //define("apiclient", ['bower_components/emby-apiclient/apiclientex'], returnFirstDependency);
+            define("apiclient", ['bower_components/emby-apiclient/apiclient'], returnFirstDependency);
         } else {
             define("apiclient", ['bower_components/emby-apiclient/apiclient'], returnFirstDependency);
         }

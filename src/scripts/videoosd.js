@@ -273,15 +273,25 @@
                     titleElement.classList.add('hide');
                 }
 
-                view.querySelector('.osdMediaInfo').innerHTML = mediaInfo.getPrimaryMediaInfoHtml(displayItem, {
+                var mediaInfoHtml = mediaInfo.getPrimaryMediaInfoHtml(displayItem, {
                     runtime: false,
                     subtitles: false,
                     tomatoes: false,
                     endsAt: false,
                     episodeTitle: true,
                     originalAirDate: false,
-                    episodeTitleIndexNumber: false
+                    episodeTitleIndexNumber: false,
+                    programIndicator: false
                 });
+
+                var osdMediaInfo = view.querySelector('.osdMediaInfo');
+                osdMediaInfo.innerHTML = mediaInfoHtml;
+
+                if (mediaInfoHtml) {
+                    osdMediaInfo.classList.remove('hide');
+                } else {
+                    osdMediaInfo.classList.add('hide');
+                }
 
                 var secondaryMediaInfo = view.querySelector('.osdSecondaryMediaInfo');
                 var secondaryMediaInfoHtml = mediaInfo.getSecondaryMediaInfoHtml(displayItem, {
