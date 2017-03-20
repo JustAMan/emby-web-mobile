@@ -51,6 +51,10 @@
         viewMenuBar.classList.add('viewMenuBar');
         viewMenuBar.innerHTML = html;
 
+        if (!browser.chrome) {
+            viewMenuBar.classList.add('viewMenuBar-blurred');
+        }
+
         document.querySelector('.skinHeader').appendChild(viewMenuBar);
 
         lazyLoadViewMenuBarImages();

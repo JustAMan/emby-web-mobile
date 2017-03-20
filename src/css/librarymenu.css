@@ -132,6 +132,15 @@
         align-items: center;
     }
 
+/*@supports ( (backdrop-filter: blur(10px)) or (-webkit-backdrop-filter: blur(10px)) ) {
+
+    .viewMenuBar-blurred {
+        background: rgba(24,24,24,.7);
+        -webkit-backdrop-filter: blur(20px);
+        backdrop-filter: blur(20px);
+    }
+}*/
+
 .dashboardDocument {
     font-size: 13px;
 }

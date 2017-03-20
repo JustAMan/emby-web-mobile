@@ -226,6 +226,18 @@
                         posterOptions.showTitle = true;
                         posterOptions.overlayPlayButton = true;
                     }
+                    else if (query.IncludeItemTypes == "Series") {
+                        posterOptions.overlayText = false;
+                        posterOptions.showYear = true;
+                        posterOptions.showTitle = true;
+                        posterOptions.overlayMoreButton = true;
+                    }
+                    else if (query.IncludeItemTypes == "Movie") {
+                        posterOptions.overlayText = false;
+                        posterOptions.showYear = true;
+                        posterOptions.showTitle = true;
+                        posterOptions.overlayPlayButton = true;
+                    }
 
                     // Poster
                     html = cardBuilder.getCardsHtml(posterOptions);
