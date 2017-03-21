@@ -1,4 +1,4 @@
-﻿define(['libraryBrowser', 'cardBuilder', 'dom', 'apphost', 'imageLoader', 'libraryMenu', 'scrollStyles', 'emby-itemscontainer', 'emby-tabs', 'emby-button'], function (libraryBrowser, cardBuilder, dom, appHost, imageLoader, libraryMenu) {
+﻿define(['libraryBrowser', 'cardBuilder', 'dom', 'apphost', 'imageLoader', 'libraryMenu', 'mainTabsManager', 'scrollStyles', 'emby-itemscontainer', 'emby-tabs', 'emby-button'], function (libraryBrowser, cardBuilder, dom, appHost, imageLoader, libraryMenu, mainTabsManager) {
     'use strict';
 
     function itemsPerRow() {
@@ -224,9 +224,35 @@
         });
     }
 
+    function getTabs() {
+        return [
+        {
+            name: Globalize.translate('TabSuggestions')
+        },
+         {
+             name: Globalize.translate('TabAlbums')
+         },
+         {
+             name: Globalize.translate('TabAlbumArtists')
+         },
+         {
+             name: Globalize.translate('TabArtists')
+         },
+         {
+             name: Globalize.translate('TabSongs')
+         },
+         {
+             name: Globalize.translate('TabGenres')
+         },
+         {
+             name: Globalize.translate('TabFolders')
+         }];
+    }
+
     return function (view, params) {
 
         var self = this;
+        var currentTabIndex = parseInt(params.tab || '0');
 
         function reload() {
 
@@ -259,6 +285,33 @@
         self.renderTab = function () {
             reload();
         };
+
+        function onBeforeTabChange(e) {
+            preLoadTab(view, parseInt(e.detail.selectedTabIndex));
+        }
+
+        function onTabChange(e) {
+            loadTab(view, parseInt(e.detail.selectedTabIndex));
+        }
+
+        function initTabs() {
+
+            var tabsReplaced = mainTabsManager.setTabs('music', currentTabIndex, getTabs);
+
+            if (tabsReplaced) {
+                var viewTabs = document.querySelector('.tabs-viewmenubar');
+
+                viewTabs.addEventListener('beforetabchange', onBeforeTabChange);
+                viewTabs.addEventListener('tabchange', onTabChange);
+                libraryBrowser.configurePaperLibraryTabs(view, viewTabs, view.querySelectorAll('.pageTabContent'), [0, 4, 5, 6]);
+
+                if (!viewTabs.triggerBeforeTabChange) {
+                    viewTabs.addEventListener('ready', function () {
+                        viewTabs.triggerBeforeTabChange();
+                    });
+                }
+            }
+        }
 
         var tabControllers = [];
         var renderedTabs = [];
@@ -334,6 +387,8 @@
 
         function loadTab(page, index) {
 
+            currentTabIndex = index;
+
             getTabController(page, index, function (controller) {
                 if (renderedTabs.indexOf(index) == -1) {
                     renderedTabs.push(index);
@@ -342,18 +397,9 @@
             });
         }
 
-        var viewTabs = view.querySelector('.libraryViewNav');
-
-        libraryBrowser.configurePaperLibraryTabs(view, viewTabs, view.querySelectorAll('.pageTabContent'), [0, 4, 5, 6]);
-
-        viewTabs.addEventListener('beforetabchange', function (e) {
-            preLoadTab(view, parseInt(e.detail.selectedTabIndex));
-        });
-        viewTabs.addEventListener('tabchange', function (e) {
-            loadTab(view, parseInt(e.detail.selectedTabIndex));
-        });
-
         view.addEventListener('viewbeforeshow', function (e) {
+
+            initTabs();
 
             if (!view.getAttribute('data-title')) {
 
@@ -373,18 +419,21 @@
                     libraryMenu.setTitle(Globalize.translate('TabMusic'));
                 }
             }
+
+            var tabs = mainTabsManager.getTabsElement();
+
+            if (tabs.triggerBeforeTabChange) {
+                tabs.triggerBeforeTabChange();
+            }
         });
 
-        require(["headroom-window"], function (headroom) {
-            headroom.add(viewTabs);
-            self.headroom = headroom;
+        view.addEventListener('viewshow', function (e) {
+
+            mainTabsManager.getTabsElement().triggerTabChange();
         });
 
         view.addEventListener('viewdestroy', function (e) {
 
-            if (self.headroom) {
-                self.headroom.remove(viewTabs);
-            }
             tabControllers.forEach(function (t) {
                 if (t.destroy) {
                     t.destroy();

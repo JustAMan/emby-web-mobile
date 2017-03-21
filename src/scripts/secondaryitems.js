@@ -140,7 +140,8 @@
                     Fields: "PrimaryImageAspectRatio,SeriesInfo,DateCreated,BasicSyncInfo",
                     UserId: apiClient.getCurrentUserId(),
                     ImageTypeLimit: 1,
-                    EnableImageTypes: "Primary,Backdrop,Thumb"
+                    EnableImageTypes: "Primary,Backdrop,Thumb",
+                    EnableTotalRecordCount: false
                 });
             }
 

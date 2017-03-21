@@ -994,6 +994,7 @@ var AppInfo = {};
         }
 
         define("tunerPicker", ["components/tunerpicker"], returnFirstDependency);
+        define("mainTabsManager", ["components/maintabsmanager"], returnFirstDependency);
 
         define("imageLoader", [embyWebComponentsBowerPath + "/images/imagehelper"], returnFirstDependency);
         define("appfooter", ["components/appfooter/appfooter"], returnFirstDependency);

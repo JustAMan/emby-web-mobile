@@ -1,9 +1,35 @@
-﻿define(['libraryBrowser', 'dom', 'components/categorysyncbuttons', 'cardBuilder', 'apphost', 'playbackManager', 'scrollStyles', 'emby-itemscontainer', 'emby-tabs', 'emby-button'], function (libraryBrowser, dom, categorysyncbuttons, cardBuilder, appHost, playbackManager) {
+﻿define(['libraryBrowser', 'dom', 'components/categorysyncbuttons', 'cardBuilder', 'apphost', 'playbackManager', 'mainTabsManager', 'scrollStyles', 'emby-itemscontainer', 'emby-button'], function (libraryBrowser, dom, categorysyncbuttons, cardBuilder, appHost, playbackManager, mainTabsManager) {
     'use strict';
+
+    function getTabs() {
+        return [
+        {
+            name: Globalize.translate('TabSuggestions')
+        },
+         {
+             name: Globalize.translate('TabLatest')
+         },
+         {
+             name: Globalize.translate('TabShows')
+         },
+         {
+             name: Globalize.translate('TabUpcoming')
+         },
+         {
+             name: Globalize.translate('TabGenres')
+         },
+         {
+             name: Globalize.translate('TabNetworks')
+         },
+         {
+             name: Globalize.translate('TabEpisodes')
+         }];
+    }
 
     return function (view, params) {
 
         var self = this;
+        var currentTabIndex = parseInt(params.tab || '0');
 
         function reload() {
 
@@ -21,7 +47,8 @@
                 Fields: "PrimaryImageAspectRatio,SeriesInfo,DateCreated,BasicSyncInfo",
                 UserId: Dashboard.getCurrentUserId(),
                 ImageTypeLimit: 1,
-                EnableImageTypes: "Primary,Backdrop,Thumb"
+                EnableImageTypes: "Primary,Backdrop,Thumb",
+                EnableTotalRecordCount: false
             };
 
             query.ParentId = LibraryMenu.getTopParentId();
@@ -139,6 +166,33 @@
             reload();
         };
 
+        function onBeforeTabChange(e) {
+            preLoadTab(view, parseInt(e.detail.selectedTabIndex));
+        }
+
+        function onTabChange(e) {
+            loadTab(view, parseInt(e.detail.selectedTabIndex));
+        }
+
+        function initTabs() {
+
+            var tabsReplaced = mainTabsManager.setTabs('tv', currentTabIndex, getTabs);
+
+            if (tabsReplaced) {
+                var viewTabs = document.querySelector('.tabs-viewmenubar');
+
+                viewTabs.addEventListener('beforetabchange', onBeforeTabChange);
+                viewTabs.addEventListener('tabchange', onTabChange);
+                libraryBrowser.configurePaperLibraryTabs(view, viewTabs, view.querySelectorAll('.pageTabContent'), [0, 1, 2, 4, 5, 6]);
+
+                if (!viewTabs.triggerBeforeTabChange) {
+                    viewTabs.addEventListener('ready', function () {
+                        viewTabs.triggerBeforeTabChange();
+                    });
+                }
+            }
+        }
+
         var tabControllers = [];
         var renderedTabs = [];
 
@@ -206,6 +260,8 @@
 
         function loadTab(page, index) {
 
+            currentTabIndex = index;
+
             getTabController(page, index, function (controller) {
                 if (renderedTabs.indexOf(index) == -1) {
                     renderedTabs.push(index);
@@ -214,14 +270,12 @@
             });
         }
 
-        var viewTabs = view.querySelector('.libraryViewNav');
-
         function onPlaybackStop(e, state) {
 
             if (state.NowPlayingItem && state.NowPlayingItem.MediaType == 'Video') {
 
                 renderedTabs = [];
-                viewTabs.triggerTabChange();
+                mainTabsManager.getTabsElement().triggerTabChange();
             }
         }
 
@@ -230,14 +284,6 @@
         } else {
             view.querySelector('#resumableItems').classList.remove('hiddenScrollX');
         }
-        libraryBrowser.configurePaperLibraryTabs(view, viewTabs, view.querySelectorAll('.pageTabContent'), [0, 1, 2, 4, 5, 6]);
-
-        viewTabs.addEventListener('beforetabchange', function (e) {
-            preLoadTab(view, parseInt(e.detail.selectedTabIndex));
-        });
-        viewTabs.addEventListener('tabchange', function (e) {
-            loadTab(view, parseInt(e.detail.selectedTabIndex));
-        });
 
         function onWebSocketMessage(e, data) {
 
@@ -254,6 +300,8 @@
         }
 
         view.addEventListener('viewbeforeshow', function (e) {
+
+            initTabs();
 
             if (!view.getAttribute('data-title')) {
 
@@ -274,8 +322,19 @@
                 }
             }
 
+            var tabs = mainTabsManager.getTabsElement();
+
+            if (tabs.triggerBeforeTabChange) {
+                tabs.triggerBeforeTabChange();
+            }
+
             Events.on(playbackManager, 'playbackstop', onPlaybackStop);
             Events.on(ApiClient, "websocketmessage", onWebSocketMessage);
+        });
+
+        view.addEventListener('viewshow', function (e) {
+
+            mainTabsManager.getTabsElement().triggerTabChange();
         });
 
         view.addEventListener('viewbeforehide', function (e) {
@@ -284,16 +343,8 @@
             Events.off(ApiClient, "websocketmessage", onWebSocketMessage);
         });
 
-        require(["headroom-window"], function (headroom) {
-            headroom.add(viewTabs);
-            self.headroom = headroom;
-        });
-
         view.addEventListener('viewdestroy', function (e) {
 
-            if (self.headroom) {
-                self.headroom.remove(viewTabs);
-            }
             tabControllers.forEach(function (t) {
                 if (t.destroy) {
                     t.destroy();

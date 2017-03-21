@@ -468,14 +468,12 @@
 
                     view.ImageTags = {};
                     view.icon = 'live_tv';
-                    view.onclick = "LibraryBrowser.showTab('livetv.html', 0);";
 
                     var guideView = Object.assign({}, view);
                     guideView.Name = Globalize.translate('ButtonGuide');
                     guideView.ImageTags = {};
                     guideView.icon = 'dvr';
                     guideView.url = 'livetv.html?tab=1';
-                    guideView.onclick = "LibraryBrowser.showTab('livetv.html', 1);";
                     list.push(guideView);
                 }
             }
@@ -687,49 +685,8 @@
 
         setTabs: function (type, selectedIndex, builder) {
 
-            var viewMenuBarTabs;
-
-            if (!type) {
-                if (LibraryMenu.tabType) {
-
-                    document.body.classList.remove('withTallToolbar');
-                    viewMenuBarTabs = document.querySelector('.viewMenuBarTabs');
-                    viewMenuBarTabs.innerHTML = '';
-                    viewMenuBarTabs.classList.add('hide');
-                    LibraryMenu.tabType = null;
-                }
-                return;
-            }
-
-            viewMenuBarTabs = document.querySelector('.viewMenuBarTabs');
-
-            if (!LibraryMenu.tabType) {
-                viewMenuBarTabs.classList.remove('hide');
-            }
-
-            require(['emby-tabs', 'emby-button'], function () {
-                if (LibraryMenu.tabType != type) {
-
-                    var index = 0;
-
-                    viewMenuBarTabs.innerHTML = '<div is="emby-tabs"><div class="emby-tabs-slider">' + builder().map(function (t) {
-
-                        var tabClass = selectedIndex == index ? 'emby-tab-button emby-tab-button-active' : 'emby-tab-button';
-
-                        var tabHtml = '<button onclick="Dashboard.navigate(this.getAttribute(\'data-href\'));" data-href="' + t.href + '" is="emby-button" class="' + tabClass + '" data-index="' + index + '"><div class="emby-button-foreground">' + t.name + '</div></button>';
-                        index++;
-                        return tabHtml;
-
-                    }).join('') + '</div></div>';
-
-                    document.body.classList.add('withTallToolbar');
-                    LibraryMenu.tabType = type;
-                    return;
-                }
-
-                viewMenuBarTabs.querySelector('[is="emby-tabs"]').selectedIndex(selectedIndex);
-
-                LibraryMenu.tabType = type;
+            require(['mainTabsManager'], function (mainTabsManager) {
+                mainTabsManager.setTabs(type, selectedIndex, builder);
             });
         },
 

@@ -55,7 +55,8 @@
             Type: page.querySelector('.selectType').value,
             Url: page.querySelector('.txtDevicePath').value,
             ImportFavoritesOnly: page.querySelector('.chkFavorite').checked,
-            AllowHWTranscoding: page.querySelector('.chkTranscode').checked
+            AllowHWTranscoding: page.querySelector('.chkTranscode').checked,
+            EnableTvgId: true
         };
 
         var id = getParameterByName('id');

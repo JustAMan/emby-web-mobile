@@ -1,4 +1,4 @@
-﻿define(['libraryBrowser', 'cardBuilder', 'imageLoader', 'emby-itemscontainer', 'emby-tabs', 'emby-button', 'scripts/channelslatest', 'scripts/sections'], function (libraryBrowser, cardBuilder, imageLoader) {
+﻿define(['libraryBrowser', 'cardBuilder', 'imageLoader', 'scripts/sections', 'emby-itemscontainer', 'emby-button'], function (libraryBrowser, cardBuilder, imageLoader) {
     'use strict';
 
     // The base query options
@@ -50,6 +50,7 @@
 
             var elem = page.querySelector('#items');
             elem.innerHTML = html;
+
             imageLoader.lazyChildren(elem);
 
             libraryBrowser.saveQueryValues('channels', query);
@@ -58,40 +59,17 @@
         });
     }
 
-    function loadTab(page, index) {
-
-        switch (index) {
-
-            case 1:
-                libraryBrowser.loadSavedQueryValues('channels', query);
-                reloadItems(page);
-                break;
-            default:
-                break;
-        }
-    }
-
     return function (view, params) {
 
         var self = this;
-        var viewTabs = view.querySelector('.libraryViewNav');
 
-        libraryBrowser.configurePaperLibraryTabs(view, viewTabs, view.querySelectorAll('.pageTabContent'), [0, 1]);
+        view.addEventListener('viewshow', function (e) {
 
-        viewTabs.addEventListener('tabchange', function (e) {
-            loadTab(view, parseInt(e.detail.selectedTabIndex));
+            libraryBrowser.loadSavedQueryValues('channels', query);
+            Sections.loadLatestChannelItems(view.querySelector('.latestItems'), Dashboard.getCurrentUserId());
+
+            reloadItems(view);
         });
 
-        require(["headroom-window"], function (headroom) {
-            headroom.add(viewTabs);
-            self.headroom = headroom;
-        });
-
-        view.addEventListener('viewdestroy', function (e) {
-
-            if (self.headroom) {
-                self.headroom.remove(viewTabs);
-            }
-        });
     };
 });

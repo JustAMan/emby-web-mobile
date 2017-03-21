@@ -1,4 +1,4 @@
-﻿define(['libraryBrowser', 'cardBuilder', 'apphost', 'imageLoader', 'scrollStyles', 'emby-itemscontainer', 'emby-tabs', 'emby-button'], function (libraryBrowser, cardBuilder, appHost, imageLoader) {
+﻿define(['libraryBrowser', 'mainTabsManager', 'cardBuilder', 'apphost', 'imageLoader', 'scrollStyles', 'emby-itemscontainer', 'emby-tabs', 'emby-button'], function (libraryBrowser, mainTabsManager, cardBuilder, appHost, imageLoader) {
     'use strict';
 
     function enableScrollX() {
@@ -248,10 +248,34 @@
         imageLoader.lazyChildren(elem);
     }
 
+    function getTabs() {
+        return [
+        {
+            name: Globalize.translate('TabSuggestions')
+        },
+         {
+             name: Globalize.translate('TabGuide')
+         },
+         {
+             name: Globalize.translate('TabChannels')
+         },
+         {
+             name: Globalize.translate('TabRecordings')
+         },
+         {
+             name: Globalize.translate('HeaderSchedule')
+         },
+         {
+             name: Globalize.translate('TabSeries')
+         }];
+    }
+
     return function (view, params) {
 
         var self = this;
+        var currentTabIndex = parseInt(params.tab || '0');
         var lastFullRender = 0;
+
         function enableFullRender() {
             return (new Date().getTime() - lastFullRender) > 300000;
         }
@@ -283,6 +307,37 @@
                 reload(tabContent);
             }
         };
+
+        function onBeforeTabChange(e) {
+            preLoadTab(view, parseInt(e.detail.selectedTabIndex));
+        }
+
+        function onTabChange(e) {
+            var previousTabController = tabControllers[parseInt(e.detail.previousIndex)];
+            if (previousTabController && previousTabController.onHide) {
+                previousTabController.onHide();
+            }
+            loadTab(view, parseInt(e.detail.selectedTabIndex));
+        }
+
+        function initTabs() {
+
+            var tabsReplaced = mainTabsManager.setTabs('livetv', currentTabIndex, getTabs);
+
+            if (tabsReplaced) {
+                var viewTabs = document.querySelector('.tabs-viewmenubar');
+
+                viewTabs.addEventListener('beforetabchange', onBeforeTabChange);
+                viewTabs.addEventListener('tabchange', onTabChange);
+                libraryBrowser.configurePaperLibraryTabs(view, viewTabs, view.querySelectorAll('.pageTabContent'), [0, 2, 3, 4, 5]);
+
+                if (!viewTabs.triggerBeforeTabChange) {
+                    viewTabs.addEventListener('ready', function () {
+                        viewTabs.triggerBeforeTabChange();
+                    });
+                }
+            }
+        }
 
         var tabControllers = [];
         var renderedTabs = [];
@@ -350,6 +405,8 @@
 
         function loadTab(page, index) {
 
+            currentTabIndex = index;
+
             getTabController(page, index, function (controller) {
 
                 if (index === 1) {
@@ -373,22 +430,20 @@
             });
         }
 
-        var viewTabs = view.querySelector('.libraryViewNav');
+        view.addEventListener('viewbeforeshow', function (e) {
 
-        libraryBrowser.configurePaperLibraryTabs(view, viewTabs, view.querySelectorAll('.pageTabContent'), [0, 2, 3, 4, 5]);
+            initTabs();
 
-        viewTabs.addEventListener('beforetabchange', function (e) {
-            preLoadTab(view, parseInt(e.detail.selectedTabIndex));
+            var tabs = mainTabsManager.getTabsElement();
+
+            if (tabs.triggerBeforeTabChange) {
+                tabs.triggerBeforeTabChange();
+            }
         });
 
-        viewTabs.addEventListener('tabchange', function (e) {
+        view.addEventListener('viewshow', function (e) {
 
-            var previousTabController = tabControllers[parseInt(e.detail.previousIndex)];
-            if (previousTabController && previousTabController.onHide) {
-                previousTabController.onHide();
-            }
-
-            loadTab(view, parseInt(e.detail.selectedTabIndex));
+            mainTabsManager.getTabsElement().triggerTabChange();
         });
 
         view.addEventListener('viewbeforehide', function (e) {
@@ -399,16 +454,8 @@
             document.body.classList.remove('autoScrollY');
         });
 
-        require(["headroom-window"], function (headroom) {
-            headroom.add(viewTabs);
-            self.headroom = headroom;
-        });
-
         view.addEventListener('viewdestroy', function (e) {
 
-            if (self.headroom) {
-                self.headroom.remove(viewTabs);
-            }
             tabControllers.forEach(function (t) {
                 if (t.destroy) {
                     t.destroy();

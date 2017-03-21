@@ -181,6 +181,7 @@
             passive: true,
             capture: true
         });
+        this.dispatchEvent(new CustomEvent("ready", {}));
     };
 
     EmbyTabs.focus = function () {
@@ -209,6 +210,8 @@
         var currentIndex = current ? parseInt(current.getAttribute('data-index')) : parseInt(this.getAttribute('data-index') || '1');
 
         if (currentIndex !== -1) {
+
+            this.selectedTabIndex = currentIndex;
 
             var tabButtons = this.querySelectorAll('.' + buttonClass);
 

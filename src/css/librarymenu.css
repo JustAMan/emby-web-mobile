@@ -1,5 +1,5 @@
 ﻿.libraryPage {
-    padding-top: 50px !important;
+    padding-top: 60px !important;
 }
 
     .libraryPage:not(.noSecondaryNavPage) {
@@ -84,7 +84,6 @@
     z-index: 999;
     top: 0;
     border: 0;
-    height: 41px;
     padding-top: 3px;
     display: flex;
     flex-direction: column;
@@ -128,43 +127,37 @@
     .viewMenuBar .primaryIcons {
         display: flex;
         flex-grow: 1;
+        flex-shrink: 0;
         width: 100%;
         align-items: center;
     }
 
-/*@supports ( (backdrop-filter: blur(10px)) or (-webkit-backdrop-filter: blur(10px)) ) {
+@supports ( (backdrop-filter: blur(10px)) or (-webkit-backdrop-filter: blur(10px)) ) {
 
     .viewMenuBar-blurred {
         background: rgba(24,24,24,.7);
         -webkit-backdrop-filter: blur(20px);
         backdrop-filter: blur(20px);
     }
-}*/
+}
 
 .dashboardDocument {
     font-size: 13px;
 }
 
-    .dashboardDocument .viewMenuBar {
-        height: auto;
-    }
+.viewMenuBar .primaryIcons {
+    padding: .4em 0;
+}
 
-        .dashboardDocument .viewMenuBar .primaryIcons {
-            padding: .7em 0;
-        }
-
-    .dashboardDocument.withTallToolbar .primaryIcons {
-        padding-bottom: 0;
-    }
+.withTallToolbar .primaryIcons {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+}
 
 .viewMenuBarTabs {
     width: 100%;
+    text-align: center;
 }
-
-    .viewMenuBarTabs .paperTabLink {
-        padding-left: 1.5em;
-        padding-right: 1.5em;
-    }
 
 .viewMenuBar.semiTransparent {
     background-color: rgba(15, 15, 15, .3);
@@ -296,14 +289,11 @@ body:not(.dashboardDocument) .headerAppsButton {
 
 @media all and (min-width: 640px) {
 
-    .viewMenuBarTabs {
+    .dashboardDocument .viewMenuBarTabs {
         width: auto;
         padding-left: 272px;
+        text-align: left !important;
     }
-
-        .viewMenuBarTabs .libraryViewNav {
-            text-align: left !important;
-        }
 
     .dashboardDocument .sidebarLink {
         padding-top: .7em;

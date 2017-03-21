@@ -1,4 +1,4 @@
-﻿define(['libraryBrowser', 'libraryMenu', 'playbackManager', 'emby-tabs', 'emby-button'], function (libraryBrowser, libraryMenu, playbackManager) {
+﻿define(['libraryBrowser', 'libraryMenu', 'playbackManager', 'mainTabsManager', 'emby-button'], function (libraryBrowser, libraryMenu, playbackManager, mainTabsManager) {
     'use strict';
 
     var defaultFirstSection = 'smalllibrarytiles';
@@ -85,13 +85,13 @@
         var elem = page.querySelector('.sections');
 
         //if (!elem.innerHTML.length) {
-            var html = '';
-            for (i = 0, length = sectionCount; i < length; i++) {
+        var html = '';
+        for (i = 0, length = sectionCount; i < length; i++) {
 
-                html += '<div class="homePageSection section' + i + '"></div>';
-            }
+            html += '<div class="homePageSection section' + i + '"></div>';
+        }
 
-            elem.innerHTML = html;
+        elem.innerHTML = html;
         //}
 
         var promises = [];
@@ -206,7 +206,7 @@
                 getRequirePromise(['userSettings'])
             ];
 
-            Promise.all(promises).then(function(responses) {
+            Promise.all(promises).then(function (responses) {
                 var displayPreferences = responses[0];
                 var user = responses[1];
                 var userSettings = responses[2];
@@ -227,18 +227,55 @@
         return ApiClient.getDisplayPreferences(key, userId, displayPreferencesKey());
     }
 
+    function getTabs() {
+        return [
+        {
+            name: Globalize.translate('TabHome')
+        },
+         {
+             name: Globalize.translate('TabFavorites')
+         },
+         {
+             name: Globalize.translate('TabUpcoming')
+         }];
+    }
+
     return function (view, params) {
 
         var self = this;
+        var currentTabIndex = parseInt(params.tab || '0');
 
         self.renderTab = function () {
             var tabContent = view.querySelector('.pageTabContent[data-index=\'' + 0 + '\']');
             loadHomeTab(view, tabContent);
         };
 
-        var viewTabs = view.querySelector('.libraryViewNav');
+        function onBeforeTabChange(e) {
+            preLoadTab(view, parseInt(e.detail.selectedTabIndex));
+        }
 
-        libraryBrowser.configurePaperLibraryTabs(view, viewTabs, view.querySelectorAll('.pageTabContent'), [0, 1, 2, 3], true);
+        function onTabChange(e) {
+            loadTab(view, parseInt(e.detail.selectedTabIndex));
+        }
+
+        function initTabs() {
+
+            var tabsReplaced = mainTabsManager.setTabs('home', currentTabIndex, getTabs);
+
+            if (tabsReplaced) {
+                var viewTabs = document.querySelector('.tabs-viewmenubar');
+
+                viewTabs.addEventListener('beforetabchange', onBeforeTabChange);
+                viewTabs.addEventListener('tabchange', onTabChange);
+                libraryBrowser.configurePaperLibraryTabs(view, viewTabs, view.querySelectorAll('.pageTabContent'), [0, 1, 2, 3], true);
+
+                if (!viewTabs.triggerBeforeTabChange) {
+                    viewTabs.addEventListener('ready', function () {
+                        viewTabs.triggerBeforeTabChange();
+                    });
+                }
+            }
+        }
 
         var tabControllers = [];
         var renderedTabs = [];
@@ -296,6 +333,8 @@
 
         function loadTab(page, index) {
 
+            currentTabIndex = index;
+
             getTabController(page, index, function (controller) {
                 if (renderedTabs.indexOf(index) == -1) {
                     renderedTabs.push(index);
@@ -303,14 +342,6 @@
                 }
             });
         }
-
-        viewTabs.addEventListener('beforetabchange', function (e) {
-            preLoadTab(view, parseInt(e.detail.selectedTabIndex));
-        });
-
-        viewTabs.addEventListener('tabchange', function (e) {
-            loadTab(view, parseInt(e.detail.selectedTabIndex));
-        });
 
         view.querySelector('.btnTakeTour').addEventListener('click', function () {
             takeTour(view, Dashboard.getCurrentUserId());
@@ -320,7 +351,7 @@
 
             if (state.NowPlayingItem && state.NowPlayingItem.MediaType == 'Video') {
 
-                viewTabs.triggerTabChange();
+                mainTabsManager.getTabsElement().triggerTabChange();
             }
         }
 
@@ -335,14 +366,24 @@
                     renderedTabs = [];
                 }
             }
-
         }
 
         view.addEventListener('viewbeforeshow', function (e) {
+
+            initTabs();
+
             libraryMenu.setDefaultTitle();
+
+            var tabs = mainTabsManager.getTabsElement();
+            if (tabs.triggerBeforeTabChange) {
+                tabs.triggerBeforeTabChange();
+            }
         });
 
         view.addEventListener('viewshow', function (e) {
+
+            mainTabsManager.getTabsElement().triggerTabChange();
+
             Events.on(playbackManager, 'playbackstop', onPlaybackStop);
             Events.on(ApiClient, "websocketmessage", onWebSocketMessage);
         });
@@ -352,15 +393,13 @@
             Events.off(ApiClient, "websocketmessage", onWebSocketMessage);
         });
 
-        require(["headroom-window"], function (headroom) {
-            headroom.add(viewTabs);
-            self.headroom = headroom;
-        });
-
         view.addEventListener('viewdestroy', function (e) {
-            if (self.headroom) {
-                self.headroom.remove(viewTabs);
-            }
+
+            tabControllers.forEach(function (t) {
+                if (t.destroy) {
+                    t.destroy();
+                }
+            });
         });
     };
 });

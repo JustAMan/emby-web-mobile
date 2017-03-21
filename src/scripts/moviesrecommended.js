@@ -1,4 +1,4 @@
-﻿define(['libraryBrowser', 'components/categorysyncbuttons', 'cardBuilder', 'dom', 'apphost', 'imageLoader', 'playbackManager', 'scrollStyles', 'emby-itemscontainer', 'emby-tabs', 'emby-button'], function (libraryBrowser, categorysyncbuttons, cardBuilder, dom, appHost, imageLoader, playbackManager) {
+﻿define(['libraryBrowser', 'mainTabsManager', 'components/categorysyncbuttons', 'cardBuilder', 'dom', 'apphost', 'imageLoader', 'playbackManager', 'scrollStyles', 'emby-itemscontainer', 'emby-tabs', 'emby-button'], function (libraryBrowser, mainTabsManager, categorysyncbuttons, cardBuilder, dom, appHost, imageLoader, playbackManager) {
     'use strict';
 
     function enableScrollX() {
@@ -200,9 +200,32 @@
         loadSuggestions(tabContent, userId, parentId);
     }
 
+    function getTabs() {
+        return [
+        {
+            name: Globalize.translate('TabSuggestions')
+        },
+         {
+             name: Globalize.translate('TabMovies')
+         },
+         {
+             name: Globalize.translate('TabTrailers')
+         },
+         {
+             name: Globalize.translate('TabCollections')
+         },
+         {
+             name: Globalize.translate('TabGenres')
+         },
+         {
+             name: Globalize.translate('TabStudios')
+         }];
+    }
+
     return function (view, params) {
 
         var self = this;
+        var currentTabIndex = parseInt(params.tab || '0');
 
         self.initTab = function () {
 
@@ -216,9 +239,32 @@
             loadSuggestionsTab(view, params, tabContent);
         };
 
-        var viewTabs = view.querySelector('.libraryViewNav');
+        function onBeforeTabChange(e) {
+            preLoadTab(view, parseInt(e.detail.selectedTabIndex));
+        }
 
-        libraryBrowser.configurePaperLibraryTabs(view, viewTabs, view.querySelectorAll('.pageTabContent'), [0, 3, 4, 5]);
+        function onTabChange(e) {
+            loadTab(view, parseInt(e.detail.selectedTabIndex));
+        }
+
+        function initTabs() {
+
+            var tabsReplaced = mainTabsManager.setTabs('movies', currentTabIndex, getTabs);
+
+            if (tabsReplaced) {
+                var viewTabs = document.querySelector('.tabs-viewmenubar');
+
+                viewTabs.addEventListener('beforetabchange', onBeforeTabChange);
+                viewTabs.addEventListener('tabchange', onTabChange);
+                libraryBrowser.configurePaperLibraryTabs(view, viewTabs, view.querySelectorAll('.pageTabContent'), [0, 1, 2, 4, 5]);
+
+                if (!viewTabs.triggerBeforeTabChange) {
+                    viewTabs.addEventListener('ready', function () {
+                        viewTabs.triggerBeforeTabChange();
+                    });
+                }
+            }
+        }
 
         var tabControllers = [];
         var renderedTabs = [];
@@ -284,6 +330,8 @@
 
         function loadTab(page, index) {
 
+            currentTabIndex = index;
+
             getTabController(page, index, function (controller) {
                 if (renderedTabs.indexOf(index) == -1) {
                     renderedTabs.push(index);
@@ -292,14 +340,9 @@
             });
         }
 
-        viewTabs.addEventListener('beforetabchange', function (e) {
-            preLoadTab(view, parseInt(e.detail.selectedTabIndex));
-        });
-        viewTabs.addEventListener('tabchange', function (e) {
-            loadTab(view, parseInt(e.detail.selectedTabIndex));
-        });
-
         view.addEventListener('viewbeforeshow', function (e) {
+
+            initTabs();
 
             if (!view.getAttribute('data-title')) {
 
@@ -326,27 +369,22 @@
             if (state.NowPlayingItem && state.NowPlayingItem.MediaType == 'Video') {
 
                 renderedTabs = [];
-                viewTabs.triggerTabChange();
+                mainTabsManager.getTabsElement().triggerTabChange();
             }
         }
 
         view.addEventListener('viewshow', function (e) {
             Events.on(playbackManager, 'playbackstop', onPlaybackStop);
-        });
-
-        view.addEventListener('viewbeforehide', function (e) {
-            Events.off(playbackManager, 'playbackstop', onPlaybackStop);
-        });
-
-        require(["headroom-window"], function (headroom) {
-            headroom.add(viewTabs);
-            self.headroom = headroom;
+            mainTabsManager.getTabsElement().triggerTabChange();
         });
 
         view.addEventListener('viewdestroy', function (e) {
-            if (self.headroom) {
-                self.headroom.remove(viewTabs);
-            }
+
+            tabControllers.forEach(function (t) {
+                if (t.destroy) {
+                    t.destroy();
+                }
+            });
         });
     };
 

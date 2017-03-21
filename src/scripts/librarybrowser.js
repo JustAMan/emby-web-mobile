@@ -159,21 +159,6 @@
                     LibraryBrowser.configureSwipeTabs(ownerpage, tabs);
                 }
 
-                ownerpage.addEventListener('viewbeforeshow', function () {
-                    if (tabs.triggerBeforeTabChange && this.firstTabIndex == null) {
-                        tabs.triggerBeforeTabChange();
-                    }
-                });
-
-                ownerpage.addEventListener('viewshow', function () {
-                    if (this.firstTabIndex) {
-                        tabs.selectedIndex(this.firstTabIndex);
-                        this.firstTabIndex = null;
-                    } else {
-                        tabs.triggerTabChange();
-                    }
-                });
-
                 tabs.addEventListener('beforetabchange', function (e) {
 
                     if (e.detail.previousIndex != null) {
@@ -190,28 +175,6 @@
 
                     newPanel.classList.add('is-active');
                 });
-            },
-
-            showTab: function (url, index) {
-
-                var afterNavigate = function () {
-
-                    document.removeEventListener('pageinit', afterNavigate);
-                    if (window.location.href.toLowerCase().indexOf(url.toLowerCase()) != -1) {
-                        this.firstTabIndex = index;
-                    }
-                };
-
-                if (window.location.href.toLowerCase().indexOf(url.toLowerCase()) != -1) {
-
-                    require(['viewManager'], function (viewManager) {
-                        afterNavigate.call(viewManager.currentView());
-                    });
-                } else {
-
-                    pageClassOn('pageinit', 'page', afterNavigate);
-                    Dashboard.navigate(url);
-                }
             },
 
             getArtistLinksHtml: function (artists, cssClass) {
