@@ -176,7 +176,7 @@
 
         function initTabs() {
 
-            var tabsReplaced = mainTabsManager.setTabs('tv', currentTabIndex, getTabs);
+            var tabsReplaced = mainTabsManager.setTabs(view, currentTabIndex, getTabs);
 
             if (tabsReplaced) {
                 var viewTabs = document.querySelector('.tabs-viewmenubar');

@@ -1,32 +1,32 @@
 ﻿define(['emby-tabs', 'emby-button'], function () {
     'use strict';
 
-    var tabType;
+    var tabOwnerView;
     var queryScope = document.querySelector('.skinHeader');
 
-    function setTabs(type, selectedIndex, builder) {
+    function setTabs(view, selectedIndex, builder) {
 
         var viewMenuBarTabs;
 
-        if (!type) {
-            if (tabType) {
+        if (!view) {
+            if (tabOwnerView) {
 
                 document.body.classList.remove('withTallToolbar');
                 viewMenuBarTabs = queryScope.querySelector('.viewMenuBarTabs');
                 viewMenuBarTabs.innerHTML = '';
                 viewMenuBarTabs.classList.add('hide');
-                tabType = null;
+                tabOwnerView = null;
             }
             return;
         }
 
         viewMenuBarTabs = queryScope.querySelector('.viewMenuBarTabs');
 
-        if (!tabType) {
+        if (!tabOwnerView) {
             viewMenuBarTabs.classList.remove('hide');
         }
 
-        if (tabType != type) {
+        if (tabOwnerView !== view) {
 
             var index = 0;
 
@@ -49,13 +49,13 @@
             }).join('') + '</div></div>';
 
             document.body.classList.add('withTallToolbar');
-            tabType = type;
+            tabOwnerView = view;
             return true;
         }
 
         viewMenuBarTabs.querySelector('[is="emby-tabs"]').selectedIndex(selectedIndex);
 
-        tabType = type;
+        tabOwnerView = view;
         return false;
     }
 

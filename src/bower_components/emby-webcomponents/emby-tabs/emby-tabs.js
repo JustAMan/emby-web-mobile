@@ -181,7 +181,6 @@
             passive: true,
             capture: true
         });
-        this.dispatchEvent(new CustomEvent("ready", {}));
     };
 
     EmbyTabs.focus = function () {
@@ -207,7 +206,7 @@
         initScroller(this);
 
         var current = this.querySelector('.' + activeButtonClass);
-        var currentIndex = current ? parseInt(current.getAttribute('data-index')) : parseInt(this.getAttribute('data-index') || '1');
+        var currentIndex = current ? parseInt(current.getAttribute('data-index')) : parseInt(this.getAttribute('data-index') || '0');
 
         if (currentIndex !== -1) {
 
@@ -220,6 +219,11 @@
             if (newTabButton) {
                 setActiveTabButton(this, newTabButton, current, false);
             }
+        }
+
+        if (!this.readyFired) {
+            this.readyFired = true;
+            this.dispatchEvent(new CustomEvent("ready", {}));
         }
     };
 

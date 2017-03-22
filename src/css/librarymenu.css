@@ -93,33 +93,7 @@
     display: none;
 }
 
-.libraryViewNav {
-    overflow: hidden;
-    z-index: 999;
-    text-align: center;
-    white-space: nowrap;
-    padding: 0 0 0;
-    display: flex;
-    display: block;
-    text-align: center;
-    margin: 0 auto;
-    align-items: center;
-    font-size: 92%;
-}
-
-.ui-body-b .libraryViewNav {
-    position: fixed;
-    right: 0;
-    left: 0;
-    top: 44px;
-}
-
-.libraryViewNav.bottom {
-    top: auto !important;
-    bottom: 0;
-}
-
-.viewMenuBar, .ui-body-b .libraryViewNav {
+.viewMenuBar {
     background-color: #101010;
     color: #fff;
 }
@@ -130,6 +104,7 @@
         flex-shrink: 0;
         width: 100%;
         align-items: center;
+        padding: .4em 0;
     }
 
 @supports ( (backdrop-filter: blur(10px)) or (-webkit-backdrop-filter: blur(10px)) ) {
@@ -145,10 +120,6 @@
     font-size: 13px;
 }
 
-.viewMenuBar .primaryIcons {
-    padding: .4em 0;
-}
-
 .withTallToolbar .primaryIcons {
     padding-top: 0 !important;
     padding-bottom: 0 !important;
@@ -157,6 +128,7 @@
 .viewMenuBarTabs {
     width: 100%;
     text-align: center;
+    font-size: 92%;
 }
 
 .viewMenuBar.semiTransparent {

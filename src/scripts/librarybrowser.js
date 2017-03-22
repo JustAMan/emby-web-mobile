@@ -160,7 +160,6 @@
                 }
 
                 tabs.addEventListener('beforetabchange', function (e) {
-
                     if (e.detail.previousIndex != null) {
                         panels[e.detail.previousIndex].classList.remove('is-active');
                     }
@@ -848,8 +847,23 @@
                 var hasbackdrop = false;
 
                 var itemBackdropElement = page.querySelector('#itemBackdrop');
+                var usePrimaryImage = item.Type === 'Episode';
+                usePrimaryImage = false;
 
-                if (item.BackdropImageTags && item.BackdropImageTags.length) {
+                if (usePrimaryImage && item.ImageTags && item.ImageTags.Primary) {
+
+                    imgUrl = ApiClient.getScaledImageUrl(item.Id, {
+                        type: "Primary",
+                        index: 0,
+                        maxWidth: screenWidth,
+                        tag: item.ImageTags.Primary
+                    });
+
+                    itemBackdropElement.classList.remove('noBackdrop');
+                    imageLoader.lazyImage(itemBackdropElement, imgUrl, false);
+                    hasbackdrop = true;
+                }
+                else if (item.BackdropImageTags && item.BackdropImageTags.length) {
 
                     imgUrl = ApiClient.getScaledImageUrl(item.Id, {
                         type: "Backdrop",

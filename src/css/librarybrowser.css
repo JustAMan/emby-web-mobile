@@ -254,13 +254,8 @@ span.itemCommunityRating:not(:empty) + .userDataIcons {
     position: relative;
 }
 
-.noSecondaryNavPage .itemBackdrop {
-    margin-top: -50px;
-}
-
 .noBackdrop {
     background: #181818;
-    height: 170px !important;
 }
 
 .itemBackdropContent {
@@ -399,14 +394,21 @@ span.itemCommunityRating:not(:empty) + .userDataIcons {
 }
 
 .emby-button.detailFloatingButton {
-    width: 56px !important;
-    height: 56px !important;
-    bottom: -28px;
     position: absolute;
-    right: 5%;
-    background-color: #52B54B !important;
+    background-color: rgba(0,0,0,.8) !important;
     z-index: 1;
+    top: 50%;
+    left: 50%;
+    margin: -2.4em 0 0 -2.4em;
+    border: 2.4px solid #eee;
+    border: 2.4px solid rgba(255,255,255,.7);
+    padding: .4em !important;
+    color: rgba(255, 255, 255, .8);
 }
+
+    .emby-button.detailFloatingButton i {
+        font-size: 3.5em;
+    }
 
 .emby-button.btnFloatingRecord {
     background-color: #cc3333 !important;
@@ -420,6 +422,10 @@ span.itemCommunityRating:not(:empty) + .userDataIcons {
 
     .itemBackdropContent {
         min-height: 0;
+    }
+
+    .itemDetailPage {
+        padding-top: 0 !important;
     }
 }
 
@@ -663,6 +669,10 @@ span.itemCommunityRating:not(:empty) + .userDataIcons {
 
     .alphabetPicker {
         display: none !important;
+    }
+
+    .itemBackdrop {
+        height: 52vh;
     }
 }
 

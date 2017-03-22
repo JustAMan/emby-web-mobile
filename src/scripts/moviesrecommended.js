@@ -249,13 +249,14 @@
 
         function initTabs() {
 
-            var tabsReplaced = mainTabsManager.setTabs('movies', currentTabIndex, getTabs);
+            var tabsReplaced = mainTabsManager.setTabs(view, currentTabIndex, getTabs);
 
             if (tabsReplaced) {
                 var viewTabs = document.querySelector('.tabs-viewmenubar');
 
                 viewTabs.addEventListener('beforetabchange', onBeforeTabChange);
                 viewTabs.addEventListener('tabchange', onTabChange);
+
                 libraryBrowser.configurePaperLibraryTabs(view, viewTabs, view.querySelectorAll('.pageTabContent'), [0, 1, 2, 4, 5]);
 
                 if (!viewTabs.triggerBeforeTabChange) {
@@ -361,6 +362,12 @@
                     view.setAttribute('data-title', Globalize.translate('TabMovies'));
                     LibraryMenu.setTitle(Globalize.translate('TabMovies'));
                 }
+            }
+
+            var tabs = mainTabsManager.getTabsElement();
+
+            if (tabs.triggerBeforeTabChange) {
+                tabs.triggerBeforeTabChange();
             }
         });
 

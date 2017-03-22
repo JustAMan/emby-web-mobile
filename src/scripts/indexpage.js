@@ -260,7 +260,7 @@
 
         function initTabs() {
 
-            var tabsReplaced = mainTabsManager.setTabs('home', currentTabIndex, getTabs);
+            var tabsReplaced = mainTabsManager.setTabs(view, currentTabIndex, getTabs);
 
             if (tabsReplaced) {
                 var viewTabs = document.querySelector('.tabs-viewmenubar');

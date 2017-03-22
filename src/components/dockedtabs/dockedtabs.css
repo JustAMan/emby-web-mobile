@@ -16,6 +16,7 @@
     text-align: center;
     border-color: transparent !important;
     border-width: 0 !important;
+    font-weight: normal !important;
 }
 
 .dockedtabs-tab-button {

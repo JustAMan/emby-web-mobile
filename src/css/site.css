@@ -161,10 +161,6 @@ div[data-role='page'] {
     transform: translateY(-100%);
 }
 
-.libraryViewNav.headroom--unpinned:not(.headroomDisabled) {
-    transform: translateY(-210%);
-}
-
 .hide {
     display: none !important;
 }

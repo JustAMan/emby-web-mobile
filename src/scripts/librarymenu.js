@@ -686,7 +686,12 @@
         setTabs: function (type, selectedIndex, builder) {
 
             require(['mainTabsManager'], function (mainTabsManager) {
-                mainTabsManager.setTabs(type, selectedIndex, builder);
+
+                if (type) {
+                    mainTabsManager.setTabs(viewManager.currentView(), selectedIndex, builder);
+                } else {
+                    mainTabsManager.setTabs(null);
+                }
             });
         },
 
