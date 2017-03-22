@@ -1973,5 +1973,7 @@
   "LabelAutomaticallyRefreshInternetMetadataEvery": "Automatically refresh metadata from the internet:",
   "Never": "Never",
   "EveryNDays": "Every {0} days",
-  "HeaderNewDevices": "New Devices"
+  "HeaderNewDevices": "New Devices",
+  "ButtonAddTag": "Add Tag",
+  "OptionNextUpFavoritesOnly": "Limit Next Up To Favorites Only"
 }

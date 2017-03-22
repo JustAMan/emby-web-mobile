@@ -115,6 +115,7 @@
     function loadForm(page, user, userSettings) {
 
         page.querySelector('.chkHidePlayedFromLatest').checked = user.Configuration.HidePlayedInLatest || false;
+        page.querySelector('.chkNextUpFavoritesOnly').checked = user.Configuration.NextUpFavoritesOnly || false;
 
         page.querySelector('#selectHomeSection1').value = userSettings.get('homesection0') || '';
         page.querySelector('#selectHomeSection2').value = userSettings.get('homesection1') || '';
@@ -161,6 +162,7 @@
     function saveUser(page, user, userSettingsInstance) {
 
         user.Configuration.HidePlayedInLatest = page.querySelector('.chkHidePlayedFromLatest').checked;
+        user.Configuration.NextUpFavoritesOnly = page.querySelector('.chkNextUpFavoritesOnly').checked;
 
         user.Configuration.LatestItemsExcludes = getCheckboxItems(".chkIncludeInLatest", page, false).map(function (i) {
 
